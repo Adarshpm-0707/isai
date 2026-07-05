@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-maroon-light: #8B1A24;
+  --color-maroon: #6B0F1A;
+  --color-maroon-dark: #4D0A11;
+  
+  --color-gold-light: #E2BD45;
+  --color-gold: #C9A227;
+  --color-gold-dark: #9F7E1B;
+  
+  --color-ivory: #FFF8F0;
+  --color-ivory-dark: #EADFC9;
+  
+  --font-playfair: "Playfair Display", serif;
+  --font-sans: "Montserrat", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-ivory text-gray-900 font-sans antialiased overflow-x-hidden min-h-screen flex flex-col;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-playfair tracking-wide;
+  }
+}
+
+/* Custom scrollbars and transition defaults */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FFF8F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #6B0F1A;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4D0A11;
+}
