@@ -23,30 +23,29 @@ export default function ProductCard({ product }) {
       className="group flex flex-col bg-white overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-500"
     >
       {/* ── IMAGE AREA ── */}
-      <Link
-        to={`/products/${product.id}`}
-        className="relative block w-full overflow-hidden bg-[#F5F0EB] h-80 sm:h-72 md:h-80 lg:h-72 xl:h-80"
-      >
-        <img
-          src={primaryImage}
-          alt={product.name || 'Saree'}
-          onError={() => setImgError(true)}
-          className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-        />
+      <div className="relative block w-full overflow-hidden bg-[#F5F0EB] h-80 sm:h-72 md:h-80 lg:h-72 xl:h-80">
+        <Link to={`/products/${product.id}`} className="absolute inset-0 z-0">
+          <img
+            src={primaryImage}
+            alt={product.name || 'Saree'}
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+          />
+        </Link>
 
         {/* Dark scrim on hover for action buttons */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all duration-400" />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all duration-400 pointer-events-none" />
 
         {/* Category badge */}
         {product.category && (
-          <span className="absolute top-3 left-3 bg-[#C9A227] text-[#1a1a1a] font-sans font-bold text-[9px] uppercase tracking-[0.2em] px-2.5 py-1 z-10">
+          <span className="absolute top-3 left-3 bg-[#C9A227] text-[#1a1a1a] font-sans font-bold text-[9px] uppercase tracking-[0.2em] px-2.5 py-1 z-10 pointer-events-none">
             {product.category}
           </span>
         )}
 
         {/* Sold Out overlay */}
         {product.stock <= 0 && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10 pointer-events-none">
             <span className="font-sans font-bold text-xs uppercase tracking-[0.2em] text-white border border-white/60 px-5 py-2">
               Sold Out
             </span>
@@ -60,7 +59,7 @@ export default function ProductCard({ product }) {
               onClick={(e) => { e.preventDefault(); addToCart(product, 1); }}
               type="button"
               title="Add to Cart"
-              className="flex items-center gap-2 bg-[#6B0F1A] text-white font-sans font-bold text-[10px] uppercase tracking-[0.2em] px-4 py-2 hover:bg-[#C9A227] hover:text-[#1a1a1a] transition-colors duration-300"
+              className="flex items-center gap-2 bg-[#6B0F1A] text-white font-sans font-bold text-[10px] uppercase tracking-[0.2em] px-4 py-2 hover:bg-[#C9A227] hover:text-[#1a1a1a] transition-colors duration-300 cursor-pointer"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               Add to Bag
@@ -74,7 +73,7 @@ export default function ProductCard({ product }) {
             </Link>
           </div>
         )}
-      </Link>
+      </div>
 
       {/* ── DETAILS ── */}
       <div className="p-4 border-t border-gray-100 space-y-2">
