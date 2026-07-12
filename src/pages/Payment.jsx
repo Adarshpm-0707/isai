@@ -99,7 +99,7 @@ export default function Payment() {
       key: 'rzp_test_placeholder_key', // Mock/test key placeholder
       amount: cartTotal * 100, // in paise
       currency: 'INR',
-      name: 'Isai Sarees',
+      name: 'Isai Tarang',
       description: 'Handcrafted Heirlooms',
       image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=100',
       handler: async function (response) {

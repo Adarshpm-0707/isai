@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Compass, Mail, Phone, MapPin } from 'lucide-react';
+import logoImg from '../../assets/ISAI.png';
 
 export default function Footer() {
   return (
@@ -9,13 +10,16 @@ export default function Footer() {
         
         {/* Brand Column */}
         <div className="space-y-4">
-          <Link to="/" className="flex flex-col">
-            <span className="font-playfair text-2xl font-bold tracking-widest text-gold leading-none">
-              ISAI
-            </span>
-            <span className="font-sans text-[9px] tracking-[0.25em] text-ivory/80 uppercase mt-0.5">
-              Handcrafted Sarees
-            </span>
+          <Link to="/" className="flex items-center gap-3.5">
+            <img src={logoImg} alt="Isai Tarang Logo" className="h-12 w-auto object-contain" />
+            <div className="flex flex-col">
+              <span className="font-playfair text-xl font-bold tracking-widest text-gold leading-none">
+                ISAI TARANG
+              </span>
+              <span className="font-sans text-[9px] tracking-[0.25em] text-ivory/80 uppercase mt-0.5">
+                Handcrafted Sarees
+              </span>
+            </div>
           </Link>
           <p className="text-xs text-ivory/60 leading-relaxed font-light">
             We weave heritage and love into every thread. Discover sarees made from authentic pure silks, meticulously crafted by master weavers.
@@ -80,7 +84,7 @@ export default function Footer() {
             </li>
             <li className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-gold flex-shrink-0" />
-              <span>heritage@isaisarees.com</span>
+              <span>heritage@isaitarang.com</span>
             </li>
           </ul>
         </div>
@@ -89,7 +93,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-gold/10 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-ivory/40 text-center md:text-left">
-        <p>&copy; {new Date().getFullYear()} Isai Sarees Private Limited. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Isai Tarang Private Limited. All rights reserved.</p>
         <p className="flex items-center justify-center md:justify-start gap-1">
           Designed with passion <Compass className="w-3 h-3 text-gold" /> Woven in India
         </p>

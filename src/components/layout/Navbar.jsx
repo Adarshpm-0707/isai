@@ -4,6 +4,7 @@ import { Menu, ShoppingBag, User, LogOut, Settings } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import useCart from '../../hooks/useCart';
 import MobileMenu from './MobileMenu';
+import logoImg from '../../assets/ISAI.png';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -18,13 +19,16 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <Link to="/" className="flex flex-col">
-                <span className="font-playfair text-xl sm:text-2xl font-bold tracking-widest text-maroon leading-none">
-                  ISAI
-                </span>
-                <span className="font-sans text-[8px] sm:text-[9px] tracking-[0.25em] text-gold uppercase mt-0.5">
-                  Handcrafted Sarees
-                </span>
+              <Link to="/" className="flex items-center gap-3.5">
+                <img src={logoImg} alt="Isai Tarang Logo" className="h-10 sm:h-12 w-auto object-contain" />
+                <div className="flex flex-col">
+                  <span className="font-playfair text-lg sm:text-xl font-bold tracking-widest text-maroon leading-none">
+                    ISAI TARANG
+                  </span>
+                  <span className="font-sans text-[8px] sm:text-[9px] tracking-[0.25em] text-gold uppercase mt-0.5">
+                    Handcrafted Sarees
+                  </span>
+                </div>
               </Link>
             </div>
 

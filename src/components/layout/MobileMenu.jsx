@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ShoppingBag, LogIn, LogOut, Clipboard, Settings } from 'lucide-react';
+import logoImg from '../../assets/ISAI.png';
 
 export default function MobileMenu({ isOpen, onClose, user, role, cartCount, logout }) {
   return (
@@ -27,9 +28,12 @@ export default function MobileMenu({ isOpen, onClose, user, role, cartCount, log
           >
             {/* Drawer Header */}
             <div className="flex justify-between items-center pb-4 border-b border-gold/15">
-              <span className="font-playfair text-xl font-bold text-maroon tracking-widest uppercase">
-                Isai Sarees
-              </span>
+              <div className="flex items-center gap-2">
+                <img src={logoImg} alt="Isai Tarang Logo" className="h-8 w-auto object-contain" />
+                <span className="font-playfair text-lg font-bold text-maroon tracking-widest uppercase">
+                  Isai Tarang
+                </span>
+              </div>
               <button
                 onClick={onClose}
                 type="button"

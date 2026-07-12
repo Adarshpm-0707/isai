@@ -96,7 +96,7 @@ export default function About() {
           </blockquote>
           <div className="space-y-5 font-sans text-[15px] text-gray-600 leading-relaxed font-light">
             <p>
-              Founded with a vision to connect rural master weavers directly with connoisseurs of fine silk, Isai has championed handloom traditions since 1994. We believe in slow fashion — a single Banarasi or Kanchipuram saree takes 15 days to 3 months of meticulous handcrafting.
+              Founded with a vision to connect rural master weavers directly with connoisseurs of fine silk, Isai Tarang has championed handloom traditions since 1994. We believe in slow fashion — a single Banarasi or Kanchipuram saree takes 15 days to 3 months of meticulous handcrafting.
             </p>
             <p>
               We work closely with weaving clusters in Varanasi, Kanchipuram, Chanderi, and Bengal, ensuring ethical wages, fair trade, and complete structural support for our artisan partners.
