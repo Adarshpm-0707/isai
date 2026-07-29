@@ -149,9 +149,8 @@ export default function Payment() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-        <Loader />
-        <p className="font-sans text-xs uppercase tracking-widest text-maroon animate-pulse">
-          Processing transaction... do not reload.
+        <p className="font-sans text-[#6B0F1A] font-bold text-sm uppercase tracking-widest animate-pulse">
+          Processing transaction... Please wait.
         </p>
       </div>
     );

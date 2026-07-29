@@ -89,7 +89,7 @@ export const MOCK_PRODUCTS = [
 ];
 
 export default function useProducts() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(MOCK_PRODUCTS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 

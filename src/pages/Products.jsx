@@ -1,56 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import useProducts from '../hooks/useProducts';
 import ProductCard from '../components/reusable/ProductCard';
-import Loader from '../components/reusable/Loader';
 import EmptyState from '../components/reusable/EmptyState';
-import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
+import { SlidersHorizontal, Search, ChevronDown, Sparkles, Grid3X3, Columns2, RefreshCw } from 'lucide-react';
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 9;
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get('category') || 'All';
 
-  const { products, loading, fetchProducts, getCategories } = useProducts();
+  const { products, fetchProducts, getCategories } = useProducts();
 
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-  const [priceRange, setPriceRange] = useState(50000);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceRange, setPriceRange] = useState(100000);
   const [sortBy, setSortBy] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [gridCols, setGridCols] = useState(3); // 3 for 3-col grid, 2 for 2-col editorial gallery
 
-  // Fetch all products once on mount
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
 
-  // Sync selectedCategory state with URL query parameters
   useEffect(() => {
     setSelectedCategory(categoryParam);
     setCurrentPage(1);
   }, [categoryParam]);
 
-  // Client-side filtering logic (Instant response, 0ms latency)
-  const filteredProducts = products
-    .filter((p) => {
-      const matchCategory = selectedCategory === 'All' || p.category === selectedCategory;
-      const matchPrice = p.price <= priceRange;
-      return matchCategory && matchPrice;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'price-low-high') return a.price - b.price;
-      if (sortBy === 'price-high-low') return b.price - a.price;
-      return new Date(b.created_at) - new Date(a.created_at);
+  // Compute category count map
+  const categoryCounts = useMemo(() => {
+    const counts = { All: products.length };
+    (products || []).forEach(p => {
+      if (p.category) {
+        counts[p.category] = (counts[p.category] || 0) + 1;
+      }
     });
+    return counts;
+  }, [products]);
+
+  // Filtering & Sorting
+  const filteredProducts = useMemo(() => {
+    return (products || [])
+      .filter((p) => {
+        const matchCategory = 
+          !selectedCategory || 
+          selectedCategory === 'All' || 
+          (p.category && p.category.toLowerCase() === selectedCategory.toLowerCase());
+        
+        const matchPrice = (p.price || 0) <= priceRange;
+
+        const matchSearch = !searchQuery.trim() || 
+          (p.name && p.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+
+        return matchCategory && matchPrice && matchSearch;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'price-low-high') return a.price - b.price;
+        if (sortBy === 'price-high-low') return b.price - a.price;
+        return new Date(b.created_at || Date.now()) - new Date(a.created_at || Date.now());
+      });
+  }, [products, selectedCategory, priceRange, searchQuery, sortBy]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const paginatedProducts = filteredProducts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const paginatedProducts = useMemo(() => {
+    return filteredProducts.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE
+    );
+  }, [filteredProducts, currentPage]);
 
   const handleCategoryChange = (cat) => {
     setSearchParams({ category: cat });
@@ -58,289 +81,312 @@ export default function Products() {
     setCurrentPage(1);
   };
 
+  const resetFilters = () => {
+    setSearchParams({ category: 'All' });
+    setSelectedCategory('All');
+    setSearchQuery('');
+    setPriceRange(100000);
+    setSortBy('newest');
+    setCurrentPage(1);
+  };
+
   const SORT_OPTIONS = [
-    { value: 'newest', label: 'Newest First' },
-    { value: 'price-low-high', label: 'Price: Low → High' },
-    { value: 'price-high-low', label: 'Price: High → Low' },
+    { value: 'newest', label: 'Newest Arrivals' },
+    { value: 'price-low-high', label: 'Price: Lowest First' },
+    { value: 'price-high-low', label: 'Price: Highest First' },
   ];
 
-  const currentSortLabel = SORT_OPTIONS.find(o => o.value === sortBy)?.label || 'Sort';
+  const categoriesList = ['All', ...getCategories().filter(c => c !== 'All')];
 
   return (
-    <div className="bg-[#FAF9F6] text-[#1a1a1a] min-h-screen">
-
-      {/* ─── PAGE HEADER ─── */}
-      <section className="relative bg-[#0d0d0d] py-24 overflow-hidden">
-        <motion.img
-          initial={{ scale: 1.1, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.25 }}
-          transition={{ duration: 1.8 }}
-          src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=1600"
-          className="absolute inset-0 w-full h-full object-cover object-top"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d0d]/90 to-[#0d0d0d]/60" />
-        <div className="relative z-10 max-w-7xl mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+    <div className="bg-[#FAF6F0] text-[#1B2621] min-h-screen pb-24 selection:bg-[#C56E4E] selection:text-white">
+      
+      {/* ─── 1. HERO ARCHIVE HEADER (ANIMATED MARQUEE & EDITORIAL TEXT) ─── */}
+      <section className="relative pt-32 pb-16 px-6 overflow-hidden bg-[#F4EFEA] border-b border-[#1B2621]/10">
+        
+        {/* Animated Moving Background Text Stream */}
+        <div className="absolute top-1/2 -translate-y-1/2 inset-x-0 flex items-center pointer-events-none select-none overflow-hidden opacity-[0.03]">
+          <motion.div 
+            animate={{ x: [0, -1600] }}
+            transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+            className="whitespace-nowrap flex gap-12 text-[14vw] font-black uppercase text-[#1B2621] tracking-tighter"
           >
-            <div className="flex items-center gap-4 mb-4">
-              <div className="h-[1px] w-10 bg-[#C9A227]" />
-              <span className="text-[#C9A227] tracking-[0.4em] text-[10px] font-sans font-bold uppercase">
-                Handcrafted Collections
-              </span>
-            </div>
-            <h1 className="font-playfair text-5xl md:text-6xl text-white leading-tight">
-              The <em className="not-italic text-[#C9A227]">Archive</em>
-            </h1>
-            <p className="font-sans text-white/40 text-sm mt-3 uppercase tracking-[0.15em]">
-              Drape yourself in authentic, heirloom heritage
-            </p>
+            <span>LOOM ANTHOLOGY • SILK MARK AUTHENTIC • VARANASI & KANCHIPURAM •</span>
+            <span>LOOM ANTHOLOGY • SILK MARK AUTHENTIC • VARANASI & KANCHIPURAM •</span>
           </motion.div>
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Badge */}
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-[#C56E4E]/40 bg-[#C56E4E]/10 backdrop-blur-sm mb-6">
+                <Sparkles size={13} className="text-[#C56E4E] animate-pulse" />
+                <span className="text-[10px] font-bold tracking-[0.45em] uppercase text-[#1B2621]">
+                  Est. 1994 • Silk Mark Certified Vault
+                </span>
+              </div>
+
+              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-playfair font-light leading-[0.95] tracking-tight">
+                The Royal <br />
+                <span className="italic font-normal bg-gradient-to-r from-[#C56E4E] via-[#6B0F1A] to-[#C56E4E] bg-clip-text text-transparent">
+                  Anthology.
+                </span>
+              </h1>
+            </motion.div>
+            
+            {/* Search Box */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="w-full lg:w-80"
+            >
+              <div className="relative">
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input 
+                  type="text"
+                  placeholder="Search by weave, color, motif..."
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                  className="w-full pl-11 pr-4 py-3.5 bg-white border border-[#1B2621]/15 rounded-full text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#C56E4E] transition-all shadow-sm"
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 hover:text-black"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ─── MOBILE FILTER DRAWER ─── */}
-      <AnimatePresence>
-        {showMobileFilters && (
-          <div className="fixed inset-0 z-50 lg:hidden">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowMobileFilters(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'tween', duration: 0.3 }}
-              className="absolute top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-white p-8 overflow-y-auto space-y-8"
+      {/* ─── 2. CATEGORY PILL FILTER STRIP ─── */}
+      <section className="bg-white border-b border-[#1B2621]/10 sticky top-0 z-30 backdrop-blur-md bg-white/90">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+          
+          {/* Scrollable Category Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            {categoriesList.map((cat) => {
+              const isActive = selectedCategory.toLowerCase() === cat.toLowerCase();
+              const count = categoryCounts[cat] || 0;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryChange(cat)}
+                  className={`whitespace-nowrap px-5 py-2.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase transition-all flex items-center gap-2 ${
+                    isActive
+                      ? 'bg-[#1B2621] text-white shadow-md'
+                      : 'bg-[#FAF6F0] text-gray-600 hover:bg-[#1B2621]/10 hover:text-[#1B2621]'
+                  }`}
+                >
+                  <span>{cat}</span>
+                  <span className={`text-[9px] px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-black/5 text-gray-500'}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Controls Right */}
+          <div className="hidden md:flex items-center gap-4">
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-[10px] font-bold tracking-[0.2em] uppercase transition-all ${
+                showFilters ? 'border-[#C56E4E] bg-[#C56E4E]/10 text-[#C56E4E]' : 'border-[#1B2621]/20 text-[#1B2621] hover:border-black'
+              }`}
             >
-              <div className="flex justify-between items-center">
-                <h3 className="font-playfair text-xl font-bold text-[#6B0F1A]">Filters</h3>
-                <button onClick={() => setShowMobileFilters(false)}>
-                  <X className="w-5 h-5 text-gray-400 hover:text-[#6B0F1A]" />
+              <SlidersHorizontal size={13} />
+              <span>Filters</span>
+            </button>
+
+            {/* Grid Layout Switcher */}
+            <div className="flex items-center border border-[#1B2621]/20 rounded-full p-1 bg-[#FAF6F0]">
+              <button 
+                onClick={() => setGridCols(3)}
+                className={`p-1.5 rounded-full transition-colors ${gridCols === 3 ? 'bg-[#1B2621] text-white' : 'text-gray-400 hover:text-black'}`}
+                title="3-Column Grid"
+              >
+                <Grid3X3 size={14} />
+              </button>
+              <button 
+                onClick={() => setGridCols(2)}
+                className={`p-1.5 rounded-full transition-colors ${gridCols === 2 ? 'bg-[#1B2621] text-white' : 'text-gray-400 hover:text-black'}`}
+                title="2-Column Gallery"
+              >
+                <Columns2 size={14} />
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ─── 3. EXPANDABLE FILTER & SORT BAR ─── */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.section 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-[#F4EFEA] border-b border-[#1B2621]/10 overflow-hidden"
+          >
+            <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+              
+              {/* Price Filter */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500">Price Ceiling</span>
+                  <span className="text-sm font-playfair font-bold text-[#C56E4E]">Up to ₹{priceRange.toLocaleString('en-IN')}</span>
+                </div>
+                <input 
+                  type="range"
+                  min="2000"
+                  max="100000"
+                  step="5000"
+                  value={priceRange}
+                  onChange={(e) => { setPriceRange(Number(e.target.value)); setCurrentPage(1); }}
+                  className="w-full accent-[#C56E4E] bg-gray-200 h-1 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+
+              {/* Sort By */}
+              <div>
+                <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 block mb-3">Sort Order</span>
+                <div className="relative">
+                  <button 
+                    onClick={() => setSortOpen(!sortOpen)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-white border border-[#1B2621]/15 rounded-full text-xs font-bold uppercase tracking-wider text-[#1B2621]"
+                  >
+                    <span>{SORT_OPTIONS.find(o => o.value === sortBy)?.label}</span>
+                    <ChevronDown size={14} className={sortOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                  </button>
+
+                  <AnimatePresence>
+                    {sortOpen && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 overflow-hidden"
+                      >
+                        {SORT_OPTIONS.map(opt => (
+                          <button
+                            key={opt.value}
+                            onClick={() => { setSortBy(opt.value); setSortOpen(false); }}
+                            className={`w-full text-left px-5 py-3 text-xs uppercase tracking-wider font-bold hover:bg-[#FAF6F0] transition-colors ${sortBy === opt.value ? 'text-[#C56E4E]' : 'text-gray-600'}`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              {/* Reset Action */}
+              <div className="flex items-center justify-end">
+                <button 
+                  onClick={resetFilters}
+                  className="flex items-center gap-2 px-6 py-3 border border-[#C56E4E] text-[#C56E4E] hover:bg-[#C56E4E] hover:text-white rounded-full text-[10px] font-bold uppercase tracking-[0.3em] transition-all"
+                >
+                  <RefreshCw size={12} />
+                  Reset All Filters
                 </button>
               </div>
-              <FilterPanel
-                categories={getCategories()}
-                selectedCategory={selectedCategory}
-                onCategoryChange={(cat) => { handleCategoryChange(cat); setShowMobileFilters(false); }}
-                priceRange={priceRange}
-                onPriceChange={setPriceRange}
-                onPageReset={() => setCurrentPage(1)}
-              />
-            </motion.div>
-          </div>
+
+            </div>
+          </motion.section>
         )}
       </AnimatePresence>
 
-      {/* ─── MAIN LAYOUT ─── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+      {/* ─── 4. MAIN PRODUCTS DISPLAY GRID ─── */}
+      <main className="max-w-7xl mx-auto px-6 pt-12">
+        
+        {/* Results Header Count */}
+        <div className="flex justify-between items-center mb-10 pb-4 border-b border-[#1B2621]/10">
+          <p className="text-xs uppercase tracking-[0.3em] font-bold text-gray-500">
+            Showing <span className="text-[#1B2621]">{filteredProducts.length}</span> Heirloom Masterpiece{filteredProducts.length === 1 ? '' : 's'}
+          </p>
 
-        {/* Horizontal Category Chips (Mobile/Tablet only for instant access) */}
-        <div className="flex lg:hidden overflow-x-auto pb-4 mb-8 -mx-4 px-4 gap-2 scrollbar-none">
-          {getCategories().map((cat) => (
-            <button
-              key={cat}
-              onClick={() => handleCategoryChange(cat)}
-              className={`flex-shrink-0 font-sans text-[11px] font-bold uppercase tracking-wider px-5 py-2.5 rounded-full border transition-all ${
-                selectedCategory === cat
-                  ? 'bg-[#6B0F1A] text-white border-[#6B0F1A]'
-                  : 'bg-white text-gray-600 border-gray-200 active:border-[#6B0F1A]'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Toolbar row */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-10 pb-6 border-b border-gray-200">
-          <div className="flex items-center gap-4">
-            {/* Mobile filter trigger */}
-            <button
-              onClick={() => setShowMobileFilters(true)}
-              className="lg:hidden flex items-center gap-2 font-sans font-bold text-xs uppercase tracking-[0.2em] text-[#6B0F1A] border border-[#6B0F1A]/30 px-4 py-2.5 hover:bg-[#6B0F1A] hover:text-white transition-all"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              Filter
-            </button>
-            <p className="font-sans text-xs text-gray-400 tracking-wide">
-              <span className="font-bold text-[#1a1a1a]">{filteredProducts.length}</span> results
-              {selectedCategory !== 'All' && (
-                <span> in <span className="text-[#C9A227] font-bold">{selectedCategory}</span></span>
-              )}
-            </p>
-          </div>
-
-          {/* Sort dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setSortOpen(!sortOpen)}
-              className="flex items-center gap-2 font-sans text-xs font-bold uppercase tracking-[0.2em] border border-gray-200 px-4 py-2.5 bg-white hover:border-[#C9A227] transition-colors"
-            >
-              {currentSortLabel}
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortOpen ? 'rotate-180' : ''}`} />
-            </button>
-            <AnimatePresence>
-              {sortOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-100 shadow-lg z-20"
-                >
-                  {SORT_OPTIONS.map(opt => (
-                    <button
-                      key={opt.value}
-                      onClick={() => { setSortBy(opt.value); setCurrentPage(1); setSortOpen(false); }}
-                      className={`w-full text-left px-4 py-3 font-sans text-xs uppercase tracking-[0.15em] hover:bg-[#FAF9F6] transition-colors ${
-                        sortBy === opt.value ? 'text-[#C9A227] font-bold' : 'text-gray-600'
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-12">
-
-          {/* ─── SIDEBAR FILTERS (desktop) ─── */}
-          <aside className="hidden lg:block space-y-10">
-            <FilterPanel
-              categories={getCategories()}
-              selectedCategory={selectedCategory}
-              onCategoryChange={handleCategoryChange}
-              priceRange={priceRange}
-              onPriceChange={setPriceRange}
-              onPageReset={() => setCurrentPage(1)}
-            />
-          </aside>
-
-          {/* ─── PRODUCTS GRID ─── */}
-          <div>
-            {paginatedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {paginatedProducts.map((product) => (
-                  <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    <ProductCard product={product} />
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <EmptyState
-                title="No Sarees Match Filters"
-                message="Adjust the price range or select a different category."
-                actionText="Reset Filters"
-                actionPath="/products"
-              />
-            )}
-
-            {/* ─── PAGINATION ─── */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 pt-16 border-t border-gray-100 mt-16">
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(p => p - 1)}
-                  className="w-10 h-10 flex items-center justify-center border border-gray-200 font-sans text-xs font-bold text-gray-500 hover:border-[#6B0F1A] hover:text-[#6B0F1A] disabled:opacity-30 transition-all"
-                >
-                  ←
-                </button>
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`w-10 h-10 flex items-center justify-center font-sans text-xs font-bold border transition-all ${
-                      currentPage === i + 1
-                        ? 'bg-[#6B0F1A] text-white border-[#6B0F1A]'
-                        : 'border-gray-200 text-gray-500 hover:border-[#6B0F1A] hover:text-[#6B0F1A]'
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-                <button
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(p => p + 1)}
-                  className="w-10 h-10 flex items-center justify-center border border-gray-200 font-sans text-xs font-bold text-gray-500 hover:border-[#6B0F1A] hover:text-[#6B0F1A] disabled:opacity-30 transition-all"
-                >
-                  →
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── FILTER PANEL (shared between desktop sidebar + mobile drawer) ─── */
-function FilterPanel({ categories, selectedCategory, onCategoryChange, priceRange, onPriceChange, onPageReset }) {
-  return (
-    <>
-      {/* Category filter */}
-      <div className="space-y-4">
-        <h4 className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">
-          Category
-        </h4>
-        <div className="flex flex-col gap-1">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => onCategoryChange(cat)}
-              className={`text-left font-sans text-xs py-2 px-3 transition-all flex items-center gap-2 ${
-                selectedCategory === cat
-                  ? 'bg-[#6B0F1A] text-white font-bold'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-[#6B0F1A]'
-              }`}
-            >
-              {selectedCategory === cat && (
-                <span className="w-1 h-3 bg-[#C9A227] flex-shrink-0" />
-              )}
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Price range slider */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h4 className="font-sans text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400">
-            Max Price
-          </h4>
-          <span className="font-sans text-xs font-bold text-[#6B0F1A]">
-            ₹{priceRange.toLocaleString('en-IN')}
+          <span className="text-[11px] font-playfair italic text-gray-400">
+            Page {currentPage} of {totalPages || 1}
           </span>
         </div>
-        <input
-          type="range"
-          min="2000"
-          max="50000"
-          step="1000"
-          value={priceRange}
-          onChange={(e) => { onPriceChange(parseInt(e.target.value)); onPageReset(); }}
-          className="w-full h-[2px] bg-gray-200 rounded-full appearance-none cursor-pointer accent-[#6B0F1A]"
-        />
-        <div className="flex justify-between text-[10px] text-gray-400 font-sans">
-          <span>₹2,000</span>
-          <span>₹50,000</span>
-        </div>
-      </div>
-    </>
+
+        {paginatedProducts.length > 0 ? (
+          <div className={`grid grid-cols-1 ${gridCols === 2 ? 'sm:grid-cols-2 gap-12' : 'sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16'}`}>
+            {paginatedProducts.map((product, idx) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: (idx % 3) * 0.08 }}
+              >
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-20 text-center">
+            <EmptyState
+              title="No Sarees Found"
+              message="No heirloom pieces match your selected filter criteria."
+              actionText="Reset Filters"
+              actionPath="#"
+              onAction={resetFilters}
+            />
+          </div>
+        )}
+
+        {/* ─── 5. PAGINATION ─── */}
+        {totalPages > 1 && (
+          <div className="mt-24 flex justify-center items-center gap-4 border-t border-[#1B2621]/10 pt-12">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              className="px-6 py-3 rounded-full border border-[#1B2621]/20 text-[10px] font-bold uppercase tracking-[0.3em] disabled:opacity-20 hover:border-[#C56E4E] hover:text-[#C56E4E] transition-all"
+            >
+              Prev
+            </button>
+            
+            <div className="flex gap-2">
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`w-9 h-9 rounded-full text-xs font-bold transition-all ${
+                    currentPage === i + 1
+                      ? 'bg-[#1B2621] text-white shadow-md'
+                      : 'bg-white text-gray-600 hover:bg-[#1B2621]/10'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="px-6 py-3 rounded-full border border-[#1B2621]/20 text-[10px] font-bold uppercase tracking-[0.3em] disabled:opacity-20 hover:border-[#C56E4E] hover:text-[#C56E4E] transition-all"
+            >
+              Next
+            </button>
+          </div>
+        )}
+      </main>
+
+    </div>
   );
 }

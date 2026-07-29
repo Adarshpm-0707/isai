@@ -56,11 +56,7 @@ export default function ProductDetails() {
     .filter((p) => p.id !== id)
     .slice(0, 3);
 
-  if (loading) {
-    return <Loader fullPage />;
-  }
-
-  if (!product) {
+  if (!product && !loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center space-y-6">
         <h2 className="font-playfair text-3xl font-bold text-maroon uppercase">Saree Not Found</h2>

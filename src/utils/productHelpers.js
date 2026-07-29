@@ -1,6 +1,12 @@
 // Reliably gets the primary image from a product object.
-// Handles: real image arrays, JSON-stringified arrays from Supabase, and category-based fallbacks.
+// Handles: product.image, real image arrays, JSON-stringified arrays from Supabase, and category-based fallbacks.
 export function getProductImage(product) {
+  if (!product) return 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=700';
+
+  if (typeof product.image === 'string' && product.image.trim().startsWith('http')) {
+    return product.image.trim();
+  }
+
   let images = product?.images;
 
   // Handle Supabase returning images as a JSON string
@@ -8,7 +14,6 @@ export function getProductImage(product) {
     try {
       images = JSON.parse(images);
     } catch {
-      // If it's a plain URL string, use it directly
       if (images.startsWith('http')) return images;
       images = null;
     }

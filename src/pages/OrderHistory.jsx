@@ -41,11 +41,7 @@ export default function OrderHistory() {
     fetchOrders();
   }, [user]);
 
-  if (loading) {
-    return <Loader fullPage />;
-  }
-
-  if (orders.length === 0) {
+  if (orders.length === 0 && !loading) {
     return (
       <EmptyState
         title="No Orders Placed Yet"

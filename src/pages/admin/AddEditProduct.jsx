@@ -155,10 +155,6 @@ export default function AddEditProduct() {
     }
   };
 
-  if (fetching) {
-    return <Loader fullPage />;
-  }
-
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8">
       {/* Header back button */}
