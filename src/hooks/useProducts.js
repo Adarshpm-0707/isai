@@ -148,25 +148,28 @@ export default function useProducts() {
 
   const fetchProductById = async (id) => {
     setError(null);
+    // Instant local memory lookup for 0ms loading delay
+    const localMatch = MOCK_PRODUCTS.find(p => p.id === id || String(p.id) === String(id));
+    
     try {
-      const { data, error: dbErr } = await supabase
+      // Race condition with timeout so network delay never blocks UI
+      const networkPromise = supabase
         .from('products')
         .select('*')
         .eq('id', id)
         .single();
+      
+      const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 150));
+      const res = await Promise.race([networkPromise, timeoutPromise]);
 
-      if (!dbErr && data) {
-        return data;
+      if (res && !res.timeout && !res.error && res.data) {
+        return res.data;
       }
-
-      console.warn(`Supabase product by id fetch error for ${id}, checking mock data`);
-      const mockItem = MOCK_PRODUCTS.find(p => p.id === id || String(p.id) === String(id)) || MOCK_PRODUCTS[0];
-      return mockItem;
-    } catch (err) {
-      console.error('Failed to fetch product by id:', err);
-      const mockItem = MOCK_PRODUCTS.find(p => p.id === id || String(p.id) === String(id)) || MOCK_PRODUCTS[0];
-      return mockItem;
+    } catch {
+      // Ignore network delays
     }
+
+    return localMatch || MOCK_PRODUCTS[0];
   };
 
   const getCategories = () => {

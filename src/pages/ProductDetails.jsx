@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import useProducts from '../hooks/useProducts';
+import useProducts, { MOCK_PRODUCTS } from '../hooks/useProducts';
 import useCart from '../hooks/useCart';
 import ImageGallery from '../components/reusable/ImageGallery';
 import QtySelector from '../components/reusable/QtySelector';
 import PriceTag from '../components/reusable/PriceTag';
 import Badge from '../components/reusable/Badge';
-import Loader from '../components/reusable/Loader';
 import ProductCard from '../components/reusable/ProductCard';
 import SectionHeading from '../components/reusable/SectionHeading';
 import Button from '../components/reusable/Button';
+import { getProductImageList } from '../utils/productHelpers';
 import { ShoppingBag, ArrowLeft, RefreshCw, ShieldCheck } from 'lucide-react';
 
 export default function ProductDetails() {
@@ -17,30 +17,25 @@ export default function ProductDetails() {
   const { addToCart } = useCart();
   const { fetchProductById, fetchProducts, products } = useProducts();
 
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Instantly resolve from local memory — zero loading delay
+  const [product, setProduct] = useState(() =>
+    MOCK_PRODUCTS.find(p => p.id === id || String(p.id) === String(id)) || null
+  );
   const [qty, setQty] = useState(1);
   const [addedMessage, setAddedMessage] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-    const getProduct = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchProductById(id);
-        if (isMounted) {
-          setProduct(data);
-          setQty(1);
-        }
-      } catch (err) {
-        console.error('Error fetching product details:', err);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-    getProduct();
+
+    // Instant local lookup first
+    const local = MOCK_PRODUCTS.find(p => p.id === id || String(p.id) === String(id));
+    if (local && isMounted) setProduct(local);
+
+    // Background sync with DB (non-blocking)
+    fetchProductById(id).then(data => {
+      if (isMounted && data) setProduct(data);
+    }).catch(() => {});
+
     return () => { isMounted = false; };
   }, [id]);
 
@@ -48,7 +43,7 @@ export default function ProductDetails() {
     if (product?.category) {
       fetchProducts({ category: product.category });
     }
-  }, [product, fetchProducts]);
+  }, [product?.category]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -58,23 +53,16 @@ export default function ProductDetails() {
   };
 
   const relatedItems = products
-    .filter((p) => String(p.id) !== String(id))
+    .filter(p => String(p.id) !== String(id))
     .slice(0, 3);
 
-  if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-[#120404]">
-        <Loader message="Loading Saree Details..." />
-      </div>
-    );
-  }
-
+  // No product found at all
   if (!product) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-6 bg-[#120404] text-[#efcf8b] min-h-[60vh]">
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-6 min-h-[60vh]">
         <h2 className="font-playfair text-3xl font-bold text-[#efcf8b] uppercase">Saree Not Found</h2>
-        <p className="text-[#efcf8b]/70">The product you are trying to view does not exist or has been archived.</p>
-        <Link to="/products" className="inline-flex items-center text-[#f45d04] hover:text-[#efcf8b] font-sans font-bold uppercase text-xs tracking-wider border-b-2 border-[#f45d04] pb-1 transition-colors">
+        <p className="text-[#efcf8b]/70">This product does not exist or has been archived.</p>
+        <Link to="/products" className="inline-flex items-center text-[#f45d04] font-bold uppercase text-xs tracking-wider border-b-2 border-[#f45d04] pb-1 transition-colors hover:text-[#efcf8b]">
           <ArrowLeft className="w-4 h-4 mr-1" /> Back to Collections
         </Link>
       </div>
@@ -82,8 +70,8 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-20 bg-[#120404] text-[#efcf8b]">
-      
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-20">
+
       {/* Back button */}
       <div>
         <Link to="/products" className="inline-flex items-center text-[#efcf8b] hover:text-[#f45d04] font-sans font-semibold uppercase text-xs tracking-widest transition-colors">
@@ -95,7 +83,7 @@ export default function ProductDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
         {/* Left: Gallery */}
         <div>
-          <ImageGallery images={product.images || [product.image]} />
+          <ImageGallery images={getProductImageList(product)} />
         </div>
 
         {/* Right: Product Info */}
@@ -103,7 +91,7 @@ export default function ProductDetails() {
           <div className="space-y-6">
             <div className="space-y-2">
               {product.category && <Badge text={product.category} variant="gold" />}
-              <h1 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold text-[#efcf8b] tracking-wide uppercase">
+              <h1 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold text-[#efcf8b] tracking-wide uppercase leading-tight">
                 {product.name}
               </h1>
             </div>
@@ -118,11 +106,11 @@ export default function ProductDetails() {
 
             <div className="space-y-2 text-xs font-sans text-[#efcf8b]/70">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#f45d04]" />
+                <ShieldCheck className="w-4 h-4 text-[#f45d04] flex-shrink-0" />
                 <span>100% Certified Authentic Silk Mark product.</span>
               </div>
               <div className="flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 text-[#f45d04]" />
+                <RefreshCw className="w-4 h-4 text-[#f45d04] flex-shrink-0" />
                 <span>Easy 7-day exchange and returns.</span>
               </div>
             </div>
@@ -143,7 +131,7 @@ export default function ProductDetails() {
                     onClick={handleAddToCart}
                     variant="primary"
                     size="lg"
-                    className="w-full justify-center gap-2 bg-[#f45d04] text-[#efcf8b] hover:bg-[#c44900] border-none rounded-full shadow-lg"
+                    className="w-full justify-center gap-2"
                   >
                     <ShoppingBag className="w-4 h-4" /> Add to Shopping Bag
                   </Button>
@@ -171,9 +159,8 @@ export default function ProductDetails() {
             title="Pairs Excellently With"
             subtitle="Explore other heirloom masterpieces in this style"
           />
-
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
-            {relatedItems.map((item) => (
+            {relatedItems.map(item => (
               <ProductCard key={item.id} product={item} />
             ))}
           </div>

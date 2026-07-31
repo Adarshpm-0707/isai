@@ -47,3 +47,33 @@ export function getProductImage(product) {
     'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=700'
   );
 }
+
+// Reliably gets an array of images for galleries
+export function getProductImageList(product) {
+  if (!product) {
+    return ['https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=700'];
+  }
+
+  let images = product.images;
+
+  if (typeof images === 'string') {
+    try {
+      images = JSON.parse(images);
+    } catch {
+      if (images.startsWith('http')) return [images];
+      images = null;
+    }
+  }
+
+  if (Array.isArray(images) && images.length > 0) {
+    const valid = images.filter(img => typeof img === 'string' && img.trim().startsWith('http'));
+    if (valid.length > 0) return valid;
+  }
+
+  const primary = getProductImage(product);
+  return [
+    primary,
+    'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=700',
+    'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=700'
+  ];
+}
