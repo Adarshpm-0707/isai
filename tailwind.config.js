@@ -7,15 +7,25 @@ export default {
   theme: {
     extend: {
       colors: {
+        orange: {
+          light: '#ff8826',
+          DEFAULT: '#f96c02',
+          dark: '#c85400',
+        },
+        crimson: {
+          light: '#e6261f',
+          DEFAULT: '#c20903',
+          dark: '#8a0602',
+        },
         maroon: {
-          light: '#8B1A24',
-          DEFAULT: '#6B0F1A',
-          dark: '#4D0A11',
+          light: '#e6261f',
+          DEFAULT: '#c20903',
+          dark: '#8a0602',
         },
         gold: {
-          light: '#E2BD45',
-          DEFAULT: '#C9A227',
-          dark: '#9F7E1B',
+          light: '#ff8826',
+          DEFAULT: '#f96c02',
+          dark: '#c20903',
         },
         ivory: {
           DEFAULT: '#FFF8F0',
@@ -23,8 +33,14 @@ export default {
         },
       },
       fontFamily: {
-        playfair: ['"Playfair Display"', 'serif'],
-        sans: ['"Montserrat"', 'sans-serif'],
+        cinzel: ['"Cinzel"', 'serif'],
+        cormorant: ['"Cinzel"', 'serif'],
+        'cormorant-sc': ['"Cinzel"', 'serif'],
+        quiche: ['"Cinzel"', 'serif'],
+        burgues: ['"Cinzel"', 'serif'],
+        trajan: ['"Cinzel"', 'serif'],
+        playfair: ['"Cinzel"', 'serif'],
+        sans: ['"Cinzel"', 'serif'],
       },
     },
   },

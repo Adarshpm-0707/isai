@@ -12,15 +12,15 @@ export default function SectionHeading({ title, subtitle, align = 'center' }) {
       transition={{ duration: 0.6 }}
       className={`space-y-3 mb-10 ${isCenter ? 'text-center' : 'text-left'}`}
     >
-      <h2 className="text-3xl md:text-4xl font-playfair font-bold text-maroon tracking-wider uppercase">
+      <h2 className="text-3xl md:text-4xl font-playfair font-bold text-[#efcf8b] tracking-wider uppercase">
         {title}
       </h2>
       {subtitle && (
-        <p className="text-xs md:text-sm text-gray-500 font-sans tracking-widest uppercase max-w-xl mx-auto">
+        <p className="text-xs md:text-sm text-[#efcf8b]/70 font-sans tracking-widest uppercase max-w-xl mx-auto">
           {subtitle}
         </p>
       )}
-      <div className={`h-[2px] w-20 bg-gold ${isCenter ? 'mx-auto' : ''}`} />
+      <div className={`h-[2px] w-20 bg-[#f45d04] ${isCenter ? 'mx-auto' : ''}`} />
     </motion.div>
   );
 }

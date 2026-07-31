@@ -13,9 +13,9 @@ export default function Button({
   const baseStyles = 'inline-flex items-center justify-center font-sans font-semibold uppercase tracking-wider transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gold disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants = {
-    primary: 'bg-maroon text-ivory hover:bg-maroon-dark hover:text-gold border border-maroon hover:border-gold',
-    secondary: 'bg-gold text-maroon hover:bg-gold-dark hover:text-white border border-gold',
-    outline: 'bg-transparent text-maroon border border-maroon hover:bg-maroon hover:text-ivory',
+    primary: 'bg-[#f45d04] text-[#efcf8b] hover:bg-[#c44900] border border-[#f45d04] hover:border-[#f45d04]',
+    secondary: 'bg-[#1a0806] text-[#efcf8b] hover:bg-[#f45d04] border border-[#f45d04]/40',
+    outline: 'bg-transparent text-[#efcf8b] border border-[#f45d04] hover:bg-[#f45d04] hover:text-[#efcf8b]',
   };
 
   const sizes = {

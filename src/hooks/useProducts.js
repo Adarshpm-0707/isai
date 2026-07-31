@@ -155,18 +155,17 @@ export default function useProducts() {
         .eq('id', id)
         .single();
 
-      if (dbErr) {
-        console.warn(`Supabase product by id fetch error for ${id}, checking mock data:`, dbErr.message);
-        const mockItem = MOCK_PRODUCTS.find(p => p.id === id);
-        if (mockItem) return mockItem;
-        throw dbErr;
+      if (!dbErr && data) {
+        return data;
       }
-      return data;
+
+      console.warn(`Supabase product by id fetch error for ${id}, checking mock data`);
+      const mockItem = MOCK_PRODUCTS.find(p => p.id === id || String(p.id) === String(id)) || MOCK_PRODUCTS[0];
+      return mockItem;
     } catch (err) {
       console.error('Failed to fetch product by id:', err);
-      const mockItem = MOCK_PRODUCTS.find(p => p.id === id);
-      if (mockItem) return mockItem;
-      throw err;
+      const mockItem = MOCK_PRODUCTS.find(p => p.id === id || String(p.id) === String(id)) || MOCK_PRODUCTS[0];
+      return mockItem;
     }
   };
 

@@ -99,22 +99,12 @@ export default function Products() {
   const categoriesList = ['All', ...getCategories().filter(c => c !== 'All')];
 
   return (
-    <div className="bg-[#FAF6F0] text-[#1B2621] min-h-screen pb-24 selection:bg-[#C56E4E] selection:text-white">
+    <div className="bg-[#120404] text-[#1a1a1a] min-h-screen pb-24 selection:bg-[#120404] selection:text-[#efcf8b]">
       
-      {/* ─── 1. HERO ARCHIVE HEADER (ANIMATED MARQUEE & EDITORIAL TEXT) ─── */}
-      <section className="relative pt-32 pb-16 px-6 overflow-hidden bg-[#F4EFEA] border-b border-[#1B2621]/10">
+      {/* ─── 1. HERO ARCHIVE HEADER ─── */}
+      <section className="relative pt-32 pb-16 px-6 overflow-hidden bg-[#1a0806] border-b border-[#c20903]/30">
         
-        {/* Animated Moving Background Text Stream */}
-        <div className="absolute top-1/2 -translate-y-1/2 inset-x-0 flex items-center pointer-events-none select-none overflow-hidden opacity-[0.03]">
-          <motion.div 
-            animate={{ x: [0, -1600] }}
-            transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
-            className="whitespace-nowrap flex gap-12 text-[14vw] font-black uppercase text-[#1B2621] tracking-tighter"
-          >
-            <span>LOOM ANTHOLOGY • SILK MARK AUTHENTIC • VARANASI & KANCHIPURAM •</span>
-            <span>LOOM ANTHOLOGY • SILK MARK AUTHENTIC • VARANASI & KANCHIPURAM •</span>
-          </motion.div>
-        </div>
+
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
@@ -124,16 +114,16 @@ export default function Products() {
               transition={{ duration: 0.8 }}
             >
               {/* Badge */}
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-[#C56E4E]/40 bg-[#C56E4E]/10 backdrop-blur-sm mb-6">
-                <Sparkles size={13} className="text-[#C56E4E] animate-pulse" />
-                <span className="text-[10px] font-bold tracking-[0.45em] uppercase text-[#1B2621]">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-[#f45d04]/40 bg-[#120404]/10 backdrop-blur-sm mb-6">
+                <Sparkles size={13} className="text-[#f45d04] animate-pulse" />
+                <span className="text-[10px] font-bold tracking-[0.45em] uppercase text-[#efcf8b]">
                   Est. 1994 • Silk Mark Certified Vault
                 </span>
               </div>
 
-              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-playfair font-light leading-[0.95] tracking-tight">
+              <h1 className="text-4xl sm:text-7xl lg:text-8xl font-playfair font-bold leading-[0.95] tracking-tight text-[#efcf8b] max-w-full break-words">
                 The Royal <br />
-                <span className="italic font-normal bg-gradient-to-r from-[#C56E4E] via-[#6B0F1A] to-[#C56E4E] bg-clip-text text-transparent">
+                <span className="italic font-normal bg-gradient-to-r from-[#f45d04] via-[#f45d04] to-[#c20903] bg-clip-text text-transparent">
                   Anthology.
                 </span>
               </h1>
@@ -147,18 +137,18 @@ export default function Products() {
               className="w-full lg:w-80"
             >
               <div className="relative">
-                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#efcf8b]" />
                 <input 
                   type="text"
                   placeholder="Search by weave, color, motif..."
                   value={searchQuery}
                   onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                  className="w-full pl-11 pr-4 py-3.5 bg-white border border-[#1B2621]/15 rounded-full text-xs placeholder:text-gray-400 focus:outline-none focus:border-[#C56E4E] transition-all shadow-sm"
+                  className="w-full pl-11 pr-4 py-3.5 bg-[#120404] border border-[#c20903]/40 rounded-full text-xs text-[#efcf8b] placeholder:text-[#efcf8b] focus:outline-none focus:border-[#f45d04] transition-all shadow-sm"
                 />
                 {searchQuery && (
                   <button 
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 hover:text-black"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-[#efcf8b] hover:text-[#efcf8b]"
                   >
                     ×
                   </button>
@@ -170,7 +160,7 @@ export default function Products() {
       </section>
 
       {/* ─── 2. CATEGORY PILL FILTER STRIP ─── */}
-      <section className="bg-white border-b border-[#1B2621]/10 sticky top-0 z-30 backdrop-blur-md bg-white/90">
+      <section className="bg-[#120404]/95 border-b border-[#c20903]/30 sticky top-0 z-30 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           
           {/* Scrollable Category Chips */}
@@ -184,12 +174,12 @@ export default function Products() {
                   onClick={() => handleCategoryChange(cat)}
                   className={`whitespace-nowrap px-5 py-2.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase transition-all flex items-center gap-2 ${
                     isActive
-                      ? 'bg-[#1B2621] text-white shadow-md'
-                      : 'bg-[#FAF6F0] text-gray-600 hover:bg-[#1B2621]/10 hover:text-[#1B2621]'
+                      ? 'bg-gradient-to-r from-[#f45d04] to-[#c20903] text-[#efcf8b] shadow-md'
+                      : 'bg-[#1a0806] text-[#efcf8b] border border-gray-200 hover:border-[#f45d04] hover:text-[#efcf8b]'
                   }`}
                 >
                   <span>{cat}</span>
-                  <span className={`text-[9px] px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-black/5 text-gray-500'}`}>
+                  <span className={`text-[9px] px-2 py-0.5 rounded-full ${isActive ? 'bg-gray-200 text-[#efcf8b]' : 'bg-gray-100 text-[#efcf8b]'}`}>
                     {count}
                   </span>
                 </button>
@@ -202,7 +192,7 @@ export default function Products() {
             <button 
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-[10px] font-bold tracking-[0.2em] uppercase transition-all ${
-                showFilters ? 'border-[#C56E4E] bg-[#C56E4E]/10 text-[#C56E4E]' : 'border-[#1B2621]/20 text-[#1B2621] hover:border-black'
+                showFilters ? 'border-[#f45d04] bg-[#120404]/20 text-[#f45d04]' : 'border-gray-300 text-[#efcf8b] hover:border-[#f45d04]'
               }`}
             >
               <SlidersHorizontal size={13} />
@@ -210,24 +200,23 @@ export default function Products() {
             </button>
 
             {/* Grid Layout Switcher */}
-            <div className="flex items-center border border-[#1B2621]/20 rounded-full p-1 bg-[#FAF6F0]">
+            <div className="flex items-center border border-gray-300 rounded-full p-1 bg-[#1a0806]">
               <button 
                 onClick={() => setGridCols(3)}
-                className={`p-1.5 rounded-full transition-colors ${gridCols === 3 ? 'bg-[#1B2621] text-white' : 'text-gray-400 hover:text-black'}`}
+                className={`p-1.5 rounded-full transition-colors ${gridCols === 3 ? 'bg-gradient-to-r from-[#f45d04] to-[#c20903] text-[#efcf8b]' : 'text-[#efcf8b] hover:text-[#efcf8b]'}`}
                 title="3-Column Grid"
               >
                 <Grid3X3 size={14} />
               </button>
               <button 
                 onClick={() => setGridCols(2)}
-                className={`p-1.5 rounded-full transition-colors ${gridCols === 2 ? 'bg-[#1B2621] text-white' : 'text-gray-400 hover:text-black'}`}
+                className={`p-1.5 rounded-full transition-colors ${gridCols === 2 ? 'bg-gradient-to-r from-[#f45d04] to-[#c20903] text-[#efcf8b]' : 'text-[#efcf8b] hover:text-[#efcf8b]'}`}
                 title="2-Column Gallery"
               >
                 <Columns2 size={14} />
               </button>
             </div>
           </div>
-
         </div>
       </section>
 
@@ -238,15 +227,15 @@ export default function Products() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-[#F4EFEA] border-b border-[#1B2621]/10 overflow-hidden"
+            className="bg-[#1a0806] border-b border-gray-200 overflow-hidden text-[#efcf8b]"
           >
             <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
               
               {/* Price Filter */}
               <div>
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500">Price Ceiling</span>
-                  <span className="text-sm font-playfair font-bold text-[#C56E4E]">Up to ₹{priceRange.toLocaleString('en-IN')}</span>
+                  <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#efcf8b]">Price Ceiling</span>
+                  <span className="text-sm font-playfair font-bold text-[#f45d04]">Up to ₹{priceRange.toLocaleString('en-IN')}</span>
                 </div>
                 <input 
                   type="range"
@@ -255,17 +244,17 @@ export default function Products() {
                   step="5000"
                   value={priceRange}
                   onChange={(e) => { setPriceRange(Number(e.target.value)); setCurrentPage(1); }}
-                  className="w-full accent-[#C56E4E] bg-gray-200 h-1 rounded-lg appearance-none cursor-pointer"
+                  className="w-full accent-[#f45d04] bg-gray-200 h-1 rounded-lg appearance-none cursor-pointer"
                 />
               </div>
 
               {/* Sort By */}
               <div>
-                <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500 block mb-3">Sort Order</span>
+                <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#efcf8b] block mb-3">Sort Order</span>
                 <div className="relative">
                   <button 
                     onClick={() => setSortOpen(!sortOpen)}
-                    className="w-full flex items-center justify-between px-4 py-3 bg-white border border-[#1B2621]/15 rounded-full text-xs font-bold uppercase tracking-wider text-[#1B2621]"
+                    className="w-full flex items-center justify-between px-4 py-3 bg-[#120404] border border-gray-300 rounded-full text-xs font-bold uppercase tracking-wider text-[#efcf8b]"
                   >
                     <span>{SORT_OPTIONS.find(o => o.value === sortBy)?.label}</span>
                     <ChevronDown size={14} className={sortOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
@@ -277,13 +266,13 @@ export default function Products() {
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 8 }}
-                        className="absolute left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 overflow-hidden"
+                        className="absolute left-0 right-0 mt-2 bg-[#1a0806] border border-gray-300 rounded-2xl shadow-2xl z-50 overflow-hidden"
                       >
                         {SORT_OPTIONS.map(opt => (
                           <button
                             key={opt.value}
                             onClick={() => { setSortBy(opt.value); setSortOpen(false); }}
-                            className={`w-full text-left px-5 py-3 text-xs uppercase tracking-wider font-bold hover:bg-[#FAF6F0] transition-colors ${sortBy === opt.value ? 'text-[#C56E4E]' : 'text-gray-600'}`}
+                            className={`w-full text-left px-5 py-3 text-xs uppercase tracking-wider font-bold hover:bg-gray-100 transition-colors ${sortBy === opt.value ? 'text-[#f45d04]' : 'text-[#efcf8b]'}`}
                           >
                             {opt.label}
                           </button>
@@ -298,7 +287,7 @@ export default function Products() {
               <div className="flex items-center justify-end">
                 <button 
                   onClick={resetFilters}
-                  className="flex items-center gap-2 px-6 py-3 border border-[#C56E4E] text-[#C56E4E] hover:bg-[#C56E4E] hover:text-white rounded-full text-[10px] font-bold uppercase tracking-[0.3em] transition-all"
+                  className="flex items-center gap-2 px-6 py-3 border border-[#f45d04] text-[#f45d04] hover:bg-[#120404] hover:text-[#efcf8b] rounded-full text-[10px] font-bold uppercase tracking-[0.3em] transition-all"
                 >
                   <RefreshCw size={12} />
                   Reset All Filters
@@ -311,21 +300,21 @@ export default function Products() {
       </AnimatePresence>
 
       {/* ─── 4. MAIN PRODUCTS DISPLAY GRID ─── */}
-      <main className="max-w-7xl mx-auto px-6 pt-12">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 pt-8 sm:pt-12">
         
         {/* Results Header Count */}
-        <div className="flex justify-between items-center mb-10 pb-4 border-b border-[#1B2621]/10">
-          <p className="text-xs uppercase tracking-[0.3em] font-bold text-gray-500">
-            Showing <span className="text-[#1B2621]">{filteredProducts.length}</span> Heirloom Masterpiece{filteredProducts.length === 1 ? '' : 's'}
+        <div className="flex justify-between items-center mb-6 sm:mb-10 pb-4 border-b border-gray-200">
+          <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] font-bold text-[#efcf8b]">
+            Showing <span className="text-[#efcf8b] font-bold">{filteredProducts.length}</span> Heirloom Masterpiece{filteredProducts.length === 1 ? '' : 's'}
           </p>
 
-          <span className="text-[11px] font-playfair italic text-gray-400">
+          <span className="text-[10px] sm:text-[11px] font-playfair italic text-[#efcf8b]">
             Page {currentPage} of {totalPages || 1}
           </span>
         </div>
 
         {paginatedProducts.length > 0 ? (
-          <div className={`grid grid-cols-1 ${gridCols === 2 ? 'sm:grid-cols-2 gap-12' : 'sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16'}`}>
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
             {paginatedProducts.map((product, idx) => (
               <motion.div
                 key={product.id}
@@ -351,11 +340,11 @@ export default function Products() {
 
         {/* ─── 5. PAGINATION ─── */}
         {totalPages > 1 && (
-          <div className="mt-24 flex justify-center items-center gap-4 border-t border-[#1B2621]/10 pt-12">
+          <div className="mt-24 flex justify-center items-center gap-4 border-t border-gray-200 pt-12">
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(prev => prev - 1)}
-              className="px-6 py-3 rounded-full border border-[#1B2621]/20 text-[10px] font-bold uppercase tracking-[0.3em] disabled:opacity-20 hover:border-[#C56E4E] hover:text-[#C56E4E] transition-all"
+              className="px-6 py-3 rounded-full border border-gray-300 text-[10px] font-bold uppercase tracking-[0.3em] text-[#efcf8b] disabled:opacity-20 hover:border-[#f45d04] hover:text-[#f45d04] transition-all"
             >
               Prev
             </button>
@@ -367,8 +356,8 @@ export default function Products() {
                   onClick={() => setCurrentPage(i + 1)}
                   className={`w-9 h-9 rounded-full text-xs font-bold transition-all ${
                     currentPage === i + 1
-                      ? 'bg-[#1B2621] text-white shadow-md'
-                      : 'bg-white text-gray-600 hover:bg-[#1B2621]/10'
+                      ? 'bg-gradient-to-r from-[#f45d04] to-[#c20903] text-[#efcf8b] shadow-md'
+                      : 'bg-[#1a0806] text-[#efcf8b] border border-gray-200 hover:bg-gray-100'
                   }`}
                 >
                   {i + 1}
@@ -379,7 +368,7 @@ export default function Products() {
             <button
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(prev => prev + 1)}
-              className="px-6 py-3 rounded-full border border-[#1B2621]/20 text-[10px] font-bold uppercase tracking-[0.3em] disabled:opacity-20 hover:border-[#C56E4E] hover:text-[#C56E4E] transition-all"
+              className="px-6 py-3 rounded-full border border-gray-300 text-[10px] font-bold uppercase tracking-[0.3em] text-[#efcf8b] disabled:opacity-20 hover:border-[#f45d04] hover:text-[#f45d04] transition-all"
             >
               Next
             </button>
@@ -390,3 +379,7 @@ export default function Products() {
     </div>
   );
 }
+
+
+
+
