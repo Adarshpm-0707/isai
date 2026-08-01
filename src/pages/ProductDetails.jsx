@@ -60,9 +60,9 @@ export default function ProductDetails() {
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-6 min-h-[60vh]">
-        <h2 className="font-playfair text-3xl font-bold text-[#efcf8b] uppercase">Saree Not Found</h2>
-        <p className="text-[#efcf8b]/70">This product does not exist or has been archived.</p>
-        <Link to="/products" className="inline-flex items-center text-[#f45d04] font-bold uppercase text-xs tracking-wider border-b-2 border-[#f45d04] pb-1 transition-colors hover:text-[#efcf8b]">
+        <h2 className="font-playfair text-3xl font-bold text-[#2B1409] uppercase">Saree Not Found</h2>
+        <p className="text-[#5C2F14]">This product does not exist or has been archived.</p>
+        <Link to="/products" className="inline-flex items-center text-[#2B1409] font-bold uppercase text-xs tracking-wider border-b-2 border-[#D8A55A] pb-1 transition-colors hover:text-[#5C2F14]">
           <ArrowLeft className="w-4 h-4 mr-1" /> Back to Collections
         </Link>
       </div>
@@ -70,11 +70,11 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-20 text-[#F6D18A] bg-transparent">
 
       {/* Back button */}
       <div>
-        <Link to="/products" className="inline-flex items-center text-[#efcf8b] hover:text-[#f45d04] font-sans font-semibold uppercase text-xs tracking-widest transition-colors">
+        <Link to="/products" className="inline-flex items-center text-[#F6D18A] hover:text-[#D8A55A] font-sans font-bold uppercase text-xs tracking-widest transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Collection
         </Link>
       </div>
@@ -87,40 +87,40 @@ export default function ProductDetails() {
         </div>
 
         {/* Right: Product Info */}
-        <div className="flex flex-col justify-between space-y-8">
+        <div className="flex flex-col justify-between space-y-8 p-6 sm:p-8 bg-[#F6D18A]/10 border border-[#F6D18A]/30 rounded-lg shadow-xl">
           <div className="space-y-6">
             <div className="space-y-2">
               {product.category && <Badge text={product.category} variant="gold" />}
-              <h1 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold text-[#efcf8b] tracking-wide uppercase leading-tight">
+              <h1 className="font-playfair text-3xl sm:text-4xl md:text-5xl font-bold text-[#F6D18A] tracking-wide uppercase leading-tight">
                 {product.name}
               </h1>
             </div>
 
             <PriceTag price={product.price} size="lg" />
 
-            <div className="h-[1px] bg-white/10" />
+            <div className="h-[1px] bg-[#F6D18A]/30" />
 
-            <p className="font-sans text-sm text-[#efcf8b]/80 leading-relaxed font-light">
+            <p className="font-sans text-sm text-[#D8A55A] leading-relaxed font-medium">
               {product.description}
             </p>
 
-            <div className="space-y-2 text-xs font-sans text-[#efcf8b]/70">
+            <div className="space-y-2 text-xs font-sans text-[#D8A55A] font-medium">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#f45d04] flex-shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-[#F6D18A] flex-shrink-0" />
                 <span>100% Certified Authentic Silk Mark product.</span>
               </div>
               <div className="flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 text-[#f45d04] flex-shrink-0" />
+                <RefreshCw className="w-4 h-4 text-[#F6D18A] flex-shrink-0" />
                 <span>Easy 7-day exchange and returns.</span>
               </div>
             </div>
           </div>
 
-          <div className="space-y-6 pt-6 border-t border-white/10">
+          <div className="space-y-6 pt-6 border-t border-[#D8A55A]/30">
             {product.stock > 0 ? (
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                 <div className="space-y-1">
-                  <span className="block font-sans text-[10px] uppercase font-bold text-[#efcf8b]/70 tracking-wider">
+                  <span className="block font-sans text-[10px] uppercase font-bold text-[#5C2F14] tracking-wider">
                     Quantity
                   </span>
                   <QtySelector qty={qty} onChange={setQty} stock={product.stock} />
@@ -138,13 +138,13 @@ export default function ProductDetails() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#1a0806] border border-red-500/40 text-red-400 p-4 text-center font-semibold font-sans uppercase text-xs tracking-wider rounded-sm">
+              <div className="bg-[#F6D18A]/10 border border-[#F6D18A]/30 text-[#F6D18A] p-4 text-center font-bold font-sans uppercase text-xs tracking-wider rounded-sm">
                 Sold Out — Archive only
               </div>
             )}
 
             {addedMessage && (
-              <div className="bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 p-3 text-center font-sans text-xs rounded-sm">
+              <div className="bg-[#F6D18A]/20 border border-[#F6D18A] text-[#F6D18A] p-3 text-center font-sans text-xs rounded-sm shadow-md font-bold">
                 Saree added to your Shopping Bag successfully!
               </div>
             )}
@@ -154,7 +154,7 @@ export default function ProductDetails() {
 
       {/* Related Products */}
       {relatedItems.length > 0 && (
-        <section className="pt-16 border-t border-white/10">
+        <section className="pt-16 border-t border-[#F6D18A]/30">
           <SectionHeading
             title="Pairs Excellently With"
             subtitle="Explore other heirloom masterpieces in this style"

@@ -53,7 +53,7 @@ export default function OrderHistory() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
       <SectionHeading
         title="Order History"
         subtitle="Manage and track your custom weavers orders"
@@ -76,30 +76,30 @@ export default function OrderHistory() {
           return (
             <div
               key={order.id}
-              className="bg-white border border-gold/15 shadow-sm rounded-sm overflow-hidden"
+              className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 shadow-xl rounded-sm overflow-hidden"
             >
               {/* Order Header Summary */}
-              <div className="bg-ivory/50 border-b border-gold/10 px-6 py-4 flex flex-wrap justify-between items-center gap-4 text-xs font-sans">
+              <div className="bg-[#2B1409]/80 border-b border-[#D8A55A]/20 px-6 py-4 flex flex-wrap justify-between items-center gap-4 text-xs font-sans">
                 <div className="flex gap-6">
                   <div>
-                    <span className="block text-gray-400 uppercase font-bold tracking-wider mb-1">
+                    <span className="block text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
                       Order Placed
                     </span>
-                    <span className="text-gray-800 font-medium">{formattedDate}</span>
+                    <span className="text-[#F6D18A] font-medium">{formattedDate}</span>
                   </div>
                   <div>
-                    <span className="block text-gray-400 uppercase font-bold tracking-wider mb-1">
+                    <span className="block text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
                       Total Payable
                     </span>
-                    <span className="text-maroon font-bold">
+                    <span className="text-[#F6D18A] font-bold">
                       ₹{order.total_amount?.toLocaleString('en-IN') || 0}
                     </span>
                   </div>
                   <div className="hidden sm:block">
-                    <span className="block text-gray-400 uppercase font-bold tracking-wider mb-1">
+                    <span className="block text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
                       Order ID
                     </span>
-                    <span className="text-gray-600 font-mono select-all">{order.id}</span>
+                    <span className="text-[#D8A55A]/90 font-mono select-all">{order.id}</span>
                   </div>
                 </div>
 
@@ -109,7 +109,7 @@ export default function OrderHistory() {
               </div>
 
               {/* Order Items */}
-              <div className="divide-y divide-gold/10 px-6">
+              <div className="divide-y divide-[#D8A55A]/10 px-6">
                 {order.order_items?.map((item) => {
                   const productDetails = item.product || {
                     name: 'Handcrafted Heritage Saree',
@@ -121,7 +121,7 @@ export default function OrderHistory() {
                       key={item.id}
                       className="py-4 flex gap-4 items-center"
                     >
-                      <div className="w-12 aspect-[3/4] overflow-hidden bg-ivory border border-gold/10 flex-shrink-0">
+                      <div className="w-12 aspect-[3/4] overflow-hidden bg-[#2B1409] border border-[#D8A55A]/20 flex-shrink-0">
                         <img
                           src={productDetails.images?.[0]}
                           alt={productDetails.name}
@@ -129,15 +129,15 @@ export default function OrderHistory() {
                         />
                       </div>
                       <div className="flex-grow min-w-0">
-                        <h4 className="font-playfair text-sm font-bold text-maroon truncate">
+                        <h4 className="font-playfair text-sm font-bold text-[#F6D18A] truncate">
                           {productDetails.name}
                         </h4>
-                        <p className="text-[10px] text-gray-400 font-sans mt-0.5">
+                        <p className="text-[10px] text-[#D8A55A]/70 font-sans mt-0.5">
                           Category: {productDetails.category || 'Traditional'}
                         </p>
                       </div>
                       <div className="text-right text-xs font-sans">
-                        <p className="text-gray-800 font-medium">
+                        <p className="text-[#F6D18A] font-medium">
                           {item.qty} &times; ₹{item.price?.toLocaleString('en-IN') || 0}
                         </p>
                       </div>

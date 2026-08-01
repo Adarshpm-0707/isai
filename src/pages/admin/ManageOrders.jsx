@@ -105,7 +105,7 @@ export default function ManageOrders() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
       
       <SectionHeading
         title="Fulfillments Board"
@@ -114,17 +114,17 @@ export default function ManageOrders() {
       />
 
       {feedback && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-sm font-sans text-xs">
+        <div className="bg-[#5C2F14]/50 border border-[#F6D18A]/40 text-[#F6D18A] p-4 rounded-sm font-sans text-xs">
           {feedback}
         </div>
       )}
 
       {/* Orders Grid/Table list */}
-      <div className="bg-white border border-gold/15 rounded-sm shadow-sm overflow-hidden">
+      <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 rounded-sm shadow-xl overflow-hidden text-[#D8A55A]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs font-sans">
             <thead>
-              <tr className="border-b border-gold/10 text-gray-400 font-bold uppercase tracking-wider bg-ivory/20">
+              <tr className="border-b border-[#D8A55A]/20 text-[#D8A55A]/70 font-bold uppercase tracking-wider bg-[#2B1409]">
                 <th className="py-4 px-6">Order ID</th>
                 <th className="py-4 px-6">Customer</th>
                 <th className="py-4 px-6">Date</th>
@@ -133,7 +133,7 @@ export default function ManageOrders() {
                 <th className="py-4 px-6">Fulfillment Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gold/5">
+            <tbody className="divide-y divide-[#D8A55A]/10">
               {orders.map((order) => {
                 const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', {
                   day: 'numeric',
@@ -147,19 +147,19 @@ export default function ManageOrders() {
                 if (order.status === 'cancelled') badgeVariant = 'danger';
 
                 return (
-                  <tr key={order.id} className="hover:bg-ivory/10">
+                  <tr key={order.id} className="hover:bg-[#5C2F14]/30">
                     {/* Order ID */}
-                    <td className="py-4 px-6 font-mono font-medium text-gray-800">
+                    <td className="py-4 px-6 font-mono font-medium text-[#F6D18A]">
                       {order.id}
                     </td>
 
                     {/* Email */}
-                    <td className="py-4 px-6 font-medium text-gray-600 truncate max-w-[150px]">
+                    <td className="py-4 px-6 font-medium text-[#D8A55A] truncate max-w-[150px]">
                       {order.profiles?.email || 'Guest Patron'}
                     </td>
 
                     {/* Date */}
-                    <td className="py-4 px-6 text-gray-500">
+                    <td className="py-4 px-6 text-[#D8A55A]/80">
                       {orderDate}
                     </td>
 
@@ -167,8 +167,8 @@ export default function ManageOrders() {
                     <td className="py-4 px-6">
                       <div className="space-y-1">
                         {order.order_items?.map((item) => (
-                          <div key={item.id} className="flex items-center gap-1.5 text-gray-700">
-                            <span className="font-bold text-maroon">{item.qty} &times;</span>
+                          <div key={item.id} className="flex items-center gap-1.5 text-[#D8A55A]">
+                            <span className="font-bold text-[#F6D18A]">{item.qty} &times;</span>
                             <span className="truncate max-w-[180px]">{item.product?.name || 'Saree'}</span>
                           </div>
                         ))}
@@ -176,7 +176,7 @@ export default function ManageOrders() {
                     </td>
 
                     {/* Total */}
-                    <td className="py-4 px-6 font-bold text-maroon">
+                    <td className="py-4 px-6 font-bold text-[#F6D18A]">
                       ₹{order.total_amount?.toLocaleString('en-IN') || 0}
                     </td>
 
@@ -188,12 +188,12 @@ export default function ManageOrders() {
                         <select
                           value={order.status}
                           onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                          className="bg-transparent border border-maroon/20 hover:border-gold px-1.5 py-1 text-[10px] uppercase font-bold focus:outline-none cursor-pointer"
+                          className="bg-[#2B1409] border border-[#D8A55A]/30 text-[#F6D18A] hover:border-[#F6D18A] px-1.5 py-1 text-[10px] uppercase font-bold focus:outline-none cursor-pointer"
                         >
-                          <option value="pending">Pending</option>
-                          <option value="shipped">Shipped</option>
-                          <option value="delivered">Delivered</option>
-                          <option value="cancelled">Cancelled</option>
+                          <option value="pending" className="bg-[#2B1409] text-[#F6D18A]">Pending</option>
+                          <option value="shipped" className="bg-[#2B1409] text-[#F6D18A]">Shipped</option>
+                          <option value="delivered" className="bg-[#2B1409] text-[#F6D18A]">Delivered</option>
+                          <option value="cancelled" className="bg-[#2B1409] text-[#F6D18A]">Cancelled</option>
                         </select>
                       </div>
                     </td>

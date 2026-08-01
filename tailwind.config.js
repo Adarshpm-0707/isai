@@ -7,29 +7,38 @@ export default {
   theme: {
     extend: {
       colors: {
+        gold: {
+          light: '#F6D18A',
+          bright: '#F6D18A',
+          DEFAULT: '#D8A55A',
+          main: '#D8A55A',
+          dark: '#B67A2F',
+          deep: '#B67A2F',
+        },
+        bronze: {
+          light: '#7A3F1C',
+          DEFAULT: '#5C2F14',
+          dark: '#2B1409',
+          outline: '#2B1409',
+        },
         orange: {
-          light: '#ff8826',
-          DEFAULT: '#f96c02',
-          dark: '#c85400',
+          light: '#F6D18A',
+          DEFAULT: '#D8A55A',
+          dark: '#B67A2F',
         },
         crimson: {
-          light: '#e6261f',
-          DEFAULT: '#c20903',
-          dark: '#8a0602',
+          light: '#D8A55A',
+          DEFAULT: '#B67A2F',
+          dark: '#5C2F14',
         },
         maroon: {
-          light: '#e6261f',
-          DEFAULT: '#c20903',
-          dark: '#8a0602',
-        },
-        gold: {
-          light: '#ff8826',
-          DEFAULT: '#f96c02',
-          dark: '#c20903',
+          light: '#D8A55A',
+          DEFAULT: '#B67A2F',
+          dark: '#5C2F14',
         },
         ivory: {
-          DEFAULT: '#FFF8F0',
-          dark: '#EADFC9',
+          DEFAULT: '#F6D18A',
+          dark: '#D8A55A',
         },
       },
       fontFamily: {

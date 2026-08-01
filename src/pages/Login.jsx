@@ -60,26 +60,26 @@ export default function Login() {
       />
 
       {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-sm flex items-start gap-2.5">
+        <div className="bg-[#2B1409] border border-[#B67A2F] text-[#F6D18A] p-4 rounded-sm flex items-start gap-2.5">
           <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <p className="text-xs font-sans font-medium">{error}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-white border border-gold/15 p-6 sm:p-8 rounded-sm space-y-6 shadow-sm">
+      <form onSubmit={handleSubmit} className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 sm:p-8 rounded-sm space-y-6 shadow-xl text-[#D8A55A]">
         
         {/* Email Address */}
         <div className="space-y-1">
-          <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+          <label className="block text-xs uppercase font-semibold text-[#D8A55A] tracking-wider">
             Email Address
           </label>
           <div className="relative">
-            <Mail className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+            <Mail className="absolute left-3.5 top-3 w-4 h-4 text-[#D8A55A]/60" />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-ivory/30 border border-maroon/20 rounded-sm pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-gold font-sans"
+              className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm pl-10 pr-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A] font-sans"
               placeholder="name@example.com"
               required
             />
@@ -88,16 +88,16 @@ export default function Login() {
 
         {/* Password */}
         <div className="space-y-1">
-          <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+          <label className="block text-xs uppercase font-semibold text-[#D8A55A] tracking-wider">
             Password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3.5 top-3 w-4 h-4 text-gray-400" />
+            <Lock className="absolute left-3.5 top-3 w-4 h-4 text-[#D8A55A]/60" />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-ivory/30 border border-maroon/20 rounded-sm pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-gold font-sans"
+              className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm pl-10 pr-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A] font-sans"
               placeholder="••••••••"
               required
             />
@@ -116,12 +116,12 @@ export default function Login() {
           </Button>
         </div>
 
-        <p className="text-center font-sans text-xs text-gray-400 pt-2">
+        <p className="text-center font-sans text-xs text-[#D8A55A]/80 pt-2">
           Don't have an account?{' '}
           <Link
             to="/signup"
             state={{ from: location.state?.from }}
-            className="text-gold font-bold hover:underline ml-1"
+            className="text-[#F6D18A] font-bold hover:underline ml-1"
           >
             Sign Up
           </Link>

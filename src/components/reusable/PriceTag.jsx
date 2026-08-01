@@ -10,11 +10,11 @@ export default function PriceTag({ price, originalPrice, className = '', size = 
 
   return (
     <div className={`flex items-center gap-2 font-sans ${className}`}>
-      <span className={`text-[#efcf8b] ${sizeClasses[size]} tracking-wide`}>
+      <span className={`text-[#F6D18A] font-bold ${sizeClasses[size]} tracking-wide`}>
         {formatPrice(price)}
       </span>
       {originalPrice && (
-        <span className="text-[#efcf8b]/50 line-through text-xs md:text-sm font-light">
+        <span className="text-[#D8A55A]/60 line-through text-xs md:text-sm font-light">
           {formatPrice(originalPrice)}
         </span>
       )}

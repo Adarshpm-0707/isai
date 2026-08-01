@@ -29,7 +29,7 @@ export default function Checkout() {
   if (cart.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <h2 className="font-playfair text-2xl text-maroon font-bold uppercase mb-4">No Items to Checkout</h2>
+        <h2 className="font-playfair text-2xl text-[#F6D18A] font-bold uppercase mb-4">No Items to Checkout</h2>
         <Button onClick={() => navigate('/products')}>Return to Shop</Button>
       </div>
     );
@@ -69,7 +69,7 @@ export default function Checkout() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 text-[#F6D18A] bg-transparent">
       <SectionHeading
         title="Shipping Details"
         subtitle="Confirm your shipping coordinates and verify order summary"
@@ -78,8 +78,8 @@ export default function Checkout() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
         {/* Left Side: Shipping Form */}
-        <div className="lg:col-span-2 bg-white border border-gold/15 p-6 sm:p-8 rounded-sm space-y-6 shadow-sm">
-          <h3 className="font-playfair text-lg font-bold text-maroon uppercase tracking-wider pb-3 border-b border-gold/10">
+        <div className="lg:col-span-2 bg-[#F6D18A]/10 border border-[#F6D18A]/30 p-6 sm:p-8 rounded-sm space-y-6 shadow-xl">
+          <h3 className="font-playfair text-lg font-bold text-[#F6D18A] uppercase tracking-wider pb-3 border-b border-[#F6D18A]/30">
             Delivery Address
           </h3>
 
@@ -87,7 +87,7 @@ export default function Checkout() {
             
             {/* Full Name */}
             <div className="sm:col-span-2 space-y-1">
-              <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+              <label className="block text-xs uppercase font-bold text-[#F6D18A] tracking-wider">
                 Full Name *
               </label>
               <input
@@ -95,15 +95,15 @@ export default function Checkout() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full bg-ivory/30 border border-maroon/20 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
+                className="w-full bg-[#F6D18A]/10 border border-[#F6D18A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
                 placeholder="Priya Sharma"
               />
-              {errors.name && <p className="text-xs text-rose-600 font-sans">{errors.name}</p>}
+              {errors.name && <p className="text-xs text-[#F6D18A] font-sans font-bold">{errors.name}</p>}
             </div>
 
             {/* Email Address */}
             <div className="space-y-1">
-              <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+              <label className="block text-xs uppercase font-bold text-[#F6D18A] tracking-wider">
                 Email Address *
               </label>
               <input
@@ -111,15 +111,15 @@ export default function Checkout() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-ivory/30 border border-maroon/20 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
+                className="w-full bg-[#F6D18A]/10 border border-[#F6D18A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
                 placeholder="priya@example.com"
               />
-              {errors.email && <p className="text-xs text-rose-600 font-sans">{errors.email}</p>}
+              {errors.email && <p className="text-xs text-[#F6D18A] font-sans font-bold">{errors.email}</p>}
             </div>
 
             {/* Phone Number */}
             <div className="space-y-1">
-              <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+              <label className="block text-xs uppercase font-bold text-[#F6D18A] tracking-wider">
                 Phone Number (10 digit) *
               </label>
               <input
@@ -127,15 +127,15 @@ export default function Checkout() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full bg-ivory/30 border border-maroon/20 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
+                className="w-full bg-[#F6D18A]/10 border border-[#F6D18A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
                 placeholder="9876543210"
               />
-              {errors.phone && <p className="text-xs text-rose-600 font-sans">{errors.phone}</p>}
+              {errors.phone && <p className="text-xs text-[#F6D18A] font-sans font-bold">{errors.phone}</p>}
             </div>
 
             {/* Address Line 1 */}
             <div className="sm:col-span-2 space-y-1">
-              <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+              <label className="block text-xs uppercase font-bold text-[#F6D18A] tracking-wider">
                 Address Line 1 *
               </label>
               <input
@@ -143,15 +143,15 @@ export default function Checkout() {
                 name="addressLine1"
                 value={formData.addressLine1}
                 onChange={handleChange}
-                className="w-full bg-ivory/30 border border-maroon/20 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
+                className="w-full bg-[#F6D18A]/10 border border-[#F6D18A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
                 placeholder="Flat / House No., Apartment, Street"
               />
-              {errors.addressLine1 && <p className="text-xs text-rose-600 font-sans">{errors.addressLine1}</p>}
+              {errors.addressLine1 && <p className="text-xs text-[#F6D18A] font-sans font-bold">{errors.addressLine1}</p>}
             </div>
 
             {/* Address Line 2 */}
             <div className="sm:col-span-2 space-y-1">
-              <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+              <label className="block text-xs uppercase font-bold text-[#D8A55A] tracking-wider">
                 Address Line 2 (Optional)
               </label>
               <input
@@ -159,14 +159,14 @@ export default function Checkout() {
                 name="addressLine2"
                 value={formData.addressLine2}
                 onChange={handleChange}
-                className="w-full bg-ivory/30 border border-maroon/20 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
+                className="w-full bg-[#F6D18A]/10 border border-[#F6D18A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
                 placeholder="Landmark, Area"
               />
             </div>
 
             {/* City */}
             <div className="space-y-1">
-              <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+              <label className="block text-xs uppercase font-bold text-[#F6D18A] tracking-wider">
                 City *
               </label>
               <input
@@ -174,15 +174,15 @@ export default function Checkout() {
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                className="w-full bg-ivory/30 border border-maroon/20 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
+                className="w-full bg-[#F6D18A]/10 border border-[#F6D18A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
                 placeholder="Varanasi"
               />
-              {errors.city && <p className="text-xs text-rose-600 font-sans">{errors.city}</p>}
+              {errors.city && <p className="text-xs text-[#F6D18A] font-sans font-bold">{errors.city}</p>}
             </div>
 
             {/* State */}
             <div className="space-y-1">
-              <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+              <label className="block text-xs uppercase font-bold text-[#F6D18A] tracking-wider">
                 State *
               </label>
               <input
@@ -190,15 +190,15 @@ export default function Checkout() {
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                className="w-full bg-ivory/30 border border-maroon/20 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
+                className="w-full bg-[#F6D18A]/10 border border-[#F6D18A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
                 placeholder="Uttar Pradesh"
               />
-              {errors.state && <p className="text-xs text-rose-600 font-sans">{errors.state}</p>}
+              {errors.state && <p className="text-xs text-[#F6D18A] font-sans font-bold">{errors.state}</p>}
             </div>
 
             {/* Pincode */}
-            <div className="space-y-1">
-              <label className="block text-xs uppercase font-semibold text-gray-500 tracking-wider">
+            <div className="space-y-1 sm:col-span-2">
+              <label className="block text-xs uppercase font-bold text-[#F6D18A] tracking-wider">
                 Pincode *
               </label>
               <input
@@ -206,18 +206,18 @@ export default function Checkout() {
                 name="pincode"
                 value={formData.pincode}
                 onChange={handleChange}
-                className="w-full bg-ivory/30 border border-maroon/20 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-gold"
+                className="w-full bg-[#F6D18A]/10 border border-[#F6D18A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
                 placeholder="221001"
               />
-              {errors.pincode && <p className="text-xs text-rose-600 font-sans">{errors.pincode}</p>}
+              {errors.pincode && <p className="text-xs text-[#F6D18A] font-sans font-bold">{errors.pincode}</p>}
             </div>
 
           </div>
         </div>
 
         {/* Right Side: Order summary */}
-        <aside className="bg-white border border-gold/15 p-6 rounded-sm space-y-6 shadow-sm">
-          <h3 className="font-playfair text-lg font-bold text-maroon uppercase tracking-wider pb-3 border-b border-gold/10">
+        <aside className="bg-[#F6D18A]/10 border border-[#F6D18A]/30 p-6 rounded-sm space-y-6 shadow-xl text-[#F6D18A]">
+          <h3 className="font-playfair text-lg font-bold text-[#F6D18A] uppercase tracking-wider pb-3 border-b border-[#F6D18A]/30">
             Order Review
           </h3>
 
@@ -225,30 +225,31 @@ export default function Checkout() {
           <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1">
             {cart.map((item) => (
               <div key={item.product_id} className="flex gap-3 items-center">
-                <div className="w-10 aspect-[3/4] overflow-hidden bg-ivory border border-gold/10 flex-shrink-0">
-                  <img src={getProductImage(item.product)} alt={item.name} className="w-full h-full object-cover" />
+                <div className="relative w-12 aspect-[3/4] overflow-hidden bg-[#4A0000]/60 border border-[#FFE8A3]/30 flex-shrink-0 rounded-lg p-0.5 shadow-sm">
+                  <img src={getProductImage(item.product)} alt="" className="absolute inset-0 w-full h-full object-cover blur-xs opacity-30 pointer-events-none" />
+                  <img src={getProductImage(item.product)} alt={item.name} className="relative z-10 w-full h-full object-contain object-center rounded" />
                 </div>
                 <div className="flex-grow min-w-0">
-                  <h4 className="font-sans text-[11px] font-bold text-maroon truncate">{item.name}</h4>
-                  <p className="text-[10px] text-gray-400 font-sans">Qty: {item.qty} &times; ₹{item.price.toLocaleString('en-IN')}</p>
+                  <h4 className="font-sans text-[11px] font-bold text-[#F6D18A] truncate">{item.name}</h4>
+                  <p className="text-[10px] text-[#D8A55A] font-sans font-medium">Qty: {item.qty} &times; ₹{item.price.toLocaleString('en-IN')}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="h-[1px] bg-gold/15" />
+          <div className="h-[1px] bg-[#F6D18A]/30" />
 
           {/* Pricing calculations */}
           <div className="space-y-2 text-xs font-sans">
-            <div className="flex justify-between text-gray-500">
+            <div className="flex justify-between text-[#D8A55A] font-medium">
               <span>Items Total</span>
-              <span>₹{cartTotal.toLocaleString('en-IN')}</span>
+              <span className="font-bold text-[#F6D18A]">₹{cartTotal.toLocaleString('en-IN')}</span>
             </div>
-            <div className="flex justify-between text-gray-500">
+            <div className="flex justify-between text-[#D8A55A] font-medium">
               <span>Delivery Cost</span>
-              <span className="text-emerald-600 font-bold uppercase">Free</span>
+              <span className="text-[#F6D18A] font-bold uppercase">Free</span>
             </div>
-            <div className="flex justify-between text-sm text-maroon font-bold uppercase tracking-wider pt-2">
+            <div className="flex justify-between text-sm text-[#F6D18A] font-bold uppercase tracking-wider pt-2 border-t border-[#F6D18A]/20">
               <span>Total Payable</span>
               <span>₹{cartTotal.toLocaleString('en-IN')}</span>
             </div>

@@ -16,8 +16,8 @@ export default function Navbar() {
   return (
     <>
       <header 
-        className="sticky top-0 z-40 bg-cover bg-center bg-no-repeat border-b border-[#f45d04]/40 shadow-2xl transition-all duration-300"
-        style={{ backgroundImage: `linear-gradient(to right, rgba(18, 4, 4, 0.75), rgba(18, 4, 4, 0.75)), url(${navbarBg})` }}
+        className="sticky top-0 z-40 bg-cover bg-center bg-no-repeat border-b border-[#F6D18A]/40 shadow-xl transition-all duration-300"
+        style={{ backgroundImage: `url(${navbarBg})` }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative flex items-center justify-between h-20">
@@ -27,31 +27,31 @@ export default function Navbar() {
               <button
                 onClick={() => setMobileOpen(true)}
                 type="button"
-                className="lg:hidden p-2 text-[#efcf8b] hover:text-[#f45d04] transition-colors"
+                className="lg:hidden p-2 text-[#FFE8A3] hover:text-[#F6D18A] transition-colors"
                 aria-label="Toggle Navigation Menu"
               >
-                <Menu className="w-6 h-6 stroke-[1.8]" />
+                <Menu className="w-6 h-6 stroke-[2]" />
               </button>
 
-              <nav className="hidden lg:flex space-x-8 font-sans text-[11px] font-semibold uppercase tracking-wider text-[#efcf8b]">
-                <Link to="/" className="hover:text-[#f45d04] transition-colors relative py-1 group">
+              <nav className="hidden lg:flex space-x-8 font-sans text-xs font-bold uppercase tracking-wider text-[#FFE8A3]">
+                <Link to="/" className="hover:text-[#F6D18A] transition-colors relative py-1 group">
                   Home
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#f45d04] transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFE8A3] transition-all duration-300 group-hover:w-full" />
                 </Link>
-                <Link to="/products" className="hover:text-[#f45d04] transition-colors relative py-1 group">
+                <Link to="/products" className="hover:text-[#F6D18A] transition-colors relative py-1 group">
                   Collection
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#f45d04] transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFE8A3] transition-all duration-300 group-hover:w-full" />
                 </Link>
-                <Link to="/about" className="hover:text-[#f45d04] transition-colors relative py-1 group">
+                <Link to="/about" className="hover:text-[#F6D18A] transition-colors relative py-1 group">
                   Our Story
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#f45d04] transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFE8A3] transition-all duration-300 group-hover:w-full" />
                 </Link>
               </nav>
             </div>
 
             {/* Centralized Logo */}
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
-              <Link to="/" className="flex items-center">
+              <Link to="/" className="flex items-center p-1.5">
                 <img src={logoImg} alt="Isai Tarang Logo" className="h-12 sm:h-16 w-auto object-contain transition-transform hover:scale-105" />
               </Link>
             </div>
@@ -61,10 +61,10 @@ export default function Navbar() {
               {user && (role === 'admin' || role === 'superadmin') && (
                 <Link
                   to="/admin"
-                  className="hidden lg:flex items-center gap-1.5 text-[#efcf8b] hover:text-[#f45d04] font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors"
+                  className="hidden lg:flex items-center gap-1.5 text-[#FFE8A3] hover:text-[#F6D18A] font-sans text-xs font-bold uppercase tracking-wider transition-colors"
                   title="Admin Dashboard"
                 >
-                  <Settings className="w-4 h-4" />
+                  <Settings className="w-4 h-4 text-[#FFE8A3]" />
                   Admin
                 </Link>
               )}
@@ -72,7 +72,7 @@ export default function Navbar() {
               {user && (
                 <Link
                   to="/orders"
-                  className="hidden lg:flex items-center gap-1 text-[#efcf8b] hover:text-[#f45d04] font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors"
+                  className="hidden lg:flex items-center gap-1 text-[#FFE8A3] hover:text-[#F6D18A] font-sans text-xs font-bold uppercase tracking-wider transition-colors"
                 >
                   My Orders
                 </Link>
@@ -80,12 +80,12 @@ export default function Navbar() {
 
               <Link
                 to="/cart"
-                className="relative p-2.5 text-[#efcf8b] hover:text-[#f45d04] transition-colors"
+                className="relative p-2 text-[#FFE8A3] hover:text-[#F6D18A] transition-colors"
                 aria-label="Shopping Cart"
               >
-                <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
+                <ShoppingBag className="w-5 h-5 stroke-[2]" />
                 {cartCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#f45d04] text-[#efcf8b] font-sans font-bold text-[9px] rounded-full flex items-center justify-center border-2 border-[#f45d04]">
+                  <span className="absolute top-0 right-0 w-5 h-5 bg-[#FFE8A3] text-[#800202] font-sans font-bold text-[10px] rounded-full flex items-center justify-center border border-[#800202] shadow">
                     {cartCount}
                   </span>
                 )}
@@ -94,13 +94,13 @@ export default function Navbar() {
               <div className="hidden lg:block">
                 {user ? (
                   <div className="flex items-center gap-4">
-                    <span className="font-sans text-xs text-[#efcf8b]/80 max-w-[120px] truncate" title={user.email}>
+                    <span className="font-sans text-xs text-[#FFE8A3] font-bold max-w-[120px] truncate" title={user.email}>
                       {user.email.split('@')[0]}
                     </span>
                     <button
                       onClick={logout}
                       type="button"
-                      className="p-2 text-[#efcf8b] hover:text-[#f45d04] transition-colors"
+                      className="p-1 text-[#FFE8A3] hover:text-[#F6D18A] transition-colors"
                       title="Log Out"
                     >
                       <LogOut className="w-4 h-4" />
@@ -109,7 +109,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to="/login"
-                    className="flex items-center gap-1 bg-[#f45d04] text-[#efcf8b] hover:bg-white hover:text-[#f45d04] font-sans text-[11px] font-semibold uppercase tracking-wider transition-all px-5 py-2 rounded-full shadow-md"
+                    className="flex items-center gap-1 bg-[#FFE8A3] text-[#800202] hover:bg-[#F6D18A] font-sans text-xs font-bold uppercase tracking-wider transition-all px-5 py-2 rounded-full shadow-md border border-[#FFE8A3]"
                   >
                     <User className="w-3.5 h-3.5" />
                     Sign In

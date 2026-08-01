@@ -149,7 +149,7 @@ export default function Payment() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-        <p className="font-sans text-[#6B0F1A] font-bold text-sm uppercase tracking-widest animate-pulse">
+        <p className="font-sans text-[#F6D18A] font-bold text-sm uppercase tracking-widest animate-pulse">
           Processing transaction... Please wait.
         </p>
       </div>
@@ -157,14 +157,14 @@ export default function Payment() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
       <SectionHeading
         title="Secured Payment Gateway"
         subtitle="Finalize order and verify transaction method"
       />
 
       {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-sm flex items-start gap-3">
+        <div className="bg-[#2B1409] border border-[#B67A2F] text-[#F6D18A] p-4 rounded-sm flex items-start gap-3">
           <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <p className="text-xs font-sans font-medium">{error}</p>
         </div>
@@ -175,81 +175,81 @@ export default function Payment() {
         {/* Payment selections */}
         <div className="md:col-span-2 space-y-6">
           
-          <div className="bg-white border border-gold/15 p-6 rounded-sm space-y-4 shadow-sm">
-            <h3 className="font-playfair text-base font-bold text-maroon uppercase tracking-wider pb-3 border-b border-gold/10">
+          <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm space-y-4 shadow-xl">
+            <h3 className="font-playfair text-base font-bold text-[#F6D18A] uppercase tracking-wider pb-3 border-b border-[#D8A55A]/20">
               Gateway Selections
             </h3>
 
             {/* Razorpay Gateway */}
-            <div className="border border-gold/20 p-5 hover:border-maroon transition-all cursor-pointer rounded-sm flex justify-between items-center group bg-[#6B0F1A]/5"
+            <div className="border border-[#D8A55A]/20 p-5 hover:border-[#F6D18A] transition-all cursor-pointer rounded-sm flex justify-between items-center group bg-[#2B1409]"
                  onClick={handleRazorpayPayment}>
               <div className="flex gap-4 items-center">
-                <div className="p-3 bg-white border border-gold/20 rounded-full">
-                  <Landmark className="w-6 h-6 text-maroon" />
+                <div className="p-3 bg-[#5C2F14] border border-[#D8A55A]/30 rounded-full">
+                  <Landmark className="w-6 h-6 text-[#F6D18A]" />
                 </div>
                 <div>
-                  <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-maroon">
+                  <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-[#F6D18A]">
                     Razorpay Checkout
                   </h4>
-                  <p className="text-[10px] text-gray-500 font-sans">
+                  <p className="text-[10px] text-[#D8A55A]/80 font-sans">
                     Pay securely using UPI, Cards, Netbanking, or Wallet
                   </p>
                 </div>
               </div>
-              <CheckCircle className="w-5 h-5 text-gold opacity-50 group-hover:opacity-100 transition-opacity" />
+              <CheckCircle className="w-5 h-5 text-[#F6D18A] opacity-50 group-hover:opacity-100 transition-opacity" />
             </div>
 
             {/* Test Simulation Bypass */}
-            <div className="border border-gold/20 p-5 hover:border-maroon transition-all cursor-pointer rounded-sm flex justify-between items-center group bg-[#C9A227]/5 animate-pulse"
+            <div className="border border-[#D8A55A]/20 p-5 hover:border-[#F6D18A] transition-all cursor-pointer rounded-sm flex justify-between items-center group bg-[#5C2F14]/40"
                  onClick={handleSimulatedPayment}>
               <div className="flex gap-4 items-center">
-                <div className="p-3 bg-white border border-gold/20 rounded-full">
-                  <CreditCard className="w-6 h-6 text-gold" />
+                <div className="p-3 bg-[#5C2F14] border border-[#D8A55A]/30 rounded-full">
+                  <CreditCard className="w-6 h-6 text-[#F6D18A]" />
                 </div>
                 <div>
-                  <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-maroon">
+                  <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-[#F6D18A]">
                     Simulate Payment (Bypass Sandbox)
                   </h4>
-                  <p className="text-[10px] text-gray-500 font-sans">
+                  <p className="text-[10px] text-[#D8A55A]/80 font-sans">
                     Fast payment bypass testing mode. Generates mock transaction codes.
                   </p>
                 </div>
               </div>
-              <CheckCircle className="w-5 h-5 text-gold opacity-50 group-hover:opacity-100 transition-opacity" />
+              <CheckCircle className="w-5 h-5 text-[#F6D18A] opacity-50 group-hover:opacity-100 transition-opacity" />
             </div>
 
           </div>
         </div>
 
         {/* Invoice Summary */}
-        <aside className="bg-white border border-gold/15 p-6 rounded-sm space-y-6 shadow-sm">
-          <h3 className="font-playfair text-base font-bold text-maroon uppercase tracking-wider pb-3 border-b border-gold/10">
+        <aside className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm space-y-6 shadow-xl text-[#D8A55A]">
+          <h3 className="font-playfair text-base font-bold text-[#F6D18A] uppercase tracking-wider pb-3 border-b border-[#D8A55A]/20">
             Invoice Summary
           </h3>
 
           <div className="space-y-3 text-xs font-sans">
-            <div className="flex justify-between text-gray-400">
+            <div className="flex justify-between text-[#D8A55A]/80">
               <span>Items Total</span>
               <span>₹{cartTotal.toLocaleString('en-IN')}</span>
             </div>
-            <div className="flex justify-between text-gray-400">
+            <div className="flex justify-between text-[#D8A55A]/80">
               <span>Shipping Fee</span>
-              <span className="text-emerald-600 font-bold uppercase">Free</span>
+              <span className="text-[#F6D18A] font-bold uppercase">Free</span>
             </div>
-            <div className="h-[1px] bg-gold/15 mt-2" />
-            <div className="flex justify-between text-sm text-maroon font-bold uppercase tracking-wider pt-2">
+            <div className="h-[1px] bg-[#D8A55A]/20 mt-2" />
+            <div className="flex justify-between text-sm text-[#F6D18A] font-bold uppercase tracking-wider pt-2">
               <span>Payable Total</span>
               <span>₹{cartTotal.toLocaleString('en-IN')}</span>
             </div>
           </div>
 
           {shippingAddress && (
-            <div className="pt-4 border-t border-gold/10 space-y-2">
-              <h4 className="font-sans text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+            <div className="pt-4 border-t border-[#D8A55A]/20 space-y-2">
+              <h4 className="font-sans text-[10px] uppercase font-bold text-[#D8A55A]/70 tracking-wider">
                 Shipping Address
               </h4>
-              <p className="text-[10px] font-sans text-gray-600 leading-relaxed font-light">
-                <strong className="text-gray-800">{shippingAddress.name}</strong><br />
+              <p className="text-[10px] font-sans text-[#D8A55A]/90 leading-relaxed font-light">
+                <strong className="text-[#F6D18A]">{shippingAddress.name}</strong><br />
                 {shippingAddress.addressLine1}, {shippingAddress.addressLine2 && `${shippingAddress.addressLine2}, `}
                 {shippingAddress.city}, {shippingAddress.state} - {shippingAddress.pincode}<br />
                 Phone: {shippingAddress.phone}

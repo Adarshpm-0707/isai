@@ -3,12 +3,15 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import navbarBg from '../../assets/navbarbg.png';
 
 export default function Layout() {
   const location = useLocation();
 
   return (
-    <div className="flex flex-col min-h-screen bg-ivory text-gray-900 selection:bg-maroon selection:text-ivory">
+    <div 
+      className="flex flex-col min-h-screen text-[#FFE8A3] bg-gradient-to-br from-[#800202] via-[#B42802] to-[#F15502] selection:bg-[#FFE8A3] selection:text-[#800202]"
+    >
       {/* Premium Header/Navigation */}
       <Navbar />
 
@@ -28,7 +31,6 @@ export default function Layout() {
         </AnimatePresence>
       </main>
 
-      {/* Site Footer */}
       <Footer />
     </div>
   );

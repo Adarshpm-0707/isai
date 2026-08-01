@@ -70,7 +70,7 @@ export default function ManageProducts() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
       
       {/* Title block */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -81,24 +81,24 @@ export default function ManageProducts() {
         />
         <Link
           to="/admin/products/new"
-          className="inline-flex items-center gap-2 bg-maroon text-ivory hover:bg-maroon-dark px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-sm shadow-sm transition-all"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#F6D18A] via-[#D8A55A] to-[#B67A2F] text-[#2B1409] hover:opacity-90 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-sm shadow-xl transition-all"
         >
           <Plus className="w-4 h-4" /> Add New Saree
         </Link>
       </div>
 
       {feedback && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-sm font-sans text-xs">
+        <div className="bg-[#5C2F14]/50 border border-[#F6D18A]/40 text-[#F6D18A] p-4 rounded-sm font-sans text-xs">
           {feedback}
         </div>
       )}
 
       {/* Table */}
-      <div className="bg-white border border-gold/15 rounded-sm shadow-sm overflow-hidden">
+      <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 rounded-sm shadow-xl overflow-hidden text-[#D8A55A]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs font-sans">
             <thead>
-              <tr className="border-b border-gold/10 text-gray-400 font-bold uppercase tracking-wider bg-ivory/20">
+              <tr className="border-b border-[#D8A55A]/20 text-[#D8A55A]/70 font-bold uppercase tracking-wider bg-[#2B1409]">
                 <th className="py-4 px-6">Preview</th>
                 <th className="py-4 px-6">Name</th>
                 <th className="py-4 px-6">Category</th>
@@ -107,12 +107,12 @@ export default function ManageProducts() {
                 <th className="py-4 px-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gold/5">
+            <tbody className="divide-y divide-[#D8A55A]/10">
               {products.map((product) => (
-                <tr key={product.id} className="hover:bg-ivory/10">
+                <tr key={product.id} className="hover:bg-[#5C2F14]/30">
                   {/* Preview Image */}
                   <td className="py-4 px-6">
-                    <div className="w-10 aspect-[3/4] overflow-hidden bg-ivory border border-gold/10">
+                    <div className="w-10 aspect-[3/4] overflow-hidden bg-[#2B1409] border border-[#D8A55A]/20">
                       <img
                         src={product.images?.[0] || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=100'}
                         alt={product.name}
@@ -122,12 +122,12 @@ export default function ManageProducts() {
                   </td>
                   
                   {/* Name */}
-                  <td className="py-4 px-6 font-semibold text-maroon max-w-xs truncate">
+                  <td className="py-4 px-6 font-semibold text-[#F6D18A] max-w-xs truncate">
                     {product.name}
                   </td>
 
                   {/* Category */}
-                  <td className="py-4 px-6 uppercase text-[10px] text-gold-dark font-bold">
+                  <td className="py-4 px-6 uppercase text-[10px] text-[#D8A55A] font-bold">
                     {product.category}
                   </td>
 
@@ -137,13 +137,13 @@ export default function ManageProducts() {
                   </td>
 
                   {/* Stock count */}
-                  <td className="py-4 px-6 font-medium text-gray-700">
+                  <td className="py-4 px-6 font-medium text-[#D8A55A]">
                     {product.stock <= 0 ? (
-                      <span className="text-rose-700 bg-rose-50 px-2 py-0.5 rounded font-bold uppercase text-[9px] tracking-wide border border-rose-200">
+                      <span className="text-[#F6D18A] bg-[#5C2F14] px-2 py-0.5 rounded font-bold uppercase text-[9px] tracking-wide border border-[#F6D18A]/30">
                         Out of Stock
                       </span>
                     ) : product.stock < 5 ? (
-                      <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded font-bold uppercase text-[9px] tracking-wide border border-amber-200">
+                      <span className="text-[#F6D18A] bg-[#5C2F14]/70 px-2 py-0.5 rounded font-bold uppercase text-[9px] tracking-wide border border-[#F6D18A]/30">
                         Low Stock ({product.stock})
                       </span>
                     ) : (
@@ -155,7 +155,7 @@ export default function ManageProducts() {
                   <td className="py-4 px-6 text-right space-x-2">
                     <Link
                       to={`/admin/products/edit/${product.id}`}
-                      className="inline-flex p-2 bg-ivory text-maroon hover:bg-gold hover:text-white border border-gold/25 transition-all"
+                      className="inline-flex p-2 bg-[#5C2F14] text-[#F6D18A] hover:bg-[#F6D18A] hover:text-[#2B1409] border border-[#D8A55A]/30 transition-all rounded-sm"
                       title="Edit Product"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -163,7 +163,7 @@ export default function ManageProducts() {
                     <button
                       onClick={() => handleDelete(product.id)}
                       type="button"
-                      className="inline-flex p-2 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white border border-rose-200 transition-all"
+                      className="inline-flex p-2 bg-[#5C2F14]/40 text-[#F6D18A] hover:bg-[#5C2F14] border border-[#D8A55A]/30 transition-all rounded-sm"
                       title="Delete Product"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

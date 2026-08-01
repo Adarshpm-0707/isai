@@ -12,14 +12,14 @@ export default function EmptyState({
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center text-center py-16 px-6 bg-[#1a0806] border border-[#f45d04]/30 max-w-md mx-auto my-12 rounded-sm shadow-xl backdrop-blur-sm text-[#efcf8b]">
-      <div className="w-14 h-14 bg-[#f45d04]/10 border border-[#f45d04]/30 rounded-full flex items-center justify-center mb-6">
-        <ShoppingBag className="w-6 h-6 text-[#f45d04]" />
+    <div className="flex flex-col items-center text-center py-16 px-6 bg-[#F6D18A]/10 border border-[#F6D18A]/40 max-w-md mx-auto my-12 rounded-sm shadow-xl text-[#F6D18A]">
+      <div className="w-14 h-14 bg-[#F6D18A]/20 border border-[#F6D18A]/40 rounded-full flex items-center justify-center mb-6">
+        <ShoppingBag className="w-6 h-6 text-[#F6D18A]" />
       </div>
-      <h3 className="font-playfair text-xl font-bold text-[#efcf8b] tracking-wider uppercase mb-2">
+      <h3 className="font-playfair text-xl font-bold text-[#F6D18A] tracking-wider uppercase mb-2">
         {title}
       </h3>
-      <p className="text-xs md:text-sm text-[#efcf8b]/70 font-sans tracking-wide max-w-xs mb-6">
+      <p className="text-xs md:text-sm text-[#D8A55A] font-sans tracking-wide max-w-xs mb-6 font-medium">
         {message}
       </p>
       {actionText && (

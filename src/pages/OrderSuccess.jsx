@@ -21,42 +21,42 @@ export default function OrderSuccess() {
   if (!orderId) return null;
 
   return (
-    <div className="max-w-xl mx-auto px-4 sm:px-6 py-16 text-center space-y-8">
+    <div className="max-w-xl mx-auto px-4 sm:px-6 py-16 text-center space-y-8 text-[#D8A55A]">
       
       {/* Visual Indicator */}
       <div className="flex justify-center">
-        <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-100 shadow-sm animate-bounce">
-          <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+        <div className="w-20 h-20 bg-[#5C2F14]/40 rounded-full flex items-center justify-center border border-[#D8A55A]/30 shadow-xl animate-bounce">
+          <CheckCircle2 className="w-10 h-10 text-[#F6D18A]" />
         </div>
       </div>
 
       <div className="space-y-3">
-        <h2 className="font-playfair text-3xl font-bold text-maroon uppercase tracking-wider">
+        <h2 className="font-playfair text-3xl font-bold text-[#F6D18A] uppercase tracking-wider">
           Order Confirmed
         </h2>
-        <p className="text-sm text-gray-500 font-sans max-w-sm mx-auto">
+        <p className="text-sm text-[#D8A55A]/80 font-sans max-w-sm mx-auto">
           Your order has been submitted successfully. A confirmation email with shipping updates will be dispatched shortly.
         </p>
       </div>
 
       {/* Invoice details */}
-      <div className="bg-white border border-gold/15 p-6 rounded-sm space-y-4 shadow-sm text-left font-sans text-xs">
-        <h3 className="font-playfair text-sm font-bold text-maroon uppercase tracking-wide border-b border-gold/10 pb-2">
+      <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm space-y-4 shadow-xl text-left font-sans text-xs">
+        <h3 className="font-playfair text-sm font-bold text-[#F6D18A] uppercase tracking-wide border-b border-[#D8A55A]/20 pb-2">
           Receipt Details
         </h3>
         
         <div className="space-y-2.5">
           <div className="flex justify-between">
-            <span className="text-gray-400">Transaction Code</span>
-            <span className="font-mono text-gray-800 font-bold">{orderId}</span>
+            <span className="text-[#D8A55A]/70">Transaction Code</span>
+            <span className="font-mono text-[#F6D18A] font-bold">{orderId}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-400">Total Paid</span>
-            <span className="text-maroon font-bold">₹{totalAmount.toLocaleString('en-IN')}</span>
+            <span className="text-[#D8A55A]/70">Total Paid</span>
+            <span className="text-[#F6D18A] font-bold">₹{totalAmount.toLocaleString('en-IN')}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-400">Status</span>
-            <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider text-[9px]">
+            <span className="text-[#D8A55A]/70">Status</span>
+            <span className="text-[#F6D18A] bg-[#5C2F14]/50 border border-[#F6D18A]/40 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider text-[9px]">
               Pending Fulfillment
             </span>
           </div>

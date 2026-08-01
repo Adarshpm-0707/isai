@@ -29,7 +29,7 @@ export default function ImageGallery({ images = [] }) {
             onClick={() => setActive(img)}
             className={`relative flex-shrink-0 w-16 sm:w-20 md:w-full aspect-[3/4] overflow-hidden border-2 rounded-sm transition-all ${
               active === img
-                ? 'border-[#f45d04] shadow-lg scale-102'
+                ? 'border-[#F6D18A] shadow-lg scale-102'
                 : 'border-transparent opacity-60 hover:opacity-100'
             }`}
           >
@@ -39,7 +39,7 @@ export default function ImageGallery({ images = [] }) {
       </div>
 
       {/* Main Image */}
-      <div className="md:col-span-4 order-1 md:order-2 aspect-[3/4] w-full overflow-hidden border border-[#f45d04]/30 bg-[#1a0806] rounded-sm shadow-xl">
+      <div className="md:col-span-4 order-1 md:order-2 aspect-[3/4] w-full overflow-hidden border border-[#D8A55A]/30 bg-[#2B1409] rounded-sm shadow-xl">
         <img
           src={active || list[0]}
           alt="Main product detail"
