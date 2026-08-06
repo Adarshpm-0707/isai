@@ -152,9 +152,9 @@ export default function Cart() {
             </button>
             <Link
               to="/products"
-              className="text-xs font-sans uppercase font-bold text-[#2B1409] hover:text-[#5C2F14] transition-colors"
+              className="inline-flex items-center gap-1 text-xs font-sans uppercase font-bold text-[#E3C381] hover:text-[#F0DDB0] transition-colors"
             >
-              Continue Shopping →
+              Continue Shopping <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>

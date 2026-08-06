@@ -85,7 +85,7 @@ export default function Navbar() {
             {/* Centralized Logo (Compact & Sleek) */}
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
               <Link to="/" className="flex items-center p-1">
-                <img src={logoImg} alt="Isai Tarang Logo" className="h-8 xs:h-9 sm:h-11 md:h-12 lg:h-14 w-auto object-contain transition-transform duration-300 hover:scale-105 filter drop-shadow-sm" />
+                <img src={logoImg} alt="Isai Tarang Logo" className="h-15 xs:h-15 sm:h-11 md:h-12 lg:h-14 w-auto object-contain transition-transform duration-300 hover:scale-105 filter drop-shadow-sm" />
               </Link>
             </div>
 

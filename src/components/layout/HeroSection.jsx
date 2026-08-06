@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 
 // Assets
 import fabricImg from '../../assets/saree_isai.png';
@@ -49,13 +50,13 @@ export default function HeroSection({
       </div>
 
       {/* 3. MOBILE & TABLET FLEX CONTAINER (< lg screens) */}
-      <div className="lg:hidden relative z-20 w-full h-full flex flex-col justify-between items-center text-center px-4 pt-12 sm:pt-16 pb-6 overflow-x-hidden overflow-y-auto no-scrollbar">
+      <div className="lg:hidden relative z-20 w-full h-full flex flex-col justify-between items-center text-center px-4 pt-10 sm:pt-14 pb-6 overflow-x-hidden overflow-y-auto no-scrollbar">
         
         {/* Top Header Block */}
         <div className="flex flex-col items-center max-w-lg w-full z-40 px-2">
           <h1 
             className="font-cinzel-decorative font-bold uppercase drop-shadow-[0_10px_25px_rgba(0,0,0,0.9)] flex flex-col items-center gap-0.5 my-1"
-            style={{ fontSize: 'clamp(2.8rem, 9.5vw, 4.8rem)' }}
+            style={{ fontSize: 'clamp(3.0rem, 10.5vw, 5.0rem)' }}
           >
             <span className="block text-[#E3C381] tracking-wider leading-tight whitespace-nowrap">
               The Art
@@ -72,7 +73,7 @@ export default function HeroSection({
             </p>
             <div className="h-[2px] w-12 bg-[#D4AF7A] mx-auto mb-2" />
             
-            <div className="relative h-[36px] flex items-center justify-center overflow-hidden my-1">
+            <div className="relative h-[32px] sm:h-[36px] flex items-center justify-center overflow-hidden my-1">
               <AnimatePresence mode="wait">
                 <motion.h3
                   key={wordIdx}
@@ -80,33 +81,33 @@ export default function HeroSection({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="text-[#F3E5AB] font-cinzel-decorative font-bold text-xl xs:text-2xl sm:text-3xl tracking-wide whitespace-nowrap"
+                  className="text-[#F3E5AB] font-cinzel-decorative font-bold text-lg xs:text-xl sm:text-3xl tracking-wide whitespace-nowrap"
                 >
                   {FABRIC_WORDS[wordIdx]}
                 </motion.h3>
               </AnimatePresence>
             </div>
 
-            <p className="text-[#D8D0C0]/90 text-xs sm:text-sm leading-relaxed font-light max-w-[310px] sm:max-w-[360px]">
+            <p className="text-[#D8D0C0]/90 text-[11px] xs:text-xs sm:text-sm leading-relaxed font-light max-w-[290px] xs:max-w-[320px] sm:max-w-[360px]">
               Heirlooms hand-spun from pure mulberry silk, capturing centuries of Indian weaving wisdom in every single fold.
             </p>
           </div>
         </div>
 
-        {/* Saree Image Draped at Bottom-Left on Mobile (GPU HARDWARE ACCELERATED) */}
-        <div className="absolute inset-x-0 bottom-0 pointer-events-none z-10 flex justify-start items-end overflow-hidden h-[50%] sm:h-[55%]">
+        {/* Saree Image Draped at Bottom-Left on Mobile (GPU HARDWARE ACCELERATED & RESPONSIVE SCALED) */}
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none z-10 flex justify-start items-end overflow-hidden h-[45%] xs:h-[48%] sm:h-[52%] max-h-[480px]">
           <img
             src={fabricImageUrl}
             alt="Draped Saree"
-            className="mobile-float-saree w-[105%] xs:w-[90%] sm:w-[75%] max-w-[550px] h-auto object-contain origin-bottom-left filter contrast-[1.05] drop-shadow-[0_15px_45px_rgba(0,0,0,0.85)]"
+            className="mobile-float-saree w-[78%] xs:w-[72%] sm:w-[62%] max-w-[420px] max-h-[42vh] sm:max-h-[48vh] h-auto object-contain origin-bottom-left filter contrast-[1.05] drop-shadow-[0_15px_45px_rgba(0,0,0,0.85)]"
           />
         </div>
 
-        {/* Mobile CTA Button (Moved slightly upward) */}
-        <div className="absolute bottom-14 right-4 sm:bottom-18 sm:right-8 z-50 shrink-0">
+        {/* Mobile CTA Button (Centered Arrow Vector Alignment - Moved Further Upward) */}
+        <div className="absolute bottom-20 right-4 xs:bottom-24 xs:right-5 sm:bottom-28 sm:right-8 z-50 shrink-0">
           <button
             onClick={() => navigate('/products')}
-            className="relative w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 flex items-center justify-center group pointer-events-auto cursor-pointer shadow-2xl rounded-full bg-[#0E2A1C]/90 border border-[#D4AF7A]/30 active:scale-95 transition-transform"
+            className="relative w-18 h-18 xs:w-22 xs:h-22 sm:w-26 sm:h-26 flex items-center justify-center group pointer-events-auto cursor-pointer shadow-2xl rounded-full bg-[#0E2A1C]/90 border border-[#D4AF7A]/30 active:scale-95 transition-transform"
           >
             <svg className="absolute inset-0 w-full h-full animate-[spin_12s_linear_infinite]" viewBox="0 0 100 100">
               <defs>
@@ -118,8 +119,8 @@ export default function HeroSection({
                 </textPath>
               </text>
             </svg>
-            <div className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-full bg-[#D4AF7A] flex items-center justify-center group-hover:bg-[#F3E5AB] transition-colors duration-300 shadow-xl">
-              <span className="text-[#0E2A1C] text-base xs:text-lg font-bold">→</span>
+            <div className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-full bg-[#D4AF7A] flex items-center justify-center group-hover:bg-[#F3E5AB] transition-colors duration-300 shadow-xl shrink-0">
+              <ArrowRight className="w-4 h-4 xs:w-5 xs:h-5 text-[#0E2A1C] stroke-[2.5]" />
             </div>
           </button>
         </div>
@@ -135,7 +136,7 @@ export default function HeroSection({
             style={{ 
               x: mousePos.x * -0.3, 
               y: mousePos.y * -0.3,
-              fontSize: 'clamp(4.2rem, 7.5vw, 6.8rem)' 
+              fontSize: 'clamp(5.2rem, 8.8vw, 8.2rem)' 
             }}
             className="font-cinzel-decorative font-bold text-center flex flex-col items-center justify-center gap-1.5 drop-shadow-[0_10px_35px_rgba(0,0,0,0.95)] uppercase"
           >
@@ -204,9 +205,9 @@ export default function HeroSection({
           </p>
         </motion.div>
 
-        {/* Rotating CTA Button (Bottom-Center on Laptop) */}
+        {/* Rotating CTA Button (Bottom-Center on Laptop - Moved Further Upward) */}
         <motion.div 
-          className="absolute bottom-[5%] xl:bottom-[6%] left-1/2 -translate-x-1/2 z-50"
+          className="absolute bottom-[15%] xl:bottom-[16%] left-1/2 -translate-x-1/2 z-50"
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.92 }}
         >
@@ -224,8 +225,8 @@ export default function HeroSection({
                 </textPath>
               </text>
             </svg>
-            <div className="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-[#D4AF7A] flex items-center justify-center group-hover:bg-[#F3E5AB] transition-colors duration-300 shadow-xl">
-              <span className="text-[#0E2A1C] text-xl font-bold">→</span>
+            <div className="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-[#D4AF7A] flex items-center justify-center group-hover:bg-[#F3E5AB] transition-colors duration-300 shadow-xl shrink-0">
+              <ArrowRight className="w-5 h-5 xl:w-6 xl:h-6 text-[#0E2A1C] stroke-[2.5]" />
             </div>
           </button>
         </motion.div>
