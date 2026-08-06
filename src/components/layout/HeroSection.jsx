@@ -13,12 +13,13 @@ export default function HeroSection({
   const navigate = useNavigate();
   const [wordIdx, setWordIdx] = useState(0);
   
-  // Mouse parallax effect
+  // Mouse parallax effect for desktop only (prevents mobile touch lag)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const handleMouseMove = (e) => {
+    if (window.innerWidth < 1024) return;
     setMousePos({
-      x: (e.clientX / window.innerWidth - 0.5) * 30,
-      y: (e.clientY / window.innerHeight - 0.5) * 30,
+      x: (e.clientX / window.innerWidth - 0.5) * 20,
+      y: (e.clientY / window.innerHeight - 0.5) * 20,
     });
   };
 
@@ -32,37 +33,29 @@ export default function HeroSection({
       onMouseMove={handleMouseMove}
       className="relative w-full min-h-[100dvh] h-[100dvh] bg-[#0E2A1C] overflow-hidden select-none flex flex-col justify-between"
     >
-      {/* 1. BACKGROUND GLOW - Subtle light following mouse */}
+      {/* 1. BACKGROUND GLOW - Subtle light following mouse (Desktop) */}
       <div 
-        className="absolute inset-0 opacity-25 pointer-events-none transition-all duration-700 ease-out z-0"
+        className="hidden lg:block absolute inset-0 opacity-25 pointer-events-none transition-all duration-700 ease-out z-0"
         style={{
           background: `radial-gradient(circle at ${50 + mousePos.x/2}% ${50 + mousePos.y/2}%, #D4AF7A 0%, transparent 55%)`,
         }}
       />
 
       {/* 2. LARGE BACKGROUND TEXT (Watermark) */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.04 }}
-        transition={{ duration: 2 }}
-        className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0"
-      >
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0 opacity-[0.04]">
         <h2 className="text-[32vw] font-cinzel-decorative font-black leading-none text-[#F3E5AB]">
           ISAI
         </h2>
-      </motion.div>
+      </div>
 
       {/* 3. MOBILE & TABLET FLEX CONTAINER (< lg screens) */}
-      <div className="lg:hidden relative z-20 w-full h-full flex flex-col justify-between items-center text-center px-4 pt-16 pb-6 overflow-y-auto no-scrollbar">
+      <div className="lg:hidden relative z-20 w-full h-full flex flex-col justify-between items-center text-center px-4 pt-12 sm:pt-16 pb-6 overflow-x-hidden overflow-y-auto no-scrollbar">
         
         {/* Top Header Block */}
-        <div className="flex flex-col items-center max-w-lg w-full z-40">
-          <motion.h1 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="font-cinzel-decorative font-bold uppercase drop-shadow-[0_10px_25px_rgba(0,0,0,0.9)] flex flex-col items-center gap-1 my-2"
-            style={{ fontSize: 'clamp(3.5rem, 12vw, 5.2rem)' }}
+        <div className="flex flex-col items-center max-w-lg w-full z-40 px-2">
+          <h1 
+            className="font-cinzel-decorative font-bold uppercase drop-shadow-[0_10px_25px_rgba(0,0,0,0.9)] flex flex-col items-center gap-0.5 my-1"
+            style={{ fontSize: 'clamp(2.8rem, 9.5vw, 4.8rem)' }}
           >
             <span className="block text-[#E3C381] tracking-wider leading-tight whitespace-nowrap">
               The Art
@@ -70,62 +63,50 @@ export default function HeroSection({
             <span className="block font-bold text-[#F3E5AB] tracking-wider leading-tight whitespace-nowrap">
               of Draping
             </span>
-          </motion.h1>
+          </h1>
 
           {/* Selected Material */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="flex flex-col items-center mt-2 w-full"
-          >
-            <p className="text-xs sm:text-sm font-bold tracking-[0.35em] text-[#D4AF7A] uppercase mb-1">
+          <div className="flex flex-col items-center mt-2 w-full">
+            <p className="text-[10px] sm:text-xs font-bold tracking-[0.35em] text-[#D4AF7A] uppercase mb-1">
               Selected Material
             </p>
-            <div className="h-[2px] w-14 bg-[#D4AF7A] mx-auto mb-2" />
+            <div className="h-[2px] w-12 bg-[#D4AF7A] mx-auto mb-2" />
             
-            <AnimatePresence mode="wait">
-              <motion.h3
-                key={wordIdx}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="text-[#F3E5AB] font-cinzel-decorative font-bold text-2xl xs:text-3xl sm:text-3xl mb-2"
-              >
-                {FABRIC_WORDS[wordIdx]}
-              </motion.h3>
-            </AnimatePresence>
+            <div className="relative h-[36px] flex items-center justify-center overflow-hidden my-1">
+              <AnimatePresence mode="wait">
+                <motion.h3
+                  key={wordIdx}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="text-[#F3E5AB] font-cinzel-decorative font-bold text-xl xs:text-2xl sm:text-3xl tracking-wide whitespace-nowrap"
+                >
+                  {FABRIC_WORDS[wordIdx]}
+                </motion.h3>
+              </AnimatePresence>
+            </div>
 
-            <p className="text-[#D8D0C0]/90 text-sm leading-relaxed font-light max-w-[340px]">
+            <p className="text-[#D8D0C0]/90 text-xs sm:text-sm leading-relaxed font-light max-w-[310px] sm:max-w-[360px]">
               Heirlooms hand-spun from pure mulberry silk, capturing centuries of Indian weaving wisdom in every single fold.
             </p>
-          </motion.div>
+          </div>
         </div>
 
-        {/* Saree Image Draped at Bottom-Left on Mobile */}
-        <div className="absolute inset-x-0 bottom-0 pointer-events-none z-10 flex justify-start items-end overflow-hidden h-[55%]">
-          <motion.img
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1 }}
+        {/* Saree Image Draped at Bottom-Left on Mobile (GPU HARDWARE ACCELERATED) */}
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none z-10 flex justify-start items-end overflow-hidden h-[50%] sm:h-[55%]">
+          <img
             src={fabricImageUrl}
             alt="Draped Saree"
-            className="w-[110%] xs:w-[95%] sm:w-[80%] max-w-[600px] h-auto object-contain origin-bottom-left filter contrast-[1.05] drop-shadow-[0_15px_50px_rgba(0,0,0,0.85)]"
+            className="mobile-float-saree w-[105%] xs:w-[90%] sm:w-[75%] max-w-[550px] h-auto object-contain origin-bottom-left filter contrast-[1.05] drop-shadow-[0_15px_45px_rgba(0,0,0,0.85)]"
           />
         </div>
 
-        {/* Mobile CTA Button (Moved slightly up on Right Side) */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="absolute bottom-12 right-4 xs:right-6 sm:bottom-14 sm:right-8 z-50"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
+        {/* Mobile CTA Button (Moved slightly upward) */}
+        <div className="absolute bottom-14 right-4 sm:bottom-18 sm:right-8 z-50 shrink-0">
           <button
             onClick={() => navigate('/products')}
-            className="relative w-24 h-24 xs:w-28 xs:h-28 flex items-center justify-center group pointer-events-auto cursor-pointer"
+            className="relative w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 flex items-center justify-center group pointer-events-auto cursor-pointer shadow-2xl rounded-full bg-[#0E2A1C]/90 border border-[#D4AF7A]/30 active:scale-95 transition-transform"
           >
             <svg className="absolute inset-0 w-full h-full animate-[spin_12s_linear_infinite]" viewBox="0 0 100 100">
               <defs>
@@ -137,11 +118,11 @@ export default function HeroSection({
                 </textPath>
               </text>
             </svg>
-            <div className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-[#D4AF7A] flex items-center justify-center group-hover:bg-[#F3E5AB] transition-colors duration-300 shadow-xl">
-              <span className="text-[#060F0B] text-lg font-bold">→</span>
+            <div className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-full bg-[#D4AF7A] flex items-center justify-center group-hover:bg-[#F3E5AB] transition-colors duration-300 shadow-xl">
+              <span className="text-[#0E2A1C] text-base xs:text-lg font-bold">→</span>
             </div>
           </button>
-        </motion.div>
+        </div>
       </div>
 
 
@@ -193,7 +174,7 @@ export default function HeroSection({
           />
         </motion.div>
 
-        {/* Selected Material Card (Top-Right on Laptop) */}
+        {/* Selected Material Card (Moved Downward on Laptop) */}
         <motion.div 
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
@@ -202,23 +183,26 @@ export default function HeroSection({
         >
           <p className="text-xs font-bold tracking-[0.35em] text-[#D4AF7A] uppercase mb-1.5">Selected Material</p>
           <div className="h-[2px] w-14 bg-[#D4AF7A] ml-auto mb-3" />
-          <AnimatePresence mode="wait">
-            <motion.h3
-              key={wordIdx}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="text-[#F3E5AB] font-cinzel-decorative font-bold text-2xl xl:text-4xl mb-3"
-            >
-              {FABRIC_WORDS[wordIdx]}
-            </motion.h3>
-          </AnimatePresence>
+          
+          <div className="relative h-[48px] flex items-center justify-end overflow-hidden mb-3">
+            <AnimatePresence mode="wait">
+              <motion.h3
+                key={wordIdx}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="text-[#F3E5AB] font-cinzel-decorative font-bold text-2xl xl:text-4xl whitespace-nowrap"
+              >
+                {FABRIC_WORDS[wordIdx]}
+              </motion.h3>
+            </AnimatePresence>
+          </div>
+
           <p className="text-[#D8D0C0]/90 text-sm leading-relaxed font-light">
             Heirlooms hand-spun from pure mulberry silk, capturing centuries of Indian weaving wisdom in every single fold.
           </p>
         </motion.div>
-
-
 
         {/* Rotating CTA Button (Bottom-Center on Laptop) */}
         <motion.div 
@@ -241,7 +225,7 @@ export default function HeroSection({
               </text>
             </svg>
             <div className="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-[#D4AF7A] flex items-center justify-center group-hover:bg-[#F3E5AB] transition-colors duration-300 shadow-xl">
-              <span className="text-[#060F0B] text-xl font-bold">→</span>
+              <span className="text-[#0E2A1C] text-xl font-bold">→</span>
             </div>
           </button>
         </motion.div>
@@ -249,6 +233,17 @@ export default function HeroSection({
 
       {/* 5. DECORATIVE BORDER ACCENTS */}
       <div className="absolute inset-8 border border-[#D4AF7A]/10 pointer-events-none hidden lg:block z-10" />
+
+      <style jsx>{`
+        @keyframes floatMobile {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50% { transform: translate3d(0, -6px, 0); }
+        }
+        .mobile-float-saree {
+          will-change: transform;
+          animation: floatMobile 5s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   );
 }
