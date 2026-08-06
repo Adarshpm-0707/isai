@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, ShoppingBag, User, LogOut, Settings } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ShoppingBag, User, LogOut, Settings } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import useCart from '../../hooks/useCart';
 import MobileMenu from './MobileMenu';
@@ -15,56 +16,88 @@ export default function Navbar() {
 
   return (
     <>
-      <header 
+      <header
         className="sticky top-0 z-40 bg-cover bg-center bg-no-repeat border-b border-[#F6D18A]/40 shadow-xl transition-all duration-300"
         style={{ backgroundImage: `url(${navbarBg})` }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative flex items-center justify-between h-20">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="relative flex items-center justify-between h-14 sm:h-16 md:h-18">
 
             {/* Left Section: Mobile Menu Toggle / Desktop Nav Links */}
             <div className="flex items-center">
+              {/* ── Animated Hamburger → X button ── */}
               <button
-                onClick={() => setMobileOpen(true)}
+                onClick={() => setMobileOpen(o => !o)}
                 type="button"
-                className="lg:hidden p-2 text-[#FFE8A3] hover:text-[#F6D18A] transition-colors"
-                aria-label="Toggle Navigation Menu"
+                aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={mobileOpen}
+                className="lg:hidden relative flex flex-col items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl transition-colors duration-200 hover:bg-white/10 shrink-0"
+                style={{ border: '1px solid rgba(212,175,122,0.2)' }}
               >
-                <Menu className="w-6 h-6 stroke-[2]" />
+                {/* Top bar */}
+                <motion.span
+                  animate={mobileOpen
+                    ? { rotate: 45, y: 6, width: '16px' }
+                    : { rotate: 0,  y: 0, width: '16px' }
+                  }
+                  transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+                  className="block h-[1.8px] rounded-full absolute"
+                  style={{ background: '#E3C381', top: '12px' }}
+                />
+                {/* Middle bar */}
+                <motion.span
+                  animate={mobileOpen
+                    ? { opacity: 0, scaleX: 0 }
+                    : { opacity: 1, scaleX: 1 }
+                  }
+                  transition={{ duration: 0.2 }}
+                  className="block h-[1.8px] rounded-full"
+                  style={{ background: '#E3C381', width: '12px' }}
+                />
+                {/* Bottom bar */}
+                <motion.span
+                  animate={mobileOpen
+                    ? { rotate: -45, y: -6, width: '16px' }
+                    : { rotate: 0,   y: 0,  width: '16px' }
+                  }
+                  transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+                  className="block h-[1.8px] rounded-full absolute"
+                  style={{ background: '#E3C381', bottom: '12px' }}
+                />
               </button>
 
-              <nav className="hidden lg:flex space-x-8 font-sans text-xs font-bold uppercase tracking-wider text-[#FFE8A3]">
-                <Link to="/" className="hover:text-[#F6D18A] transition-colors relative py-1 group">
+              <nav className="hidden lg:flex space-x-8 font-sans text-xs font-bold uppercase tracking-wider text-[#E3C381]">
+                <Link to="/" className="hover:text-[#F0DDB0] transition-colors relative py-1 group">
                   Home
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFE8A3] transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#E3C381] transition-all duration-300 group-hover:w-full" />
                 </Link>
-                <Link to="/products" className="hover:text-[#F6D18A] transition-colors relative py-1 group">
+                <Link to="/products" className="hover:text-[#F0DDB0] transition-colors relative py-1 group">
                   Collection
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFE8A3] transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#E3C381] transition-all duration-300 group-hover:w-full" />
                 </Link>
-                <Link to="/about" className="hover:text-[#F6D18A] transition-colors relative py-1 group">
+                <Link to="/about" className="hover:text-[#F0DDB0] transition-colors relative py-1 group">
                   Our Story
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#FFE8A3] transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#E3C381] transition-all duration-300 group-hover:w-full" />
                 </Link>
               </nav>
             </div>
 
-            {/* Centralized Logo */}
+            {/* Centralized Logo (Compact & Sleek) */}
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
-              <Link to="/" className="flex items-center p-1.5">
-                <img src={logoImg} alt="Isai Tarang Logo" className="h-12 sm:h-16 w-auto object-contain transition-transform hover:scale-105" />
+              <Link to="/" className="flex items-center p-1">
+                <img src={logoImg} alt="Isai Tarang Logo" className="h-8 xs:h-9 sm:h-11 md:h-12 lg:h-14 w-auto object-contain transition-transform duration-300 hover:scale-105 filter drop-shadow-sm" />
               </Link>
             </div>
 
             {/* Right Icons / Auth */}
-            <div className="flex items-center space-x-2 sm:space-x-5">
+            <div className="flex items-center space-x-1.5 sm:space-x-4">
               {user && (role === 'admin' || role === 'superadmin') && (
                 <Link
                   to="/admin"
-                  className="hidden lg:flex items-center gap-1.5 text-[#FFE8A3] hover:text-[#F6D18A] font-sans text-xs font-bold uppercase tracking-wider transition-colors"
+                  className="hidden lg:flex items-center gap-1.5 text-[#E3C381] hover:text-[#F0DDB0] font-sans text-xs font-bold uppercase tracking-wider transition-colors"
                   title="Admin Dashboard"
                 >
-                  <Settings className="w-4 h-4 text-[#FFE8A3]" />
+                  <Settings className="w-4 h-4 text-[#E3C381]" />
                   Admin
                 </Link>
               )}
@@ -72,7 +105,7 @@ export default function Navbar() {
               {user && (
                 <Link
                   to="/orders"
-                  className="hidden lg:flex items-center gap-1 text-[#FFE8A3] hover:text-[#F6D18A] font-sans text-xs font-bold uppercase tracking-wider transition-colors"
+                  className="hidden lg:flex items-center gap-1 text-[#E3C381] hover:text-[#F0DDB0] font-sans text-xs font-bold uppercase tracking-wider transition-colors"
                 >
                   My Orders
                 </Link>
@@ -80,12 +113,12 @@ export default function Navbar() {
 
               <Link
                 to="/cart"
-                className="relative p-2 text-[#FFE8A3] hover:text-[#F6D18A] transition-colors"
+                className="relative p-2 text-[#E3C381] hover:text-[#F0DDB0] transition-colors"
                 aria-label="Shopping Cart"
               >
                 <ShoppingBag className="w-5 h-5 stroke-[2]" />
                 {cartCount > 0 && (
-                  <span className="absolute top-0 right-0 w-5 h-5 bg-[#FFE8A3] text-[#800202] font-sans font-bold text-[10px] rounded-full flex items-center justify-center border border-[#800202] shadow">
+                  <span className="absolute top-0 right-0 w-4 h-4 sm:w-5 sm:h-5 bg-[#E3C381] text-[#0F2318] font-sans font-bold text-[9px] sm:text-[10px] rounded-full flex items-center justify-center border border-[#0F2318] shadow">
                     {cartCount}
                   </span>
                 )}
@@ -94,13 +127,13 @@ export default function Navbar() {
               <div className="hidden lg:block">
                 {user ? (
                   <div className="flex items-center gap-4">
-                    <span className="font-sans text-xs text-[#FFE8A3] font-bold max-w-[120px] truncate" title={user.email}>
+                    <span className="font-sans text-xs text-[#E3C381] font-bold max-w-[120px] truncate" title={user.email}>
                       {user.email.split('@')[0]}
                     </span>
                     <button
                       onClick={logout}
                       type="button"
-                      className="p-1 text-[#FFE8A3] hover:text-[#F6D18A] transition-colors"
+                      className="p-1 text-[#E3C381] hover:text-[#F0DDB0] transition-colors"
                       title="Log Out"
                     >
                       <LogOut className="w-4 h-4" />
@@ -109,7 +142,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to="/login"
-                    className="flex items-center gap-1 bg-[#FFE8A3] text-[#800202] hover:bg-[#F6D18A] font-sans text-xs font-bold uppercase tracking-wider transition-all px-5 py-2 rounded-full shadow-md border border-[#FFE8A3]"
+                    className="flex items-center gap-1 bg-[#E3C381] text-[#0F2318] hover:bg-[#F0DDB0] font-sans text-xs font-bold uppercase tracking-wider transition-all px-4 py-2 rounded-full shadow-md border border-[#E3C381]"
                   >
                     <User className="w-3.5 h-3.5" />
                     Sign In

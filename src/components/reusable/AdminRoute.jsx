@@ -14,9 +14,11 @@ export default function AdminRoute({ children }) {
     );
   }
 
-  if (!user || (role !== 'admin' && role !== 'superadmin')) {
-    console.warn('Access denied: Admin role required. Current role:', role);
-    return <Navigate to="/" replace />;
+  if (!user || role !== 'admin') {
+    if (user && role !== 'admin') {
+      alert('Access denied: Admin privileges required.');
+    }
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return children;

@@ -1,62 +1,81 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 @import "tailwindcss";
 
 @theme {
-  /* User Red & Gold Theme Tokens */
-  --color-bright-gold:    #FFE8A3;
-  --color-main-gold:      #F6D18A;
-  --color-deep-gold:      #D8A55A;
-  --color-dark-red:       #8B0000;
-  --color-deep-red:       #4A0000;
+  /* ── Legacy Gold/Red Tokens (kept for backward compat) ── */
+  --color-bright-gold: #FFE8A3;
+  --color-main-gold: #F6D18A;
+  --color-deep-gold: #D8A55A;
+  --color-dark-red: #8B0000;
+  --color-deep-red: #4A0000;
 
-  --color-primary:        #F6D18A;
-  --color-primary-light:  #FFE2A8;
-  --color-primary-dark:   #D8A55A;
+  --color-primary: #F6D18A;
+  --color-primary-light: #FFE2A8;
+  --color-primary-dark: #D8A55A;
 
-  --font-playfair:  "Playfair Display", "Cinzel", serif;
-  --font-cinzel:    "Cinzel", serif;
-  --font-sans:      "Plus Jakarta Sans", "Outfit", sans-serif;
+  /* ── Hero Palette Tokens (rich dark green + champagne gold) ── */
+  --color-hero-bg-primary: #0E2A1C;
+  --color-hero-bg-secondary: #0A2216;
+  --color-hero-gold-heading: #E3C381;
+  --color-hero-gold-accent: #D4AF7A;
+  --color-hero-gold-light: #F0DDB0;
+  --color-hero-cream-body: #D8D0C0;
+  --color-hero-cream-muted: #B8AF9C;
+
+  --font-playfair: "Playfair Display", "Cinzel", serif;
+  --font-cinzel: "Cinzel", serif;
+  --font-sans: "Plus Jakarta Sans", "Outfit", sans-serif;
 }
 
 @layer base {
-  *, ::before, ::after {
+
+  *,
+  ::before,
+  ::after {
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
 
   html {
     scroll-behavior: smooth;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    background-color: rgba(128, 2, 2, 1);
-    background-image: linear-gradient(135deg, rgba(128, 2, 2, 1) 0%, rgba(180, 40, 2, 1) 50%, rgba(241, 85, 2, 1) 100%);
-    background-attachment: fixed;
-    background-size: cover;
-    color: #FFE8A3;
+    background-color: #0E2A1C;
+    color: #E3C381;
     overflow-x: hidden;
     max-width: 100vw;
   }
 
   body {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    background-color: rgba(128, 2, 2, 1);
-    background-image: linear-gradient(135deg, rgba(128, 2, 2, 1) 0%, rgba(180, 40, 2, 1) 50%, rgba(241, 85, 2, 1) 100%);
-    background-attachment: fixed;
-    background-size: cover;
-    color: #FFE8A3;
+    background-color: #0E2A1C;
+    color: #E3C381;
     max-width: 100vw;
     @apply antialiased overflow-x-hidden min-h-screen flex flex-col;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Playfair Display', 'Cinzel', serif !important;
-    color: #FFE8A3 !important;
+    color: #E3C381 !important;
     text-shadow: none !important;
     @apply tracking-wide break-words font-bold;
   }
 
-  p, span, button, input, textarea, select, a, li, label {
+  p,
+  span,
+  button,
+  input,
+  textarea,
+  select,
+  a,
+  li,
+  label {
     font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif !important;
-    color: #FFE8A3;
+    color: #D8D0C0;
     text-shadow: none !important;
     @apply tracking-wide break-words font-medium;
   }
@@ -68,25 +87,27 @@
 
 /* Glassmorphism Design Utilities */
 .glass-panel {
-  background: rgba(246, 209, 138, 0.06);
+  background: rgba(227, 195, 129, 0.06);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(246, 209, 138, 0.25);
+  border: 1px solid rgba(212, 175, 122, 0.25);
 }
 
 .glass-card {
-  background: rgba(246, 209, 138, 0.08);
+  background: rgba(227, 195, 129, 0.07);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(246, 209, 138, 0.3);
+  border: 1px solid rgba(212, 175, 122, 0.28);
   transition: all 0.4s ease;
 }
 
 .glass-card:hover {
-  background: rgba(246, 209, 138, 0.15);
-  border-color: rgba(246, 209, 138, 0.6);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  background: rgba(227, 195, 129, 0.12);
+  border-color: rgba(212, 175, 122, 0.55);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
 }
+
+
 
 /* Custom Helpers */
 .text-gold-gradient {
@@ -125,19 +146,39 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-.font-cinzel, .font-cormorant, .font-playfair, .font-sans,
-.font-cormorant-sc, .font-quiche, .font-burgues, .font-trajan {
+.font-cinzel-decorative {
+  font-family: 'Cinzel Decorative', 'Cinzel', serif !important;
+}
+
+.font-cinzel,
+.font-cormorant,
+.font-cormorant-sc,
+.font-quiche,
+.font-burgues,
+.font-trajan {
   font-family: 'Cinzel', serif !important;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track  { background: #FFEAD7; }
-::-webkit-scrollbar-thumb  { background: linear-gradient(135deg, #D8A55A, #B67A2F, #5C2F14); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #5C2F14; }
+::-webkit-scrollbar {
+  width: 6px;
+}
 
+::-webkit-scrollbar-track {
+  background: #0A1810;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #E3C381, #D4AF7A, #B8860B);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #F0DDB0;
+}

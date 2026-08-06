@@ -23,6 +23,11 @@ import AdminDashboard from '../pages/admin/AdminDashboard';
 import ManageProducts from '../pages/admin/ManageProducts';
 import AddEditProduct from '../pages/admin/AddEditProduct';
 import ManageOrders from '../pages/admin/ManageOrders';
+import ManageCategories from '../pages/admin/ManageCategories';
+import ManageCoupons from '../pages/admin/ManageCoupons';
+import ManageAdmins from '../pages/admin/ManageAdmins';
+import PaymentSettings from '../pages/admin/PaymentSettings';
+import ActivityLogs from '../pages/admin/ActivityLogs';
 
 export default function AppRoutes() {
   return (
@@ -112,6 +117,46 @@ export default function AppRoutes() {
           element={
             <AdminRoute>
               <ManageOrders />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/categories"
+          element={
+            <AdminRoute>
+              <ManageCategories />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/coupons"
+          element={
+            <AdminRoute>
+              <ManageCoupons />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/admins"
+          element={
+            <AdminRoute>
+              <ManageAdmins />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/payment-settings"
+          element={
+            <AdminRoute>
+              <PaymentSettings />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="admin/activity-logs"
+          element={
+            <AdminRoute>
+              <ActivityLogs />
             </AdminRoute>
           }
         />

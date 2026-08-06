@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabaseClient';
+import { productService } from '../../services/productService';
+import { adminLogService } from '../../services/adminLogService';
 import SectionHeading from '../../components/reusable/SectionHeading';
-import Loader from '../../components/reusable/Loader';
 import Button from '../../components/reusable/Button';
 import { ArrowLeft, Save, Upload, Info } from 'lucide-react';
 
@@ -15,48 +15,37 @@ export default function AddEditProduct() {
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState(null);
 
-  // Form states
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+  const [discountPrice, setDiscountPrice] = useState('');
+  const [cost, setCost] = useState('');
   const [stock, setStock] = useState('');
   const [category, setCategory] = useState('Banarasi');
-  
-  // 3 image slots
+
   const [images, setImages] = useState(['', '', '']);
   const [uploadingIndex, setUploadingIndex] = useState(null);
 
-  // If in edit mode, fetch existing product details
   useEffect(() => {
     if (isEdit) {
       const loadProduct = async () => {
         setFetching(true);
         setError(null);
         try {
-          const { data, error: dbErr } = await supabase
-            .from('products')
-            .select('*')
-            .eq('id', id)
-            .single();
-
-          if (dbErr) throw dbErr;
-
+          const data = await productService.getProductById(id);
           if (data) {
             setName(data.name || '');
             setDescription(data.description || '');
             setPrice(data.price || '');
+            setDiscountPrice(data.discount_price || '');
+            setCost(data.cost || '');
             setStock(data.stock || 0);
             setCategory(data.category || 'Banarasi');
-            // Align images to 3 slots
             const dbImages = data.images || [];
-            setImages([
-              dbImages[0] || '',
-              dbImages[1] || '',
-              dbImages[2] || '',
-            ]);
+            setImages([dbImages[0] || '', dbImages[1] || '', dbImages[2] || '']);
           }
         } catch (err) {
-          console.error('Failed to load product for editing:', err);
+          console.error('Failed to load product:', err);
           setError('Failed to fetch product details: ' + err.message);
         } finally {
           setFetching(false);
@@ -73,40 +62,16 @@ export default function AddEditProduct() {
     setImages(updated);
   };
 
-  // Handles uploading files to Supabase Storage bucket 'products'
   const handleFileUpload = async (index, file) => {
     if (!file) return;
-
     setUploadingIndex(index);
     setError(null);
     try {
-      // Create random path to prevent overwrites
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.floor(Math.random() * 1000)}.${fileExt}`;
-      const filePath = `product-images/${fileName}`;
-
-      // Upload file
-      const { error: uploadError } = await supabase.storage
-        .from('products')
-        .upload(filePath, file, { cacheControl: '3600', upsert: true });
-
-      if (uploadError) {
-        // Fallback info: if bucket 'products' is not configured, inform the user
-        throw new Error(
-          `${uploadError.message}. Make sure you have created a public bucket named "products" in Supabase Storage.`
-        );
-      }
-
-      // Generate public URL
-      const { data } = supabase.storage
-        .from('products')
-        .getPublicUrl(filePath);
-
-      const publicUrl = data.publicUrl;
+      const publicUrl = await productService.uploadProductImage(file);
       handleImageChange(index, publicUrl);
     } catch (err) {
       console.error('File upload error:', err);
-      setError(err.message || 'File upload failed. Please paste an image URL instead.');
+      setError(err.message || 'File upload failed');
     } finally {
       setUploadingIndex(null);
     }
@@ -117,12 +82,13 @@ export default function AddEditProduct() {
     setLoading(true);
     setError(null);
 
-    // Form data packaging
     const cleanedImages = images.map((img) => img.trim()).filter(Boolean);
     const productPayload = {
       name: name.trim(),
       description: description.trim(),
       price: parseFloat(price) || 0,
+      discount_price: discountPrice ? parseFloat(discountPrice) : null,
+      cost: cost ? parseFloat(cost) : 0,
       stock: parseInt(stock) || 0,
       category,
       images: cleanedImages.length > 0 ? cleanedImages : null,
@@ -130,22 +96,12 @@ export default function AddEditProduct() {
 
     try {
       if (isEdit) {
-        // Update DB
-        const { error: updErr } = await supabase
-          .from('products')
-          .update(productPayload)
-          .eq('id', id);
-
-        if (updErr) throw updErr;
+        const res = await productService.updateProduct(id, productPayload);
+        await adminLogService.logAction('UPDATE_PRODUCT', 'products', id, productPayload);
       } else {
-        // Insert DB
-        const { error: insErr } = await supabase
-          .from('products')
-          .insert([productPayload]);
-
-        if (insErr) throw insErr;
+        const res = await productService.createProduct(productPayload);
+        await adminLogService.logAction('CREATE_PRODUCT', 'products', res.id, productPayload);
       }
-
       navigate('/admin/products');
     } catch (err) {
       console.error('Form submit failed:', err);
@@ -157,7 +113,6 @@ export default function AddEditProduct() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-8 text-[#D8A55A]">
-      {/* Header back button */}
       <div>
         <button
           onClick={() => navigate('/admin/products')}
@@ -169,8 +124,8 @@ export default function AddEditProduct() {
       </div>
 
       <SectionHeading
-        title={isEdit ? 'Modify Saree Details' : 'Add Heritage Saree'}
-        subtitle="Specify weaving characteristics, category attributes, and images"
+        title={isEdit ? 'Modify Product Details' : 'Add New Product'}
+        subtitle="Configure pricing, stock index, category attributes, and media"
         align="left"
       />
 
@@ -181,47 +136,56 @@ export default function AddEditProduct() {
         </div>
       )}
 
-      {/* Main product form */}
-      <form onSubmit={handleSubmit} className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 sm:p-8 rounded-sm space-y-6 shadow-xl text-[#D8A55A]">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 sm:p-8 rounded-sm space-y-6 shadow-xl text-[#D8A55A]"
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Name */}
           <div className="sm:col-span-2 space-y-1">
             <label className="block text-xs uppercase font-bold text-[#D8A55A] tracking-wider">
-              Saree Name *
+              Product Name *
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
-              placeholder="e.g. Amber Kanchipuram Brocade Saree"
+              placeholder="Product Title"
               required
             />
           </div>
 
-          {/* Category */}
           <div className="space-y-1">
             <label className="block text-xs uppercase font-bold text-[#D8A55A] tracking-wider">
-              Category Weave *
+              Category *
             </label>
-            <select
+            <input
+              type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] focus:outline-none focus:border-[#F6D18A] font-semibold uppercase tracking-wider text-[11px]"
-            >
-              <option value="Banarasi" className="bg-[#2B1409] text-[#F6D18A]">Banarasi</option>
-              <option value="Kanchipuram" className="bg-[#2B1409] text-[#F6D18A]">Kanchipuram</option>
-              <option value="Chanderi" className="bg-[#2B1409] text-[#F6D18A]">Chanderi</option>
-              <option value="Tussar" className="bg-[#2B1409] text-[#F6D18A]">Tussar</option>
-              <option value="Organza" className="bg-[#2B1409] text-[#F6D18A]">Organza</option>
-              <option value="Patola" className="bg-[#2B1409] text-[#F6D18A]">Patola</option>
-            </select>
+              className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] focus:outline-none focus:border-[#F6D18A]"
+              placeholder="e.g. Banarasi"
+              required
+            />
           </div>
 
-          {/* Price */}
           <div className="space-y-1">
             <label className="block text-xs uppercase font-bold text-[#D8A55A] tracking-wider">
-              Price (INR) *
+              Stock Units *
+            </label>
+            <input
+              type="number"
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
+              className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
+              placeholder="e.g. 10"
+              required
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-xs uppercase font-bold text-[#D8A55A] tracking-wider">
+              Regular Price (₹) *
             </label>
             <input
               type="number"
@@ -233,36 +197,45 @@ export default function AddEditProduct() {
             />
           </div>
 
-          {/* Stock */}
           <div className="space-y-1">
             <label className="block text-xs uppercase font-bold text-[#D8A55A] tracking-wider">
-              Stock Units *
+              Discount / Offer Price (₹)
             </label>
             <input
               type="number"
-              value={stock}
-              onChange={(e) => setStock(e.target.value)}
+              value={discountPrice}
+              onChange={(e) => setDiscountPrice(e.target.value)}
               className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
-              placeholder="e.g. 5"
-              required
+              placeholder="e.g. 12900"
             />
           </div>
 
-          {/* Description */}
+          <div className="space-y-1 sm:col-span-2">
+            <label className="block text-xs uppercase font-bold text-[#D8A55A] tracking-wider">
+              Cost Price (₹) [Internal]
+            </label>
+            <input
+              type="number"
+              value={cost}
+              onChange={(e) => setCost(e.target.value)}
+              className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
+              placeholder="e.g. 8000"
+            />
+          </div>
+
           <div className="sm:col-span-2 space-y-1">
             <label className="block text-xs uppercase font-bold text-[#D8A55A] tracking-wider">
-              Description / Weaving Story
+              Description
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm px-4 py-2.5 text-sm text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
-              placeholder="Provide historical context or materials detail of this handloom masterpiece..."
+              placeholder="Product overview and material details..."
             />
           </div>
 
-          {/* Image slots */}
           <div className="sm:col-span-2 space-y-4 pt-4 border-t border-[#D8A55A]/20">
             <h4 className="font-playfair text-sm font-bold text-[#F6D18A] uppercase tracking-wider">
               Product Images (3 slots)
@@ -274,11 +247,9 @@ export default function AddEditProduct() {
                   <div className="w-full sm:w-1/3 text-xs text-[#D8A55A]/80 font-bold uppercase tracking-wider">
                     Slot {index + 1}
                   </div>
-                  
-                  {/* File Upload Selector */}
                   <label className="relative cursor-pointer bg-[#5C2F14] border border-[#D8A55A]/40 hover:border-[#F6D18A] px-4 py-2 rounded-sm text-xs font-semibold text-[#F6D18A] flex items-center gap-1.5 flex-shrink-0">
                     <Upload className="w-3.5 h-3.5" />
-                    {uploadingIndex === index ? 'Uploading...' : 'Upload'}
+                    {uploadingIndex === index ? 'Uploading...' : 'Upload File'}
                     <input
                       type="file"
                       accept="image/*"
@@ -287,20 +258,16 @@ export default function AddEditProduct() {
                       disabled={uploadingIndex !== null}
                     />
                   </label>
-
-                  {/* URL Text pasting field */}
                   <input
                     type="url"
                     value={img}
                     onChange={(e) => handleImageChange(index, e.target.value)}
                     className="w-full bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm px-4 py-2 text-xs text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
-                    placeholder="Or paste image URL here..."
+                    placeholder="Or paste URL..."
                   />
-
-                  {/* Tiny slot preview image */}
                   {img && (
                     <div className="w-10 h-10 overflow-hidden rounded bg-[#2B1409] border border-[#D8A55A]/30 flex-shrink-0">
-                      <img src={img} alt="Slot preview" className="w-full h-full object-cover" />
+                      <img src={img} alt="Preview" className="w-full h-full object-cover" />
                     </div>
                   )}
                 </div>
@@ -309,7 +276,6 @@ export default function AddEditProduct() {
           </div>
         </div>
 
-        {/* Submit */}
         <div className="pt-6 border-t border-[#D8A55A]/20 flex justify-end">
           <Button
             type="submit"

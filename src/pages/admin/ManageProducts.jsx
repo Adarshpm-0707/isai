@@ -1,37 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../../lib/supabaseClient';
-import { MOCK_PRODUCTS } from '../../hooks/useProducts';
+import { productService } from '../../services/productService';
+import { adminLogService } from '../../services/adminLogService';
 import SectionHeading from '../../components/reusable/SectionHeading';
-import Loader from '../../components/reusable/Loader';
 import PriceTag from '../../components/reusable/PriceTag';
-import { Plus, Edit2, Trash2, ShieldAlert } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 
 export default function ManageProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [feedback, setFeedback] = useState(null);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
 
   const fetchAllProducts = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.warn('Supabase products fetch failed in admin. Using fallback:', error.message);
-        setProducts(MOCK_PRODUCTS);
-      } else if (data && data.length > 0) {
-        setProducts(data);
-      } else {
-        // If DB has zero rows, fallback to mock products for sandbox simulation
-        setProducts(MOCK_PRODUCTS);
-      }
+      const res = await productService.getProducts({
+        search,
+        category: categoryFilter === 'All' ? null : categoryFilter,
+        limit: 100,
+      });
+      setProducts(res.products || []);
     } catch (err) {
       console.error('Failed to query products:', err);
-      setProducts(MOCK_PRODUCTS);
     } finally {
       setLoading(false);
     }
@@ -39,30 +30,14 @@ export default function ManageProducts() {
 
   useEffect(() => {
     fetchAllProducts();
-  }, []);
+  }, [search, categoryFilter]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to permanently delete this product?')) return;
-
     try {
-      // Check if it's a mock product id (has 'prod-' prefix)
-      if (String(id).startsWith('prod-')) {
-        setProducts(products.filter((p) => p.id !== id));
-        setFeedback('Mock product removed successfully (Local sandbox state).');
-        setTimeout(() => setFeedback(null), 3000);
-        return;
-      }
-
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
+      await productService.deleteProduct(id);
+      await adminLogService.logAction('DELETE_PRODUCT', 'products', id, {});
       setProducts(products.filter((p) => p.id !== id));
-      setFeedback('Product deleted successfully from database.');
-      setTimeout(() => setFeedback(null), 3000);
     } catch (err) {
       console.error('Delete failed:', err);
       alert('Failed to delete product: ' + err.message);
@@ -71,30 +46,46 @@ export default function ManageProducts() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
-      
-      {/* Title block */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
           title="Product Inventory"
-          subtitle="Configure, add, edit, or remove sarees in the store database"
+          subtitle="Configure, add, edit, or remove catalog items"
           align="left"
         />
         <Link
           to="/admin/products/new"
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#F6D18A] via-[#D8A55A] to-[#B67A2F] text-[#2B1409] hover:opacity-90 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-sm shadow-xl transition-all"
+          className="inline-flex items-center gap-2 bg-[#F6D18A] text-[#2B1409] hover:opacity-90 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded shadow-xl transition-all"
         >
-          <Plus className="w-4 h-4" /> Add New Saree
+          <Plus className="w-4 h-4" /> Add Product
         </Link>
       </div>
 
-      {feedback && (
-        <div className="bg-[#5C2F14]/50 border border-[#F6D18A]/40 text-[#F6D18A] p-4 rounded-sm font-sans text-xs">
-          {feedback}
+      {/* Filter & Search Controls */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#2B1409] border border-[#D8A55A]/30 p-4 rounded text-xs">
+        <div className="flex items-center gap-2 bg-[#4A0000] border border-[#D8A55A]/30 rounded px-3 py-2 w-full sm:w-72">
+          <Search className="w-4 h-4 text-[#D8A55A]" />
+          <input
+            type="text"
+            placeholder="Search by title..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-transparent text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none w-full"
+          />
         </div>
-      )}
 
-      {/* Table */}
-      <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 rounded-sm shadow-xl overflow-hidden text-[#D8A55A]">
+        <div className="flex items-center gap-2">
+          <span className="text-[#D8A55A] font-bold uppercase">Category:</span>
+          <input
+            type="text"
+            placeholder="Category filter..."
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="bg-[#4A0000] border border-[#D8A55A]/30 text-[#F6D18A] px-3 py-2 rounded focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <div className="bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm shadow-xl overflow-hidden text-[#D8A55A]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs font-sans">
             <thead>
@@ -110,48 +101,37 @@ export default function ManageProducts() {
             <tbody className="divide-y divide-[#D8A55A]/10">
               {products.map((product) => (
                 <tr key={product.id} className="hover:bg-[#5C2F14]/30">
-                  {/* Preview Image */}
                   <td className="py-4 px-6">
                     <div className="w-10 aspect-[3/4] overflow-hidden bg-[#2B1409] border border-[#D8A55A]/20">
                       <img
-                        src={product.images?.[0] || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=100'}
+                        src={product.images?.[0]}
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
                   </td>
-                  
-                  {/* Name */}
                   <td className="py-4 px-6 font-semibold text-[#F6D18A] max-w-xs truncate">
                     {product.name}
                   </td>
-
-                  {/* Category */}
                   <td className="py-4 px-6 uppercase text-[10px] text-[#D8A55A] font-bold">
                     {product.category}
                   </td>
-
-                  {/* Price */}
                   <td className="py-4 px-6">
-                    <PriceTag price={product.price} size="sm" />
+                    <PriceTag price={product.discount_price || product.price} size="sm" />
                   </td>
-
-                  {/* Stock count */}
                   <td className="py-4 px-6 font-medium text-[#D8A55A]">
                     {product.stock <= 0 ? (
-                      <span className="text-[#F6D18A] bg-[#5C2F14] px-2 py-0.5 rounded font-bold uppercase text-[9px] tracking-wide border border-[#F6D18A]/30">
+                      <span className="text-[#F6D18A] bg-[#5C2F14] px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#F6D18A]/30">
                         Out of Stock
                       </span>
                     ) : product.stock < 5 ? (
-                      <span className="text-[#F6D18A] bg-[#5C2F14]/70 px-2 py-0.5 rounded font-bold uppercase text-[9px] tracking-wide border border-[#F6D18A]/30">
+                      <span className="text-[#F6D18A] bg-[#5C2F14]/70 px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#F6D18A]/30">
                         Low Stock ({product.stock})
                       </span>
                     ) : (
                       <span>{product.stock} units</span>
                     )}
                   </td>
-
-                  {/* Action buttons */}
                   <td className="py-4 px-6 text-right space-x-2">
                     <Link
                       to={`/admin/products/edit/${product.id}`}
@@ -175,7 +155,6 @@ export default function ManageProducts() {
           </table>
         </div>
       </div>
-
     </div>
   );
 }

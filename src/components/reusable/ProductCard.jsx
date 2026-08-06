@@ -20,18 +20,20 @@ export default function ProductCard({ product }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5 }}
-      className="group relative flex flex-col h-full bg-[#FFE8A3]/10 backdrop-blur-md border border-[#FFE8A3]/25 rounded-2xl overflow-hidden shadow-xl hover:bg-[#FFE8A3]/15 hover:border-[#FFE8A3]/50 transition-all duration-500 hover:shadow-[0_12px_40px_rgba(255,232,163,0.12)] hover:-translate-y-1.5"
+      className="group relative flex flex-col h-full bg-[#E3C381]/10 backdrop-blur-md border border-[#E3C381]/20 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:bg-[#E3C381]/15 hover:border-[#E3C381]/45 transition-all duration-500 hover:shadow-[0_10px_35px_rgba(227,195,129,0.12)] hover:-translate-y-1"
     >
-      {/* ── IMAGE AREA (FULL VISIBILITY DUAL-LAYER) ── */}
-      <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#4A0000]/40 flex items-center justify-center p-2">
-        {/* Ambient Blurred Fill Layer */}
+      {/* ── IMAGE AREA ── */}
+      <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#0A1810]/60 flex items-center justify-center p-1.5 sm:p-2">
+
+        {/* Ambient blurred bg layer */}
         <img
           src={primaryImage}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover blur-md opacity-35 scale-110 pointer-events-none"
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-110 pointer-events-none"
         />
 
-        {/* Main Product Image (Full Image Visible, No Cropping) */}
+        {/* Main product image */}
         <Link to={`/products/${product.id}`} className="relative z-10 w-full h-full block">
           <img
             src={primaryImage}
@@ -41,69 +43,70 @@ export default function ProductCard({ product }) {
           />
         </Link>
 
-        {/* Category badge */}
+        {/* Category badge — compact on mobile */}
         {product.category && (
-          <span className="absolute top-3 left-3 bg-gradient-to-r from-[#FFE8A3] via-[#F6D18A] to-[#D8A55A] text-[#800202] font-sans font-bold text-[9px] uppercase tracking-[0.2em] px-3 py-1 z-20 pointer-events-none shadow-lg rounded-full">
+          <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-gradient-to-r from-[#E3C381] via-[#D4AF7A] to-[#C8A96E] text-[#0F2318] font-bold text-[7px] sm:text-[9px] uppercase tracking-[0.15em] sm:tracking-[0.2em] px-1.5 sm:px-2.5 py-0.5 sm:py-1 z-20 pointer-events-none shadow-md rounded-full leading-tight">
             {product.category}
           </span>
         )}
 
         {/* Sold Out overlay */}
         {product.stock <= 0 && (
-          <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center z-20 pointer-events-none">
-            <span className="font-sans font-bold text-xs uppercase tracking-[0.25em] text-[#FFE8A3] border border-[#FFE8A3]/60 px-5 py-2 rounded-full bg-[#800202]/60">
+          <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20 pointer-events-none">
+            <span className="font-bold text-[9px] sm:text-xs uppercase tracking-[0.2em] text-[#E3C381] border border-[#E3C381]/60 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full bg-[#0F2318]/60">
               Sold Out
             </span>
           </div>
         )}
 
-        {/* Action buttons overlay */}
+        {/* Action buttons overlay — icon-only on mobile, text+icon on sm+ */}
         {product.stock > 0 && (
-          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 opacity-100 sm:opacity-0 sm:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-20">
+          <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 flex items-center gap-1.5 sm:gap-2 opacity-100 sm:opacity-0 sm:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-20">
+
+            {/* Mobile: icon-only cart button / Desktop: text+icon */}
             <button
               onClick={(e) => { e.preventDefault(); addToCart(product, 1); }}
               type="button"
-              className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#FFE8A3] via-[#F6D18A] to-[#D8A55A] text-[#800202] font-sans font-extrabold text-[10px] uppercase tracking-[0.2em] py-2.5 hover:brightness-110 transition-all duration-300 cursor-pointer shadow-xl rounded-xl"
+              title="Add to Cart"
+              className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 bg-gradient-to-r from-[#E3C381] via-[#D4AF7A] to-[#C8A96E] text-[#0F2318] font-extrabold text-[8px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.2em] py-2 sm:py-2.5 hover:brightness-110 transition-all duration-300 cursor-pointer shadow-lg rounded-lg sm:rounded-xl"
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              Add to Cart
+              <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+              <span className="hidden sm:inline">Add to Cart</span>
+              <span className="sm:hidden">Cart</span>
             </button>
+
+            {/* Eye / View button */}
             <Link
               to={`/products/${product.id}`}
               title="View Details"
-              className="flex items-center justify-center w-9 h-9 bg-[#4A0000]/80 text-[#FFE8A3] border border-[#FFE8A3]/40 hover:bg-[#FFE8A3] hover:text-[#800202] transition-colors duration-300 rounded-xl shadow-xl shrink-0"
+              className="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 bg-[#0F2318]/80 text-[#E3C381] border border-[#E3C381]/40 hover:bg-[#E3C381] hover:text-[#0F2318] transition-colors duration-300 rounded-lg sm:rounded-xl shadow-lg shrink-0"
             >
-              <Eye className="w-4 h-4" />
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
             </Link>
           </div>
         )}
       </div>
 
       {/* ── DETAILS AREA ── */}
-      <div className="p-4 sm:p-5 border-t border-[#FFE8A3]/20 space-y-2.5 bg-[#FFE8A3]/5 text-[#FFE8A3] flex-grow flex flex-col justify-between">
-        <div>
-          <Link
-            to={`/products/${product.id}`}
-            className="block font-playfair text-sm sm:text-base font-bold text-[#FFE8A3] hover:text-white transition-colors line-clamp-1 tracking-wide"
-          >
-            {product.name}
-          </Link>
-          
-          {product.description && (
-            <p className="mt-1 font-sans text-xs text-[#FFE8A3]/70 line-clamp-1 tracking-wide leading-relaxed">
-              {product.description}
-            </p>
-          )}
-        </div>
+      <div className="p-2.5 sm:p-4 border-t border-[#E3C381]/15 bg-[#E3C381]/5 text-[#E3C381] flex-grow flex flex-col justify-between gap-2">
 
-        <div className="flex items-center justify-between pt-2 border-t border-[#FFE8A3]/15 mt-auto">
+        {/* Product name */}
+        <Link
+          to={`/products/${product.id}`}
+          className="block font-playfair text-xs sm:text-sm font-bold text-[#E3C381] hover:text-[#F0DDB0] transition-colors line-clamp-2 sm:line-clamp-1 leading-snug tracking-wide"
+        >
+          {product.name}
+        </Link>
+
+        {/* Price + Stock — stacked on mobile, side-by-side on sm+ */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pt-1.5 border-t border-[#E3C381]/10 mt-auto">
           <PriceTag price={product.price} size="sm" />
           {product.stock > 0 ? (
-            <span className="font-sans text-[9px] font-bold uppercase tracking-[0.15em] text-[#FFE8A3]/90 bg-[#FFE8A3]/10 px-2.5 py-1 rounded-full border border-[#FFE8A3]/20">
+            <span className="font-bold text-[7px] sm:text-[9px] uppercase tracking-[0.1em] sm:tracking-[0.15em] text-[#E3C381]/80 bg-[#E3C381]/10 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-[#E3C381]/20 w-fit">
               In Stock
             </span>
           ) : (
-            <span className="font-sans text-[9px] font-bold uppercase tracking-[0.15em] text-[#FFE8A3]/50 bg-black/20 px-2.5 py-1 rounded-full">
+            <span className="font-bold text-[7px] sm:text-[9px] uppercase tracking-[0.1em] text-[#E3C381]/40 bg-black/20 px-1.5 py-0.5 rounded-full w-fit">
               Sold Out
             </span>
           )}

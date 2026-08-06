@@ -1,35 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { orderService } from '../../services/orderService';
+import { adminLogService } from '../../services/adminLogService';
 import SectionHeading from '../../components/reusable/SectionHeading';
-import Loader from '../../components/reusable/Loader';
 import Badge from '../../components/reusable/Badge';
+import Button from '../../components/reusable/Button';
+import Modal from '../../components/reusable/Modal';
 
 export default function ManageOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [feedback, setFeedback] = useState(null);
+  const [activeTab, setActiveTab] = useState('all');
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [newStatus, setNewStatus] = useState('pending');
+  const [trackingId, setTrackingId] = useState('');
 
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        // select profiles(email) to display who placed it
-        .select('*, profiles(email), order_items(*, product:products(*))')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.warn('Supabase fetch orders failed in admin, using mock data:', error.message);
-        setOrders(getMockOrders());
-      } else if (data && data.length > 0) {
-        setOrders(data);
-      } else {
-        // If DB has no orders, fallback to mock data
-        setOrders(getMockOrders());
-      }
+      const res = await orderService.getAllOrders({ status: activeTab, limit: 50 });
+      setOrders(res.orders || []);
     } catch (err) {
-      console.error('Failed to query orders:', err);
-      setOrders(getMockOrders());
+      console.error('Error loading orders:', err);
     } finally {
       setLoading(false);
     }
@@ -37,90 +30,70 @@ export default function ManageOrders() {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [activeTab]);
 
-  const handleStatusChange = async (orderId, newStatus) => {
+  const handleOpenModal = (order) => {
+    setSelectedOrder(order);
+    setNewStatus(order.status);
+    setTrackingId(order.shiprocket_order_id || '');
+    setModalOpen(true);
+  };
+
+  const handleUpdateStatus = async (e) => {
+    e.preventDefault();
+    if (!selectedOrder) return;
+
     try {
-      // Check if it is a mock order (contains 'mock-' prefix)
-      if (String(orderId).startsWith('mock-')) {
-        setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-        setFeedback(`Order status updated to ${newStatus} (Sandbox state).`);
-        setTimeout(() => setFeedback(null), 3000);
-        return;
-      }
+      await orderService.updateOrderStatus(selectedOrder.id, newStatus, trackingId);
+      await adminLogService.logAction('UPDATE_ORDER_STATUS', 'orders', selectedOrder.id, {
+        status: newStatus,
+        tracking_id: trackingId,
+      });
 
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId);
-
-      if (error) throw error;
-
-      setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-      setFeedback(`Order status updated to ${newStatus} successfully.`);
-      setTimeout(() => setFeedback(null), 3000);
+      setModalOpen(false);
+      fetchOrders();
     } catch (err) {
-      console.error('Failed to update status:', err);
-      alert('Failed to update order status: ' + err.message);
+      alert(err.message || 'Failed to update order status');
     }
   };
 
-  const getMockOrders = () => [
-    {
-      id: 'mock-order-101',
-      created_at: '2026-07-01T10:15:00Z',
-      total_amount: 18500,
-      status: 'pending',
-      profiles: { email: 'customer1@example.com' },
-      order_items: [
-        {
-          id: 'mock-item-1',
-          qty: 1,
-          price: 18500,
-          product: { name: 'Varanasi Gold Zari Banarasi Saree', images: ['https://images.unsplash.com/photo-1610030470258-a4005cfa2c5a?auto=format&fit=crop&q=80&w=100'] }
-        }
-      ]
-    },
-    {
-      id: 'mock-order-102',
-      created_at: '2026-06-28T14:30:00Z',
-      total_amount: 31200,
-      status: 'delivered',
-      profiles: { email: 'buyer2@example.com' },
-      order_items: [
-        {
-          id: 'mock-item-2',
-          qty: 1,
-          price: 24000,
-          product: { name: 'Crimson Royal Kanchipuram Saree', images: ['https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=100'] }
-        },
-        {
-          id: 'mock-item-3',
-          qty: 1,
-          price: 7200,
-          product: { name: 'Blush Pink Embroidered Organza Saree', images: ['https://images.unsplash.com/photo-1583391265517-35bbdba01229?auto=format&fit=crop&q=80&w=100'] }
-        }
-      ]
-    }
+  const tabs = [
+    'all',
+    'pending',
+    'paid',
+    'confirmed',
+    'processing',
+    'shipped',
+    'delivered',
+    'cancelled',
   ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
-      
       <SectionHeading
         title="Fulfillments Board"
-        subtitle="Manage customer purchases, dispatch statuses, and order shipments"
+        subtitle="Manage customer purchases, dispatch statuses, and shipments"
         align="left"
       />
 
-      {feedback && (
-        <div className="bg-[#5C2F14]/50 border border-[#F6D18A]/40 text-[#F6D18A] p-4 rounded-sm font-sans text-xs">
-          {feedback}
-        </div>
-      )}
+      {/* Filter Tabs */}
+      <div className="flex gap-2 border-b border-[#D8A55A]/20 pb-2 overflow-x-auto no-scrollbar">
+        {tabs.map((t) => (
+          <button
+            key={t}
+            onClick={() => setActiveTab(t)}
+            className={`px-3 py-1.5 rounded text-xs font-bold uppercase transition-all ${
+              activeTab === t
+                ? 'bg-[#F6D18A] text-[#2B1409]'
+                : 'text-[#D8A55A] hover:bg-[#5C2F14]/50'
+            }`}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
 
-      {/* Orders Grid/Table list */}
-      <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 rounded-sm shadow-xl overflow-hidden text-[#D8A55A]">
+      <div className="bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm shadow-xl overflow-hidden text-[#D8A55A]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs font-sans">
             <thead>
@@ -128,83 +101,125 @@ export default function ManageOrders() {
                 <th className="py-4 px-6">Order ID</th>
                 <th className="py-4 px-6">Customer</th>
                 <th className="py-4 px-6">Date</th>
-                <th className="py-4 px-6">Items Purchased</th>
-                <th className="py-4 px-6">Total Amount</th>
-                <th className="py-4 px-6">Fulfillment Status</th>
+                <th className="py-4 px-6">Items</th>
+                <th className="py-4 px-6">Total</th>
+                <th className="py-4 px-6">Method</th>
+                <th className="py-4 px-6">Status</th>
+                <th className="py-4 px-6 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#D8A55A]/10">
-              {orders.map((order) => {
-                const orderDate = new Date(order.created_at).toLocaleDateString('en-IN', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                });
+              {orders.length === 0 && !loading ? (
+                <tr>
+                  <td colSpan={8} className="py-8 text-center text-[#D8A55A]/60 italic">
+                    No orders matching filter: <strong>{activeTab}</strong>
+                  </td>
+                </tr>
+              ) : (
+                orders.map((order) => {
+                  let badgeVariant = 'warning';
+                  if (order.status === 'shipped') badgeVariant = 'gold';
+                  if (order.status === 'delivered' || order.status === 'paid')
+                    badgeVariant = 'success';
+                  if (order.status === 'cancelled' || order.status === 'failed')
+                    badgeVariant = 'danger';
 
-                let badgeVariant = 'warning';
-                if (order.status === 'shipped') badgeVariant = 'gold';
-                if (order.status === 'delivered') badgeVariant = 'success';
-                if (order.status === 'cancelled') badgeVariant = 'danger';
+                  const items = Array.isArray(order.items) ? order.items : [];
+                  const custName =
+                    order.profiles?.name || order.shipping_address?.name || 'Customer';
 
-                return (
-                  <tr key={order.id} className="hover:bg-[#5C2F14]/30">
-                    {/* Order ID */}
-                    <td className="py-4 px-6 font-mono font-medium text-[#F6D18A]">
-                      {order.id}
-                    </td>
-
-                    {/* Email */}
-                    <td className="py-4 px-6 font-medium text-[#D8A55A] truncate max-w-[150px]">
-                      {order.profiles?.email || 'Guest Patron'}
-                    </td>
-
-                    {/* Date */}
-                    <td className="py-4 px-6 text-[#D8A55A]/80">
-                      {orderDate}
-                    </td>
-
-                    {/* Items Details summary */}
-                    <td className="py-4 px-6">
-                      <div className="space-y-1">
-                        {order.order_items?.map((item) => (
-                          <div key={item.id} className="flex items-center gap-1.5 text-[#D8A55A]">
-                            <span className="font-bold text-[#F6D18A]">{item.qty} &times;</span>
-                            <span className="truncate max-w-[180px]">{item.product?.name || 'Saree'}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-
-                    {/* Total */}
-                    <td className="py-4 px-6 font-bold text-[#F6D18A]">
-                      ₹{order.total_amount?.toLocaleString('en-IN') || 0}
-                    </td>
-
-                    {/* Status updater */}
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
+                  return (
+                    <tr key={order.id} className="hover:bg-[#5C2F14]/30">
+                      <td className="py-4 px-6 font-mono font-medium text-[#F6D18A]">
+                        {order.id.slice(0, 8)}...
+                      </td>
+                      <td className="py-4 px-6 font-medium text-[#D8A55A]">{custName}</td>
+                      <td className="py-4 px-6 text-[#D8A55A]/80">
+                        {new Date(order.created_at).toLocaleDateString('en-IN')}
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="space-y-1">
+                          {items.map((it, idx) => (
+                            <div key={idx} className="flex items-center gap-1.5 text-[#D8A55A]">
+                              <span className="font-bold text-[#F6D18A]">{it.qty} &times;</span>
+                              <span className="truncate max-w-[150px]">{it.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 font-bold text-[#F6D18A]">
+                        ₹{Number(order.total || order.total_amount || 0).toLocaleString('en-IN')}
+                      </td>
+                      <td className="py-4 px-6 uppercase text-[10px] font-bold">
+                        {order.payment_method}
+                      </td>
+                      <td className="py-4 px-6">
                         <Badge text={order.status} variant={badgeVariant} />
-                        
-                        <select
-                          value={order.status}
-                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                          className="bg-[#2B1409] border border-[#D8A55A]/30 text-[#F6D18A] hover:border-[#F6D18A] px-1.5 py-1 text-[10px] uppercase font-bold focus:outline-none cursor-pointer"
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleOpenModal(order)}
                         >
-                          <option value="pending" className="bg-[#2B1409] text-[#F6D18A]">Pending</option>
-                          <option value="shipped" className="bg-[#2B1409] text-[#F6D18A]">Shipped</option>
-                          <option value="delivered" className="bg-[#2B1409] text-[#F6D18A]">Delivered</option>
-                          <option value="cancelled" className="bg-[#2B1409] text-[#F6D18A]">Cancelled</option>
-                        </select>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                          Update Status
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={`Update Order #${selectedOrder?.id?.slice(0, 8)}`}
+      >
+        <form onSubmit={handleUpdateStatus} className="space-y-4 text-xs">
+          <div>
+            <label className="block uppercase font-bold text-[#F6D18A]">Fulfillment Status</label>
+            <select
+              value={newStatus}
+              onChange={(e) => setNewStatus(e.target.value)}
+              className="w-full bg-[#4A0000] border border-[#F6D18A]/30 rounded p-2.5 text-[#F6D18A] mt-1 uppercase"
+            >
+              <option value="pending">Pending</option>
+              <option value="paid">Paid</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block uppercase font-bold text-[#F6D18A]">
+              Courier Tracking ID / Shiprocket ID
+            </label>
+            <input
+              type="text"
+              value={trackingId}
+              onChange={(e) => setTrackingId(e.target.value)}
+              placeholder="e.g. SR_10293847"
+              className="w-full bg-[#4A0000] border border-[#F6D18A]/30 rounded p-2.5 text-[#F6D18A] mt-1 font-mono"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="secondary" type="button" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit">
+              Save Order Status
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

@@ -1,52 +1,56 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
 import useAuth from '../hooks/useAuth';
 import SectionHeading from '../components/reusable/SectionHeading';
-import Loader from '../components/reusable/Loader';
 import EmptyState from '../components/reusable/EmptyState';
-import PriceTag from '../components/reusable/PriceTag';
 import Badge from '../components/reusable/Badge';
+import Button from '../components/reusable/Button';
+import { orderService } from '../services/orderService';
+import { getProductImage } from '../utils/productHelpers';
+import { ExternalLink, XCircle } from 'lucide-react';
 
 export default function OrderHistory() {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [cancellingId, setCancellingId] = useState(null);
+
+  const fetchOrders = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const data = await orderService.getUserOrders(user.id);
+      setOrders(data || []);
+    } catch (err) {
+      console.error('Failed to fetch orders:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      if (!user) return;
-      
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*, order_items(*, product:products(*))')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.warn('Supabase orders fetch error, using empty state:', error.message);
-          setOrders([]);
-        } else {
-          setOrders(data || []);
-        }
-      } catch (err) {
-        console.error('Failed to fetch orders:', err);
-        setOrders([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOrders();
   }, [user]);
+
+  const handleCancel = async (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    setCancellingId(orderId);
+    try {
+      await orderService.cancelOrder(orderId);
+      alert('Order cancelled successfully.');
+      await fetchOrders();
+    } catch (err) {
+      alert(err.message || 'Failed to cancel order');
+    } finally {
+      setCancellingId(null);
+    }
+  };
 
   if (orders.length === 0 && !loading) {
     return (
       <EmptyState
         title="No Orders Placed Yet"
-        message="You haven't ordered any handcrafted sarees yet. Start building your legacy collection today."
-        actionText="Browse Sarees"
+        message="You haven't ordered any items yet. Start exploring our collections today."
+        actionText="Browse Collection"
         actionPath="/products"
       />
     );
@@ -56,7 +60,7 @@ export default function OrderHistory() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
       <SectionHeading
         title="Order History"
-        subtitle="Manage and track your custom weavers orders"
+        subtitle="Manage and track your recent orders"
       />
 
       <div className="space-y-8">
@@ -67,20 +71,23 @@ export default function OrderHistory() {
             day: 'numeric',
           });
 
-          // Order status badge styling
           let badgeVariant = 'warning';
           if (order.status === 'shipped') badgeVariant = 'gold';
-          if (order.status === 'delivered') badgeVariant = 'success';
-          if (order.status === 'cancelled') badgeVariant = 'danger';
+          if (order.status === 'delivered' || order.status === 'paid') badgeVariant = 'success';
+          if (order.status === 'cancelled' || order.status === 'failed') badgeVariant = 'danger';
+
+          const isCancelable = ['pending', 'paid', 'confirmed'].includes(order.status);
+          const items = Array.isArray(order.items) ? order.items : [];
+          const addr = order.shipping_address || {};
 
           return (
             <div
               key={order.id}
               className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 shadow-xl rounded-sm overflow-hidden"
             >
-              {/* Order Header Summary */}
+              {/* Header */}
               <div className="bg-[#2B1409]/80 border-b border-[#D8A55A]/20 px-6 py-4 flex flex-wrap justify-between items-center gap-4 text-xs font-sans">
-                <div className="flex gap-6">
+                <div className="flex flex-wrap gap-6">
                   <div>
                     <span className="block text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
                       Order Placed
@@ -92,60 +99,73 @@ export default function OrderHistory() {
                       Total Payable
                     </span>
                     <span className="text-[#F6D18A] font-bold">
-                      ₹{order.total_amount?.toLocaleString('en-IN') || 0}
+                      ₹{Number(order.total || order.total_amount || 0).toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <div className="hidden sm:block">
+                  <div>
                     <span className="block text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
-                      Order ID
+                      Payment
                     </span>
-                    <span className="text-[#D8A55A]/90 font-mono select-all">{order.id}</span>
+                    <span className="text-[#F6D18A] uppercase font-bold">
+                      {order.payment_method || 'Prepaid'}
+                    </span>
                   </div>
                 </div>
 
-                <div>
+                <div className="flex items-center gap-3">
                   <Badge text={order.status} variant={badgeVariant} />
+                  {isCancelable && (
+                    <button
+                      onClick={() => handleCancel(order.id)}
+                      disabled={cancellingId === order.id}
+                      className="text-xs text-red-400 hover:text-red-300 underline font-bold flex items-center gap-1"
+                    >
+                      <XCircle className="w-3.5 h-3.5" />
+                      {cancellingId === order.id ? 'Cancelling...' : 'Cancel'}
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Order Items */}
+              {/* Items */}
               <div className="divide-y divide-[#D8A55A]/10 px-6">
-                {order.order_items?.map((item) => {
-                  const productDetails = item.product || {
-                    name: 'Handcrafted Heritage Saree',
-                    images: ['https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=100'],
-                  };
-
-                  return (
-                    <div
-                      key={item.id}
-                      className="py-4 flex gap-4 items-center"
-                    >
-                      <div className="w-12 aspect-[3/4] overflow-hidden bg-[#2B1409] border border-[#D8A55A]/20 flex-shrink-0">
-                        <img
-                          src={productDetails.images?.[0]}
-                          alt={productDetails.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-grow min-w-0">
-                        <h4 className="font-playfair text-sm font-bold text-[#F6D18A] truncate">
-                          {productDetails.name}
-                        </h4>
-                        <p className="text-[10px] text-[#D8A55A]/70 font-sans mt-0.5">
-                          Category: {productDetails.category || 'Traditional'}
-                        </p>
-                      </div>
-                      <div className="text-right text-xs font-sans">
-                        <p className="text-[#F6D18A] font-medium">
-                          {item.qty} &times; ₹{item.price?.toLocaleString('en-IN') || 0}
-                        </p>
-                      </div>
+                {items.map((item, idx) => (
+                  <div key={idx} className="py-4 flex gap-4 items-center">
+                    <div className="w-12 aspect-[3/4] overflow-hidden bg-[#2B1409] border border-[#D8A55A]/20 flex-shrink-0 rounded">
+                      <img
+                        src={getProductImage(item)}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  );
-                })}
+                    <div className="flex-grow min-w-0">
+                      <h4 className="font-playfair text-sm font-bold text-[#F6D18A] truncate">
+                        {item.name}
+                      </h4>
+                      {item.size && (
+                        <p className="text-[10px] text-[#D8A55A]/80 font-sans">Size: {item.size}</p>
+                      )}
+                    </div>
+                    <div className="text-right text-xs font-sans">
+                      <p className="text-[#F6D18A] font-medium">
+                        {item.qty} &times; ₹{Number(item.price || 0).toLocaleString('en-IN')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
 
+              {/* Shipping Address & Tracking Footer */}
+              <div className="bg-[#2B1409]/60 px-6 py-3 border-t border-[#D8A55A]/10 flex flex-wrap justify-between items-center text-[11px] text-[#D8A55A]/90 gap-2">
+                <div>
+                  <strong>Deliver To:</strong> {addr.name || 'Customer'} ({addr.city}, {addr.pincode})
+                </div>
+                {order.shiprocket_order_id && (
+                  <div className="flex items-center gap-1 text-[#F6D18A] font-bold">
+                    <span>Tracking ID: {order.shiprocket_order_id}</span>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}

@@ -1,284 +1,220 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase } from '../lib/supabaseClient';
 import { AuthContext } from './AuthContext';
+import { cartService } from '../services/cartService';
+import { couponService } from '../services/couponService';
 
 export const CartContext = createContext();
 
 export default function CartProvider({ children }) {
   const { user } = useContext(AuthContext);
-  const [cart, setCart] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-  // Load cart initially
+  // Load cart initially & when user changes
   useEffect(() => {
     const loadCart = async () => {
       setLoading(true);
-      if (user) {
-        // Logged in: fetch from Supabase
-        try {
-          const { data, error } = await supabase
-            .from('cart_items')
-            .select('*, product:products(*)')
-            .eq('user_id', user.id);
-
-          if (error) throw error;
-          
-          // Map to standard format
-          const formatted = data.map(item => ({
-            id: item.id,
-            product_id: item.product_id,
-            qty: item.qty,
-            name: item.product?.name || 'Saree',
-            price: item.product?.price || 0,
-            image: item.product?.images?.[0] || '',
-            stock: item.product?.stock || 0,
-            product: item.product,
-          }));
-
-          // Merge local cart if exists
-          const localCartStr = localStorage.getItem('saree_store_cart');
-          if (localCartStr) {
-            const localCart = JSON.parse(localCartStr);
-            if (localCart.length > 0) {
-              const merged = [...formatted];
-              for (const locItem of localCart) {
-                const existing = merged.find(i => i.product_id === locItem.product_id);
-                if (existing) {
-                  const newQty = Math.min(existing.qty + locItem.qty, existing.stock || 99);
-                  await supabase
-                    .from('cart_items')
-                    .update({ qty: newQty })
-                    .eq('id', existing.id);
-                  existing.qty = newQty;
-                } else {
-                  const { data: inserted, error: insErr } = await supabase
-                    .from('cart_items')
-                    .insert({
-                      user_id: user.id,
-                      product_id: locItem.product_id,
-                      qty: locItem.qty,
-                    })
-                    .select('*, product:products(*)')
-                    .single();
-                  
-                  if (!insErr && inserted) {
-                    merged.push({
-                      id: inserted.id,
-                      product_id: inserted.product_id,
-                      qty: inserted.qty,
-                      name: inserted.product?.name || 'Saree',
-                      price: inserted.product?.price || 0,
-                      image: inserted.product?.images?.[0] || '',
-                      stock: inserted.product?.stock || 0,
-                      product: inserted.product,
-                    });
-                  }
-                }
+      try {
+        if (user) {
+          const remoteCart = await cartService.getCart(user.id);
+          const localStr = localStorage.getItem('isai_cart');
+          if (localStr) {
+            const localItems = JSON.parse(localStr);
+            if (localItems.length > 0) {
+              for (const loc of localItems) {
+                await cartService.addToCart({
+                  userId: user.id,
+                  productId: loc.product_id || loc.id,
+                  quantity: loc.quantity || loc.qty || 1,
+                  size: loc.size,
+                });
               }
-              localStorage.removeItem('saree_store_cart');
-              setCart(merged);
-            } else {
-              setCart(formatted);
+              localStorage.removeItem('isai_cart');
             }
+            const updatedRemote = await cartService.getCart(user.id);
+            setCartItems(updatedRemote);
           } else {
-            setCart(formatted);
+            setCartItems(remoteCart);
           }
-        } catch (err) {
-          console.error('Error fetching cart from Supabase:', err);
-        }
-      } else {
-        // Guest: fetch from localStorage
-        const localCartStr = localStorage.getItem('saree_store_cart');
-        if (localCartStr) {
-          setCart(JSON.parse(localCartStr));
         } else {
-          setCart([]);
+          const localStr = localStorage.getItem('isai_cart');
+          if (localStr) {
+            setCartItems(JSON.parse(localStr));
+          } else {
+            setCartItems([]);
+          }
         }
+      } catch (err) {
+        console.error('Error loading cart:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     loadCart();
   }, [user]);
 
-  // Save guest cart to localStorage
-  const saveLocalCart = (newCart) => {
-    localStorage.setItem('saree_store_cart', JSON.stringify(newCart));
+  const saveLocalCart = (items) => {
+    localStorage.setItem('isai_cart', JSON.stringify(items));
   };
 
-  const addToCart = async (product, qty = 1) => {
-    if (user) {
-      setLoading(true);
-      try {
-        const existing = cart.find(item => item.product_id === product.id);
-        if (existing) {
-          const newQty = existing.qty + qty;
-          const { error } = await supabase
-            .from('cart_items')
-            .update({ qty: newQty })
-            .eq('id', existing.id);
-
-          if (error) throw error;
-          
-          setCart(cart.map(item => 
-            item.product_id === product.id ? { ...item, qty: newQty } : item
-          ));
-        } else {
-          const { data, error } = await supabase
-            .from('cart_items')
-            .insert({
-              user_id: user.id,
-              product_id: product.id,
-              qty: qty,
-            })
-            .select('*, product:products(*)')
-            .single();
-
-          if (error) throw error;
-
-          if (data) {
-            setCart([
-              ...cart,
-              {
-                id: data.id,
-                product_id: data.product_id,
-                qty: data.qty,
-                name: product.name,
-                price: product.price,
-                image: product.images?.[0] || '',
-                stock: product.stock || 0,
-                product: product,
-              }
-            ]);
-          }
-        }
-      } catch (err) {
-        console.error('Error adding to cart in Supabase:', err);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      // Guest local storage
-      const existing = cart.find(item => item.product_id === product.id);
-      let newCart;
-      if (existing) {
-        newCart = cart.map(item =>
-          item.product_id === product.id ? { ...item, qty: item.qty + qty } : item
-        );
+  const addToCart = async (product, quantity = 1, size = null) => {
+    setLoading(true);
+    try {
+      if (user) {
+        await cartService.addToCart({
+          userId: user.id,
+          productId: product.id,
+          quantity,
+          size,
+        });
+        const updated = await cartService.getCart(user.id);
+        setCartItems(updated);
       } else {
-        newCart = [
-          ...cart,
-          {
-            id: `temp-${Date.now()}`,
-            product_id: product.id,
-            qty: qty,
-            name: product.name,
-            price: product.price,
-            image: product.images?.[0] || '',
-            stock: product.stock || 0,
-            product: product,
-          }
-        ];
+        const existingIndex = cartItems.findIndex(
+          (i) => (i.product_id || i.product?.id || i.id) === product.id
+        );
+        let newItems;
+        if (existingIndex > -1) {
+          newItems = [...cartItems];
+          newItems[existingIndex].quantity = (newItems[existingIndex].quantity || 1) + quantity;
+          newItems[existingIndex].size = size || newItems[existingIndex].size;
+        } else {
+          newItems = [
+            ...cartItems,
+            {
+              id: `guest_${Date.now()}`,
+              product_id: product.id,
+              quantity,
+              size,
+              product,
+            },
+          ];
+        }
+        setCartItems(newItems);
+        saveLocalCart(newItems);
       }
-      setCart(newCart);
-      saveLocalCart(newCart);
+    } catch (err) {
+      console.error('Error adding to cart:', err);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const removeFromCart = async (productId) => {
-    if (user) {
-      setLoading(true);
-      try {
-        const item = cart.find(item => item.product_id === productId);
-        if (item) {
-          const { error } = await supabase
-            .from('cart_items')
-            .delete()
-            .eq('id', item.id);
-
-          if (error) throw error;
-
-          setCart(cart.filter(i => i.product_id !== productId));
+  const updateQuantity = async (cartItemId, quantity) => {
+    setLoading(true);
+    try {
+      if (user) {
+        await cartService.updateQuantity(cartItemId, quantity);
+        const updated = await cartService.getCart(user.id);
+        setCartItems(updated);
+      } else {
+        if (quantity <= 0) {
+          await removeFromCart(cartItemId);
+          return;
         }
-      } catch (err) {
-        console.error('Error removing from cart in Supabase:', err);
-      } finally {
-        setLoading(false);
+        const newItems = cartItems.map((item) =>
+          item.id === cartItemId ? { ...item, quantity } : item
+        );
+        setCartItems(newItems);
+        saveLocalCart(newItems);
       }
-    } else {
-      const newCart = cart.filter(item => item.product_id !== productId);
-      setCart(newCart);
-      saveLocalCart(newCart);
+    } catch (err) {
+      console.error('Error updating cart quantity:', err);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const updateQty = async (productId, newQty) => {
-    if (newQty < 1) return;
-    
-    if (user) {
-      setLoading(true);
-      try {
-        const item = cart.find(item => item.product_id === productId);
-        if (item) {
-          const { error } = await supabase
-            .from('cart_items')
-            .update({ qty: newQty })
-            .eq('id', item.id);
-
-          if (error) throw error;
-
-          setCart(cart.map(i =>
-            i.product_id === productId ? { ...i, qty: newQty } : i
-          ));
-        }
-      } catch (err) {
-        console.error('Error updating cart qty in Supabase:', err);
-      } finally {
-        setLoading(false);
+  const removeFromCart = async (cartItemId) => {
+    setLoading(true);
+    try {
+      if (user) {
+        await cartService.removeFromCart(cartItemId);
+        const updated = await cartService.getCart(user.id);
+        setCartItems(updated);
+      } else {
+        const newItems = cartItems.filter((item) => item.id !== cartItemId);
+        setCartItems(newItems);
+        saveLocalCart(newItems);
       }
-    } else {
-      const newCart = cart.map(item =>
-        item.product_id === productId ? { ...item, qty: newQty } : item
-      );
-      setCart(newCart);
-      saveLocalCart(newCart);
+    } catch (err) {
+      console.error('Error removing item from cart:', err);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
   const clearCart = async () => {
-    if (user) {
-      setLoading(true);
-      try {
-        const { error } = await supabase
-          .from('cart_items')
-          .delete()
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-        setCart([]);
-      } catch (err) {
-        console.error('Error clearing cart in Supabase:', err);
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    try {
+      if (user) {
+        await cartService.clearCart(user.id);
       }
-    } else {
-      setCart([]);
-      localStorage.removeItem('saree_store_cart');
+      setCartItems([]);
+      setAppliedCoupon(null);
+      localStorage.removeItem('isai_cart');
+    } catch (err) {
+      console.error('Error clearing cart:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const cartTotal = cart.reduce((acc, item) => acc + item.qty * item.price, 0);
-  const cartCount = cart.reduce((acc, item) => acc + item.qty, 0);
+  const applyCoupon = async (code) => {
+    const res = await couponService.validateCoupon(code, subtotal, user?.id);
+    setAppliedCoupon(res.coupon);
+    return res;
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+  };
+
+  // Recalculate totals
+  const subtotal = cartItems.reduce((acc, item) => {
+    const unitPrice = item.product?.discount_price ?? item.product?.price ?? item.price ?? 0;
+    const qty = item.quantity || item.qty || 1;
+    return acc + Number(unitPrice) * qty;
+  }, 0);
+
+  const cartCount = cartItems.reduce((acc, item) => acc + (item.quantity || item.qty || 1), 0);
+
+  let discount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === 'percentage') {
+      discount = (subtotal * Number(appliedCoupon.value)) / 100;
+    } else {
+      discount = Number(appliedCoupon.value);
+    }
+    discount = Math.min(discount, subtotal);
+  }
+
+  const shippingFee = subtotal > 1000 || subtotal === 0 ? 0 : 50;
+  const totalAmount = Math.max(0, subtotal - discount + shippingFee);
 
   const value = {
-    cart,
+    cartItems,
+    cart: cartItems, // Alias for backward compatibility
+    cartCount,
+    subtotal,
+    cartTotal: subtotal, // Alias for backward compatibility
+    discount,
+    shippingFee,
+    totalAmount,
+    appliedCoupon,
     loading,
     addToCart,
+    updateQuantity,
+    updateQty: updateQuantity, // Alias for backward compatibility
     removeFromCart,
-    updateQty,
     clearCart,
-    cartTotal,
-    cartCount,
+    applyCoupon,
+    removeCoupon,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

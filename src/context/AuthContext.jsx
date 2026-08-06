@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { authService } from '../services/authService';
 
 export const AuthContext = createContext();
 
@@ -10,49 +11,51 @@ export default function AuthProvider({ children }) {
 
   const fetchProfile = async (uid) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', uid)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching profile:', error.message);
-        return null;
-      }
-      return data;
+      const prof = await authService.getCurrentProfile();
+      setProfile(prof);
+      return prof;
     } catch (err) {
       console.error('Error in fetchProfile:', err);
       return null;
     }
   };
 
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchProfile(user.id);
+    }
+  };
+
   useEffect(() => {
-    // 1. Get initial session
+    let isMounted = true;
+
     const initAuth = async () => {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session?.user) {
-        setUser(session.user);
-        const prof = await fetchProfile(session.user.id);
-        setProfile(prof);
-      } else {
-        setUser(null);
-        setProfile(null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          if (isMounted) setUser(session.user);
+          const prof = await authService.getCurrentProfile();
+          if (isMounted) setProfile(prof);
+        } else {
+          if (isMounted) {
+            setUser(null);
+            setProfile(null);
+          }
+        }
+      } catch (err) {
+        console.error('Auth initialization error:', err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-      setLoading(false);
     };
 
     initAuth();
 
-    // 2. Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setLoading(true);
         if (session?.user) {
           setUser(session.user);
-          const prof = await fetchProfile(session.user.id);
+          const prof = await authService.getCurrentProfile();
           setProfile(prof);
         } else {
           setUser(null);
@@ -63,44 +66,42 @@ export default function AuthProvider({ children }) {
     );
 
     return () => {
+      isMounted = false;
       subscription?.unsubscribe();
     };
   }, []);
 
   const login = async (email, password) => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
+    try {
+      const data = await authService.signIn({ email, password });
+      setUser(data.user);
+      const prof = await fetchProfile(data.user.id);
+      return { user: data.user, profile: prof };
+    } finally {
       setLoading(false);
-      throw error;
     }
-    return data;
   };
 
-  const signup = async (email, password) => {
+  const register = async ({ email, password, name, phone, role = 'user' }) => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) {
+    try {
+      const data = await authService.signUp({ email, password, name, phone, role });
+      return data;
+    } finally {
       setLoading(false);
-      throw error;
     }
-    // Note: Profiles are created automatically via Supabase DB trigger.
-    return data;
   };
 
   const logout = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-    setLoading(false);
-    if (error) throw error;
+    try {
+      await authService.signOut();
+      setUser(null);
+      setProfile(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const value = {
@@ -108,9 +109,11 @@ export default function AuthProvider({ children }) {
     profile,
     role: profile?.role || 'user',
     loading,
+    isAuthenticated: !!user,
     login,
-    signup,
+    register,
     logout,
+    refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

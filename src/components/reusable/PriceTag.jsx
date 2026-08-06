@@ -3,9 +3,9 @@ import formatPrice from '../../utils/formatPrice';
 
 export default function PriceTag({ price, originalPrice, className = '', size = 'md' }) {
   const sizeClasses = {
-    sm: 'text-sm',
-    md: 'text-base font-semibold',
-    lg: 'text-xl font-bold md:text-2xl',
+    sm: 'text-xs sm:text-sm',
+    md: 'text-sm sm:text-base font-semibold',
+    lg: 'text-lg sm:text-xl md:text-2xl font-bold',
   };
 
   return (

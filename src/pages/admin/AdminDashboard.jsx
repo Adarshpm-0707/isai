@@ -2,197 +2,262 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import SectionHeading from '../../components/reusable/SectionHeading';
-import Loader from '../../components/reusable/Loader';
-import { ShoppingBag, TrendingUp, AlertTriangle, ChevronRight, Settings } from 'lucide-react';
+import {
+  ShoppingBag,
+  TrendingUp,
+  AlertTriangle,
+  ChevronRight,
+  Tag,
+  FolderTree,
+  Users,
+  CreditCard,
+  FileText,
+} from 'lucide-react';
 
 export default function AdminDashboard() {
-  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalOrders: 0,
     totalRevenue: 0,
     lowStockCount: 0,
+    activeCustomersCount: 0,
     recentLowStock: [],
+    recentOrders: [],
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      setLoading(true);
-      try {
-        // 1. Fetch orders data for orders count & revenue sum
-        const { data: ordersData, error: ordersErr } = await supabase
-          .from('orders')
-          .select('total_amount');
+  const fetchStats = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch orders
+      const { data: ordersData } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-        // 2. Fetch products details for low stock check
-        const { data: productsData, error: productsErr } = await supabase
-          .from('products')
-          .select('id, name, stock, category')
-          .lt('stock', 5);
+      // 2. Fetch products details for low stock
+      const { data: productsData } = await supabase
+        .from('products')
+        .select('id, name, stock, category')
+        .lt('stock', 5);
 
-        let totalRevenue = 0;
-        let totalOrders = 0;
-        let lowStockCount = 0;
-        let recentLowStock = [];
+      // 3. Fetch profiles count for customers
+      const { data: profilesData } = await supabase.from('profiles').select('id');
 
-        if (!ordersErr && ordersData) {
-          totalOrders = ordersData.length;
-          totalRevenue = ordersData.reduce((acc, curr) => acc + (parseFloat(curr.total_amount) || 0), 0);
-        }
+      let totalRevenue = 0;
+      let totalOrders = 0;
+      let lowStockCount = 0;
+      let recentLowStock = [];
+      let recentOrders = [];
+      let activeCustomersCount = profilesData?.length || 0;
 
-        if (!productsErr && productsData) {
-          lowStockCount = productsData.length;
-          recentLowStock = productsData.slice(0, 5);
-        }
-
-        // Standard mock sandbox updates if DB contains no rows
-        if (totalOrders === 0 && lowStockCount === 0) {
-          setStats({
-            totalOrders: 14,
-            totalRevenue: 184500,
-            lowStockCount: 2,
-            recentLowStock: [
-              { id: 'prod-banarasi-1', name: 'Varanasi Gold Zari Banarasi Saree', stock: 2, category: 'Banarasi' },
-              { id: 'prod-patola-1', name: 'Royal Blue Silk Patola Saree', stock: 3, category: 'Patola' },
-            ],
-          });
-        } else {
-          setStats({
-            totalOrders,
-            totalRevenue,
-            lowStockCount,
-            recentLowStock,
-          });
-        }
-      } catch (err) {
-        console.error('Failed to load dashboard metrics:', err);
-      } finally {
-        setLoading(false);
+      if (ordersData) {
+        totalOrders = ordersData.length;
+        totalRevenue = ordersData.reduce(
+          (acc, curr) => acc + (parseFloat(curr.total || curr.total_amount) || 0),
+          0
+        );
+        recentOrders = ordersData.slice(0, 5);
       }
-    };
 
+      if (productsData) {
+        lowStockCount = productsData.length;
+        recentLowStock = productsData.slice(0, 5);
+      }
+
+      setStats({
+        totalOrders,
+        totalRevenue,
+        lowStockCount,
+        activeCustomersCount,
+        recentLowStock,
+        recentOrders,
+      });
+    } catch (err) {
+      console.error('Failed to load dashboard metrics:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchStats();
   }, []);
 
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
+      if (error) throw error;
+      fetchStats();
+    } catch (err) {
+      alert(err.message || 'Failed to update order status');
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10 text-[#D8A55A]">
-      
-      {/* Dashboard title */}
+      {/* Title & Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
           title="Admin Control Center"
-          subtitle="Real-time sales, order fulfillments, and stock indexes"
+          subtitle="Real-time sales analytics, catalog controls, and fulfillment oversight"
           align="left"
         />
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2">
           <Link
             to="/admin/products"
-            className="px-4 py-2 border border-[#D8A55A]/40 text-[#F6D18A] hover:bg-[#5C2F14] font-sans text-xs uppercase tracking-wider font-bold rounded-sm transition-all"
+            className="px-3 py-1.5 border border-[#D8A55A]/40 text-[#F6D18A] hover:bg-[#5C2F14] text-xs font-bold uppercase rounded"
           >
-            Manage Products
+            Products
           </Link>
           <Link
             to="/admin/orders"
-            className="px-4 py-2 bg-gradient-to-r from-[#F6D18A] via-[#D8A55A] to-[#B67A2F] text-[#2B1409] font-sans text-xs uppercase tracking-wider font-bold rounded-sm transition-all hover:opacity-90"
+            className="px-3 py-1.5 bg-[#F6D18A] text-[#2B1409] text-xs font-bold uppercase rounded hover:opacity-90"
           >
-            Manage Orders
+            Orders
+          </Link>
+          <Link
+            to="/admin/categories"
+            className="px-3 py-1.5 border border-[#D8A55A]/40 text-[#F6D18A] hover:bg-[#5C2F14] text-xs font-bold uppercase rounded flex items-center gap-1"
+          >
+            <FolderTree className="w-3.5 h-3.5" /> Categories
+          </Link>
+          <Link
+            to="/admin/coupons"
+            className="px-3 py-1.5 border border-[#D8A55A]/40 text-[#F6D18A] hover:bg-[#5C2F14] text-xs font-bold uppercase rounded flex items-center gap-1"
+          >
+            <Tag className="w-3.5 h-3.5" /> Coupons
+          </Link>
+          <Link
+            to="/admin/admins"
+            className="px-3 py-1.5 border border-[#D8A55A]/40 text-[#F6D18A] hover:bg-[#5C2F14] text-xs font-bold uppercase rounded flex items-center gap-1"
+          >
+            <Users className="w-3.5 h-3.5" /> Admins
+          </Link>
+          <Link
+            to="/admin/payment-settings"
+            className="px-3 py-1.5 border border-[#D8A55A]/40 text-[#F6D18A] hover:bg-[#5C2F14] text-xs font-bold uppercase rounded flex items-center gap-1"
+          >
+            <CreditCard className="w-3.5 h-3.5" /> Gateway
+          </Link>
+          <Link
+            to="/admin/activity-logs"
+            className="px-3 py-1.5 border border-[#D8A55A]/40 text-[#F6D18A] hover:bg-[#5C2F14] text-xs font-bold uppercase rounded flex items-center gap-1"
+          >
+            <FileText className="w-3.5 h-3.5" /> Logs
           </Link>
         </div>
       </div>
 
       {/* Metrics widgets */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-        
-        {/* Total Sales Card */}
-        <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm flex items-center gap-6 shadow-xl">
-          <div className="p-4 bg-[#5C2F14] rounded-full text-[#F6D18A]">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+        <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm flex items-center gap-4 shadow-xl">
+          <div className="p-3 bg-[#5C2F14] rounded-full text-[#F6D18A]">
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
-            <span className="block text-[10px] text-[#D8A55A]/70 font-sans uppercase font-bold tracking-wider mb-1">
+            <span className="block text-[10px] text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
               Total Revenue
             </span>
-            <span className="font-sans text-2xl font-bold text-[#F6D18A]">
+            <span className="font-sans text-xl font-bold text-[#F6D18A]">
               ₹{stats.totalRevenue.toLocaleString('en-IN')}
             </span>
           </div>
         </div>
 
-        {/* Total Orders Card */}
-        <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm flex items-center gap-6 shadow-xl">
-          <div className="p-4 bg-[#5C2F14] rounded-full text-[#F6D18A]">
+        <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm flex items-center gap-4 shadow-xl">
+          <div className="p-3 bg-[#5C2F14] rounded-full text-[#F6D18A]">
             <ShoppingBag className="w-6 h-6" />
           </div>
           <div>
-            <span className="block text-[10px] text-[#D8A55A]/70 font-sans uppercase font-bold tracking-wider mb-1">
-              Orders Executed
+            <span className="block text-[10px] text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
+              Orders Count
             </span>
-            <span className="font-sans text-2xl font-bold text-[#F6D18A]">
-              {stats.totalOrders}
+            <span className="font-sans text-xl font-bold text-[#F6D18A]">{stats.totalOrders}</span>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm flex items-center gap-4 shadow-xl">
+          <div className="p-3 bg-[#5C2F14] rounded-full text-[#F6D18A]">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="block text-[10px] text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
+              Active Customers
+            </span>
+            <span className="font-sans text-xl font-bold text-[#F6D18A]">
+              {stats.activeCustomersCount}
             </span>
           </div>
         </div>
 
-        {/* Low Stock Alerts Card */}
-        <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm flex items-center gap-6 shadow-xl">
-          <div className={`p-4 rounded-full ${stats.lowStockCount > 0 ? 'bg-[#5C2F14] text-[#F6D18A] animate-pulse' : 'bg-[#5C2F14]/50 text-[#D8A55A]'}`}>
+        <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm flex items-center gap-4 shadow-xl">
+          <div
+            className={`p-3 rounded-full ${
+              stats.lowStockCount > 0 ? 'bg-[#5C2F14] text-[#F6D18A] animate-pulse' : 'bg-[#5C2F14]/50 text-[#D8A55A]'
+            }`}
+          >
             <AlertTriangle className="w-6 h-6" />
           </div>
           <div>
-            <span className="block text-[10px] text-[#D8A55A]/70 font-sans uppercase font-bold tracking-wider mb-1">
-              Low Stock Products
+            <span className="block text-[10px] text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
+              Low Stock Items
             </span>
-            <span className="font-sans text-2xl font-bold text-[#F6D18A]">
-              {stats.lowStockCount}
-            </span>
+            <span className="font-sans text-xl font-bold text-[#F6D18A]">{stats.lowStockCount}</span>
           </div>
         </div>
-
       </div>
 
-      {/* Low stock table grid list */}
-      {stats.recentLowStock.length > 0 && (
-        <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm shadow-xl space-y-4 text-[#D8A55A]">
-          <h3 className="font-playfair text-lg font-bold text-[#F6D18A] uppercase tracking-wider pb-3 border-b border-[#D8A55A]/20">
-            Critical Stock Indexes
-          </h3>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs font-sans">
-              <thead>
-                <tr className="border-b border-[#D8A55A]/20 text-[#D8A55A]/70 font-bold uppercase tracking-wider">
-                  <th className="py-3 px-4">Product Name</th>
-                  <th className="py-3 px-4">Category</th>
-                  <th className="py-3 px-4">Stock Remaining</th>
-                  <th className="py-3 px-4">Action</th>
+      {/* Recent Orders Table */}
+      <div className="bg-[#2B1409] border border-[#D8A55A]/30 p-6 rounded-sm shadow-xl space-y-4">
+        <h3 className="font-playfair text-lg font-bold text-[#F6D18A] uppercase tracking-wider pb-3 border-b border-[#D8A55A]/20">
+          Recent Orders
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs font-sans">
+            <thead>
+              <tr className="border-b border-[#D8A55A]/20 text-[#D8A55A]/70 uppercase font-bold">
+                <th className="py-3 px-4">Order ID</th>
+                <th className="py-3 px-4">Date</th>
+                <th className="py-3 px-4">Amount</th>
+                <th className="py-3 px-4">Method</th>
+                <th className="py-3 px-4">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#D8A55A]/10">
+              {stats.recentOrders.map((ord) => (
+                <tr key={ord.id} className="hover:bg-[#5C2F14]/30">
+                  <td className="py-3 px-4 font-mono text-[#F6D18A]">{ord.id.slice(0, 8)}...</td>
+                  <td className="py-3 px-4 text-[#D8A55A]">
+                    {new Date(ord.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="py-3 px-4 font-bold text-[#F6D18A]">
+                    ₹{Number(ord.total || ord.total_amount || 0).toLocaleString('en-IN')}
+                  </td>
+                  <td className="py-3 px-4 uppercase text-[10px] font-bold">{ord.payment_method}</td>
+                  <td className="py-3 px-4">
+                    <select
+                      value={ord.status}
+                      onChange={(e) => handleUpdateOrderStatus(ord.id, e.target.value)}
+                      className="bg-[#4A0000] border border-[#F6D18A]/30 rounded px-2 py-1 text-xs text-[#F6D18A]"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="paid">Paid</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="processing">Processing</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-[#D8A55A]/10">
-                {stats.recentLowStock.map((prod) => (
-                  <tr key={prod.id} className="hover:bg-[#5C2F14]/30">
-                    <td className="py-3.5 px-4 font-medium text-[#F6D18A]">{prod.name}</td>
-                    <td className="py-3.5 px-4 uppercase text-[10px] text-[#D8A55A] font-bold">{prod.category}</td>
-                    <td className="py-3.5 px-4">
-                      <span className="text-[#F6D18A] bg-[#5C2F14] px-2 py-0.5 rounded font-bold border border-[#F6D18A]/30">
-                        {prod.stock} units Left
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <Link
-                        to={`/admin/products`}
-                        className="text-[#F6D18A] hover:underline font-bold flex items-center gap-1"
-                      >
-                        Refill Stock <ChevronRight className="w-3 h-3" />
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
-
+      </div>
     </div>
   );
 }

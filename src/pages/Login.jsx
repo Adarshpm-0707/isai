@@ -9,28 +9,31 @@ import { AlertCircle, Lock, Mail } from 'lucide-react';
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, user } = useAuth();
+  const { login, user, role } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Redirection coordinates
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname;
 
-  // If user is already authenticated, redirect immediately
   useEffect(() => {
     if (user) {
-      navigate(from, { replace: true });
+      if (from) {
+        navigate(from, { replace: true });
+      } else if (role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     }
-  }, [user, navigate, from]);
+  }, [user, role, navigate, from]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
-    // Inputs check
     if (!validateEmail(email)) {
       setError('Please provide a valid email address.');
       return;
@@ -42,8 +45,16 @@ export default function Login() {
 
     setLoading(true);
     try {
-      await login(email, password);
-      navigate(from, { replace: true });
+      const res = await login(email, password);
+      const userRole = res.profile?.role || role;
+
+      if (from) {
+        navigate(from, { replace: true });
+      } else if (userRole === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message || 'Invalid credentials. Please try again.');
@@ -66,9 +77,10 @@ export default function Login() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 sm:p-8 rounded-sm space-y-6 shadow-xl text-[#D8A55A]">
-        
-        {/* Email Address */}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 sm:p-8 rounded-sm space-y-6 shadow-xl text-[#D8A55A]"
+      >
         <div className="space-y-1">
           <label className="block text-xs uppercase font-semibold text-[#D8A55A] tracking-wider">
             Email Address
@@ -86,7 +98,6 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Password */}
         <div className="space-y-1">
           <label className="block text-xs uppercase font-semibold text-[#D8A55A] tracking-wider">
             Password
@@ -126,7 +137,6 @@ export default function Login() {
             Sign Up
           </Link>
         </p>
-
       </form>
     </div>
   );
