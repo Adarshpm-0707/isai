@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 
 // Assets
-import fabricImg from '../../assets/saree_isai.png';
+import fabricImg from '../../assets/saree_isai.webp';
 
 const FABRIC_WORDS = ['Airy Organza', 'Pure Mulberry Silk', 'Royal Banarasi', 'Temple Kanchipuram'];
 
