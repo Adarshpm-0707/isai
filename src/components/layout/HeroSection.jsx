@@ -1,250 +1,362 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+﻿import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 
-// Assets
-import fabricImg from '../../assets/saree_isai.webp';
+import heroDesktopImg from "../../assets/hero_desktop.png";
+import heroMobileImg from "../../assets/hero_mobile.png";
 
-const FABRIC_WORDS = ['Airy Organza', 'Pure Mulberry Silk', 'Royal Banarasi', 'Temple Kanchipuram'];
+function FloatingPetal({ style, delay = 0, color = "#F9A825" }) {
+  return (
+    <motion.div
+      style={style}
+      className="absolute pointer-events-none"
+      initial={{ opacity: 0, y: -20, rotate: 0 }}
+      animate={{ opacity: [0, 0.9, 0.9, 0], y: [0, 90, 180, 260], rotate: [0, 60, 120, 200], x: [0, 12, -8, 4] }}
+      transition={{ duration: 7, delay, repeat: Infinity, ease: "easeInOut" }}
+    >
+      <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+        <ellipse cx="8" cy="10" rx="5" ry="9" fill={color} opacity="0.85" />
+        <ellipse cx="8" cy="10" rx="2" ry="4.5" fill="rgba(255,255,255,0.3)" />
+      </svg>
+    </motion.div>
+  );
+}
 
-export default function HeroSection({
-  fabricImageUrl = fabricImg,
-}) {
+function OnamFlower({ size = 80, className = "" }) {
+  const outerCount = 12;
+  const innerCount = 8;
+  const colors = ["#FF6B35","#F9A825","#FFD54F","#FF8F00","#E65100","#FFB300","#FF7043","#FFA000","#FF6B35","#F9A825","#FFD54F","#FF8F00"];
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 100 100" fill="none">
+      {Array.from({ length: outerCount }).map((_, i) => (
+        <g key={i} transform={`rotate(${(i / outerCount) * 360}, 50, 50)`}>
+          <ellipse cx="50" cy="19" rx="7" ry="17" fill={colors[i]} opacity="0.92" />
+        </g>
+      ))}
+      {Array.from({ length: innerCount }).map((_, i) => (
+        <g key={"in" + i} transform={`rotate(${(i / innerCount) * 360 + 22.5}, 50, 50)`}>
+          <ellipse cx="50" cy="30" rx="4" ry="11" fill="#FFF176" opacity="0.95" />
+        </g>
+      ))}
+      <circle cx="50" cy="50" r="11" fill="#FF8F00" />
+      <circle cx="50" cy="50" r="7" fill="#FFD54F" />
+      <circle cx="50" cy="50" r="3.5" fill="white" opacity="0.8" />
+    </svg>
+  );
+}
+
+function MiniFlower({ size = 24, c1 = "#FF6B35", c2 = "#FFD54F" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      {[0, 60, 120, 180, 240, 300].map((a, i) => (
+        <g key={i} transform={`rotate(${a}, 20, 20)`}>
+          <ellipse cx="20" cy="7" rx="4" ry="10" fill={i % 2 === 0 ? c1 : c2} opacity="0.9" />
+        </g>
+      ))}
+      <circle cx="20" cy="20" r="6" fill="#FFA000" />
+      <circle cx="20" cy="20" r="3.5" fill="#FFD54F" />
+    </svg>
+  );
+}
+
+function KollamRing({ className = "" }) {
+  return (
+    <svg className={className} width="150" height="150" viewBox="0 0 150 150" fill="none" opacity="0.18">
+      <circle cx="75" cy="75" r="70" stroke="#D4AF37" strokeWidth="1" strokeDasharray="5 4" />
+      <circle cx="75" cy="75" r="52" stroke="#D4AF37" strokeWidth="1" strokeDasharray="3 6" />
+      <circle cx="75" cy="75" r="33" stroke="#D4AF37" strokeWidth="1" />
+      {[0,45,90,135,180,225,270,315].map((a) => (
+        <line key={a} x1="75" y1="75"
+          x2={75 + 70 * Math.cos(a * Math.PI / 180)}
+          y2={75 + 70 * Math.sin(a * Math.PI / 180)}
+          stroke="#D4AF37" strokeWidth="0.8" />
+      ))}
+    </svg>
+  );
+}
+
+export default function HeroSection({ fabricImageUrl }) {
   const navigate = useNavigate();
-  const [wordIdx, setWordIdx] = useState(0);
-  
-  // Mouse parallax effect for desktop only (prevents mobile touch lag)
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const handleMouseMove = (e) => {
-    if (window.innerWidth < 1024) return;
-    setMousePos({
-      x: (e.clientX / window.innerWidth - 0.5) * 20,
-      y: (e.clientY / window.innerHeight - 0.5) * 20,
-    });
-  };
+  const [dot, setDot] = useState(0);
+
+  const PETALS = [
+    { top: "4%", left: "7%", color: "#FF6B35" },
+    { top: "9%", left: "22%", color: "#FFD54F" },
+    { top: "2%", left: "42%", color: "#FF8F00" },
+    { top: "6%", left: "63%", color: "#FF6B35" },
+    { top: "1%", left: "78%", color: "#FFA000" },
+    { top: "13%", left: "91%", color: "#FFD54F" },
+    { top: "7%", left: "53%", color: "#E65100" },
+    { top: "3%", left: "33%", color: "#FF7043" },
+    { top: "11%", left: "85%", color: "#FFB300" },
+  ];
+
+  const GARLAND_COLORS = [
+    ["#FF6B35","#FFD54F"],["#FFD54F","#FF8F00"],["#FF8F00","#FF6B35"],
+    ["#E65100","#FFA000"],["#FFA000","#FFD54F"],
+  ];
 
   useEffect(() => {
-    const t = setInterval(() => setWordIdx((i) => (i + 1) % FABRIC_WORDS.length), 3500);
+    const t = setInterval(() => setDot((d) => (d + 1) % 3), 4000);
     return () => clearInterval(t);
   }, []);
 
   return (
     <section
-      onMouseMove={handleMouseMove}
-      className="relative w-full min-h-[100dvh] h-[100dvh] bg-[#0E2A1C] overflow-hidden select-none flex flex-col justify-between"
+      className="relative w-full h-[100dvh] min-h-[620px] max-h-[1080px] overflow-hidden select-none flex flex-col justify-between"
+      style={{ background: "linear-gradient(135deg,#0C2317 0%,#1A3C2B 45%,#0C2317 100%)" }}
     >
-      {/* 1. BACKGROUND GLOW - Subtle light following mouse (Desktop) */}
-      <div 
-        className="hidden lg:block absolute inset-0 opacity-25 pointer-events-none transition-all duration-700 ease-out z-0"
-        style={{
-          background: `radial-gradient(circle at ${50 + mousePos.x/2}% ${50 + mousePos.y/2}%, #D4AF7A 0%, transparent 55%)`,
-        }}
-      />
+      {/* FLOATING PETALS */}
+      {PETALS.map((p, i) => (
+        <FloatingPetal key={i} style={{ top: p.top, left: p.left, zIndex: 5 }} delay={i * 0.65} color={p.color} />
+      ))}
 
-      {/* 2. LARGE BACKGROUND TEXT (Watermark) */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0 opacity-[0.04]">
-        <h2 className="text-[32vw] font-cinzel-decorative font-black leading-none text-[#F3E5AB]">
-          ISAI
-        </h2>
+      {/* KOLAM CORNER RINGS */}
+      <KollamRing className="absolute -top-8 -left-8 z-[2] w-36 h-36 sm:w-48 sm:h-48" />
+      <KollamRing className="absolute -top-8 -right-8 z-[2] w-36 h-36 sm:w-48 sm:h-48" />
+
+      {/* DESKTOP BG */}
+      <div className="hidden md:block absolute inset-0 z-0">
+        <img src={fabricImageUrl || heroDesktopImg} alt="Kerala Kasavu" className="w-full h-full object-cover object-center" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0C2317] via-[#0C2317]/82 to-transparent w-full lg:w-3/5" />
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0C2317] to-transparent" />
       </div>
 
-      {/* 3. MOBILE & TABLET FLEX CONTAINER (< lg screens) */}
-      <div className="lg:hidden relative z-20 w-full h-full flex flex-col justify-between items-center text-center px-4 pt-10 sm:pt-14 pb-6 overflow-x-hidden overflow-y-auto no-scrollbar">
-        
-        {/* Top Header Block */}
-        <div className="flex flex-col items-center max-w-lg w-full z-40 px-2">
-          <h1 
-            className="font-cinzel-decorative font-bold uppercase drop-shadow-[0_10px_25px_rgba(0,0,0,0.9)] flex flex-col items-center gap-0.5 my-1"
-            style={{ fontSize: 'clamp(3.0rem, 10.5vw, 5.0rem)' }}
-          >
-            <span className="block text-[#E3C381] tracking-wider leading-tight whitespace-nowrap">
-              The Art
-            </span>
-            <span className="block font-bold text-[#F3E5AB] tracking-wider leading-tight whitespace-nowrap">
-              of Draping
-            </span>
-          </h1>
-
-          {/* Selected Material */}
-          <div className="flex flex-col items-center mt-2 w-full">
-            <p className="text-[10px] sm:text-xs font-bold tracking-[0.35em] text-[#D4AF7A] uppercase mb-1">
-              Selected Material
-            </p>
-            <div className="h-[2px] w-12 bg-[#D4AF7A] mx-auto mb-2" />
-            
-            <div className="relative h-[32px] sm:h-[36px] flex items-center justify-center overflow-hidden my-1">
-              <AnimatePresence mode="wait">
-                <motion.h3
-                  key={wordIdx}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="text-[#F3E5AB] font-cinzel-decorative font-bold text-lg xs:text-xl sm:text-3xl tracking-wide whitespace-nowrap"
-                >
-                  {FABRIC_WORDS[wordIdx]}
-                </motion.h3>
-              </AnimatePresence>
-            </div>
-
-            <p className="text-[#D8D0C0]/90 text-[11px] xs:text-xs sm:text-sm leading-relaxed font-light max-w-[290px] xs:max-w-[320px] sm:max-w-[360px]">
-              Heirlooms hand-spun from pure mulberry silk, capturing centuries of Indian weaving wisdom in every single fold.
-            </p>
-          </div>
-        </div>
-
-        {/* Saree Image Draped at Bottom-Left on Mobile (GPU HARDWARE ACCELERATED & RESPONSIVE SCALED) */}
-        <div className="absolute inset-x-0 bottom-0 pointer-events-none z-10 flex justify-start items-end overflow-hidden h-[45%] xs:h-[48%] sm:h-[52%] max-h-[480px]">
-          <img
-            src={fabricImageUrl}
-            alt="Draped Saree"
-            className="mobile-float-saree w-[78%] xs:w-[72%] sm:w-[62%] max-w-[420px] max-h-[42vh] sm:max-h-[48vh] h-auto object-contain origin-bottom-left filter contrast-[1.05] drop-shadow-[0_15px_45px_rgba(0,0,0,0.85)]"
-          />
-        </div>
-
-        {/* Mobile CTA Button (Centered Arrow Vector Alignment - Moved Further Upward) */}
-        <div className="absolute bottom-20 right-4 xs:bottom-24 xs:right-5 sm:bottom-28 sm:right-8 z-50 shrink-0">
-          <button
-            onClick={() => navigate('/products')}
-            className="relative w-18 h-18 xs:w-22 xs:h-22 sm:w-26 sm:h-26 flex items-center justify-center group pointer-events-auto cursor-pointer shadow-2xl rounded-full bg-[#0E2A1C]/90 border border-[#D4AF7A]/30 active:scale-95 transition-transform"
-          >
-            <svg className="absolute inset-0 w-full h-full animate-[spin_12s_linear_infinite]" viewBox="0 0 100 100">
-              <defs>
-                <path id="circlePathMobile" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" />
-              </defs>
-              <text fill="#D4AF7A" fontSize="7.5" className="uppercase tracking-[0.1em] font-sans font-bold">
-                <textPath xlinkHref="#circlePathMobile">
-                  Explore Heritage • Shop Collection • 
-                </textPath>
-              </text>
-            </svg>
-            <div className="w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 rounded-full bg-[#D4AF7A] flex items-center justify-center group-hover:bg-[#F3E5AB] transition-colors duration-300 shadow-xl shrink-0">
-              <ArrowRight className="w-4 h-4 xs:w-5 xs:h-5 text-[#0E2A1C] stroke-[2.5]" />
-            </div>
-          </button>
-        </div>
+      {/* MOBILE BG */}
+      <div className="md:hidden absolute inset-0 z-0">
+        <img src={fabricImageUrl || heroMobileImg} alt="Kerala Kasavu Mobile" className="w-full h-full object-cover object-bottom" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0C2317]/92 via-[#0C2317]/55 to-[#0C2317]/96" />
       </div>
 
+      {/* FLOWER DECORS RIGHT SIDE */}
+      <OnamFlower className="absolute bottom-20 right-6 md:right-14 z-[6] opacity-85" size={58} />
+      <OnamFlower className="absolute bottom-14 right-20 md:right-32 z-[6] opacity-60" size={40} />
+      <OnamFlower className="absolute top-20 right-8 md:right-20 z-[6] opacity-50 hidden md:block" size={46} />
 
-      {/* 4. DESKTOP / LAPTOP LAYOUT (>= lg screens) */}
-      <div className="hidden lg:flex relative z-20 w-full h-full items-center justify-center px-8">
-        
-        {/* Main Heading Overhead */}
-        <div className="absolute top-[6%] inset-x-0 z-40 flex flex-col items-center justify-center text-center pointer-events-none px-4 mx-auto max-w-7xl">
-          <motion.h1 
-            style={{ 
-              x: mousePos.x * -0.3, 
-              y: mousePos.y * -0.3,
-              fontSize: 'clamp(5.2rem, 8.8vw, 8.2rem)' 
-            }}
-            className="font-cinzel-decorative font-bold text-center flex flex-col items-center justify-center gap-1.5 drop-shadow-[0_10px_35px_rgba(0,0,0,0.95)] uppercase"
+      {/* TOP HEADER + GARLAND */}
+      <div className="relative z-10 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 md:px-12 lg:px-20 pt-6 sm:pt-9 flex flex-col md:flex-row items-center justify-between gap-2">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[#D4AF37]/70 shadow-lg backdrop-blur-md"
+            style={{ background: "rgba(26,60,43,0.88)" }}
           >
-            <motion.span 
-              initial={{ y: 60, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 1, ease: "circOut" }}
-              className="block text-[#E3C381] tracking-wider leading-tight whitespace-nowrap"
-            >
-              The Art
+            <motion.span animate={{ rotate: [0, 20, -20, 0] }} transition={{ duration: 2.2, repeat: Infinity }}>
+              <MiniFlower size={20} />
             </motion.span>
-            <motion.span 
-              initial={{ y: 60, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 1, delay: 0.2, ease: "circOut" }}
-              className="block font-bold text-[#F3E5AB] tracking-wider leading-tight whitespace-nowrap"
-            >
-              of Draping
+            <span className="text-[#F3E5AB] text-[10px] sm:text-xs font-bold tracking-[0.28em] uppercase">
+              ONAM ROYAL COLLECTION &bull; തിരുവോണം 2025
+            </span>
+            <motion.span animate={{ rotate: [0, -20, 20, 0] }} transition={{ duration: 2.2, repeat: Infinity, delay: 0.6 }}>
+              <MiniFlower size={20} c1="#FFD54F" c2="#FF6B35" />
             </motion.span>
-          </motion.h1>
+          </motion.div>
+          <span className="hidden md:inline-block text-[#D4AF37] text-xs font-serif tracking-[0.2em] uppercase opacity-90 border border-[#D4AF37]/30 px-3 py-1 rounded-full">
+            KERALA HANDLOOM HERITAGE
+          </span>
         </div>
 
-        {/* Saree Image on Laptop (Left Side Draped) */}
+        {/* Animated flower garland line */}
         <motion.div
-          animate={{ 
-            x: mousePos.x * 1.2, 
-            y: mousePos.y * 1.2 + Math.sin(Date.now()/2000) * 8 
-          }}
-          transition={{ type: 'spring', stiffness: 50, damping: 20 }}
-          className="absolute left-[0%] bottom-0 z-30 w-[52%] xl:w-[50%] max-w-[850px] pointer-events-none drop-shadow-[0_25px_70px_rgba(0,0,0,0.85)]"
+          initial={{ scaleX: 0, opacity: 0 }}
+          animate={{ scaleX: 1, opacity: 1 }}
+          transition={{ duration: 1.3, delay: 0.35 }}
+          className="flex items-center justify-center gap-0.5 mt-2 px-2 overflow-hidden"
+          style={{ transformOrigin: "center" }}
         >
-          <img
-            src={fabricImageUrl}
-            alt="Draped Saree"
-            className="w-full h-auto object-contain origin-bottom-left filter contrast-[1.05]"
-          />
-        </motion.div>
-
-        {/* Selected Material Card (Moved Downward on Laptop) */}
-        <motion.div 
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="absolute top-[52%] xl:top-[55%] right-[6%] xl:right-[10%] text-right flex flex-col items-end z-40 max-w-xs xl:max-w-sm"
-        >
-          <p className="text-xs font-bold tracking-[0.35em] text-[#D4AF7A] uppercase mb-1.5">Selected Material</p>
-          <div className="h-[2px] w-14 bg-[#D4AF7A] ml-auto mb-3" />
-          
-          <div className="relative h-[48px] flex items-center justify-end overflow-hidden mb-3">
-            <AnimatePresence mode="wait">
-              <motion.h3
-                key={wordIdx}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="text-[#F3E5AB] font-cinzel-decorative font-bold text-2xl xl:text-4xl whitespace-nowrap"
-              >
-                {FABRIC_WORDS[wordIdx]}
-              </motion.h3>
-            </AnimatePresence>
-          </div>
-
-          <p className="text-[#D8D0C0]/90 text-sm leading-relaxed font-light">
-            Heirlooms hand-spun from pure mulberry silk, capturing centuries of Indian weaving wisdom in every single fold.
-          </p>
-        </motion.div>
-
-        {/* Rotating CTA Button (Bottom-Center on Laptop - Moved Further Upward) */}
-        <motion.div 
-          className="absolute bottom-[15%] xl:bottom-[16%] left-1/2 -translate-x-1/2 z-50"
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
-        >
-          <button
-            onClick={() => navigate('/products')}
-            className="relative w-30 h-30 xl:w-36 xl:h-36 flex items-center justify-center group pointer-events-auto cursor-pointer"
-          >
-            <svg className="absolute inset-0 w-full h-full animate-[spin_12s_linear_infinite]" viewBox="0 0 100 100">
-              <defs>
-                <path id="circlePathLaptop" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" />
-              </defs>
-              <text fill="#D4AF7A" fontSize="7.5" className="uppercase tracking-[0.1em] font-sans font-bold">
-                <textPath xlinkHref="#circlePathLaptop">
-                  Explore Heritage • Shop Collection • 
-                </textPath>
-              </text>
-            </svg>
-            <div className="w-12 h-12 xl:w-14 xl:h-14 rounded-full bg-[#D4AF7A] flex items-center justify-center group-hover:bg-[#F3E5AB] transition-colors duration-300 shadow-xl shrink-0">
-              <ArrowRight className="w-5 h-5 xl:w-6 xl:h-6 text-[#0E2A1C] stroke-[2.5]" />
-            </div>
-          </button>
+          {Array.from({ length: 30 }).map((_, i) => (
+            <motion.span
+              key={i}
+              animate={{ y: [0, -4, 0] }}
+              transition={{ duration: 1.6, delay: i * 0.07, repeat: Infinity, ease: "easeInOut" }}
+              style={{ display: "inline-block" }}
+            >
+              <MiniFlower
+                size={12 + (i % 4) * 3}
+                c1={GARLAND_COLORS[i % 5][0]}
+                c2={GARLAND_COLORS[i % 5][1]}
+              />
+            </motion.span>
+          ))}
         </motion.div>
       </div>
 
-      {/* 5. DECORATIVE BORDER ACCENTS */}
-      <div className="absolute inset-8 border border-[#D4AF7A]/10 pointer-events-none hidden lg:block z-10" />
+      {/* MAIN HERO CONTENT */}
+      <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12 lg:px-20 flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left py-4">
+        <div className="max-w-sm sm:max-w-lg lg:max-w-2xl xl:max-w-3xl mx-auto md:mx-0 w-full">
 
-      <style jsx>{`
-        @keyframes floatMobile {
-          0%, 100% { transform: translate3d(0, 0, 0); }
-          50% { transform: translate3d(0, -6px, 0); }
-        }
-        .mobile-float-saree {
-          will-change: transform;
-          animation: floatMobile 5s ease-in-out infinite;
-        }
-      `}</style>
+          {/* Sub-badge with flowers */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="mb-4 flex items-center gap-2 justify-center md:justify-start flex-wrap"
+          >
+            <div className="flex gap-0.5">
+              {[0,1,2,3].map((i) => (
+                <motion.span key={i} animate={{ scale: [1, 1.25, 1] }} transition={{ duration: 1.5, delay: i * 0.18, repeat: Infinity }}>
+                  <MiniFlower size={16} c1="#FF6B35" c2="#FFD54F" />
+                </motion.span>
+              ))}
+            </div>
+            <span className="text-[#D4AF37] font-serif text-xs sm:text-sm tracking-[0.32em] uppercase font-bold">
+              ഓണം റോയൽ കളക്ഷൻ
+            </span>
+            <div className="flex gap-0.5">
+              {[0,1,2,3].map((i) => (
+                <motion.span key={i} animate={{ scale: [1, 1.25, 1] }} transition={{ duration: 1.5, delay: i * 0.18 + 0.5, repeat: Infinity }}>
+                  <MiniFlower size={16} c1="#FFD54F" c2="#FF6B35" />
+                </motion.span>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* MAIN HEADING */}
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.95, ease: "easeOut" }}
+            className="uppercase leading-[1.0] font-extrabold tracking-wide text-4xl sm:text-6xl md:text-7xl lg:text-8xl"
+            style={{
+              fontFamily: "'Cinzel Decorative','Playfair Display',serif",
+              background: "linear-gradient(180deg,#FFF8E7 0%,#F3E5AB 40%,#D4AF37 72%,#C5A059 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              filter: "drop-shadow(0 2px 18px rgba(212,175,55,0.38))",
+            }}
+          >
+            <span className="block whitespace-nowrap">THE ART</span>
+            <span className="block whitespace-nowrap">OF DRAPING</span>
+          </motion.h1>
+
+          {/* Flower separator */}
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ duration: 0.9, delay: 0.4 }}
+            className="flex items-center gap-1.5 mt-3 mb-3 justify-center md:justify-start"
+          >
+            <div className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to right,transparent,#D4AF37)" }} />
+            <OnamFlower size={22} />
+            <OnamFlower size={30} />
+            <OnamFlower size={22} />
+            <div className="h-px w-10 sm:w-16" style={{ background: "linear-gradient(to left,transparent,#D4AF37)" }} />
+          </motion.div>
+
+          {/* SUBTITLE */}
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.22, ease: "easeOut" }}
+            className="text-[#EADFC9] text-xs sm:text-base md:text-lg leading-relaxed font-light max-w-xs sm:max-w-md mx-auto md:mx-0 text-center md:text-left"
+          >
+            Woven with pure golden zari in Balaramapuram.{" "}
+            <span className="text-[#FFD54F] font-medium">Celebrate Thiruvonam</span> in authentic Kerala handloom grandeur.
+          </motion.p>
+
+          {/* CTA BUTTONS */}
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.38, ease: "easeOut" }}
+            className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 justify-center md:justify-start"
+          >
+            <button
+              onClick={() => navigate("/products")}
+              className="group inline-flex items-center justify-center gap-2.5 px-7 py-3.5 sm:px-10 sm:py-4 font-bold text-xs sm:text-sm tracking-[0.22em] uppercase rounded-md transition-all duration-300 cursor-pointer"
+              style={{
+                background: "linear-gradient(135deg,#D4AF37,#B8860B)",
+                color: "#0C2317",
+                boxShadow: "0 4px 26px rgba(212,175,55,0.42),inset 0 1px 0 rgba(255,255,255,0.28)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg,#FFD54F,#D4AF37)";
+                e.currentTarget.style.boxShadow = "0 8px 42px rgba(212,175,55,0.68),inset 0 1px 0 rgba(255,255,255,0.4)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg,#D4AF37,#B8860B)";
+                e.currentTarget.style.boxShadow = "0 4px 26px rgba(212,175,55,0.42),inset 0 1px 0 rgba(255,255,255,0.28)";
+              }}
+            >
+              <MiniFlower size={18} c1="#0C2317" c2="#1A3C2B" />
+              <span>EXPLORE ONAM VAULT</span>
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-2 transition-all duration-300" />
+            </button>
+            <button
+              onClick={() => navigate("/products?category=KASAVU SAREES")}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 font-bold text-xs sm:text-sm tracking-widest uppercase rounded-md border-2 border-[#D4AF37]/60 text-[#F3E5AB] hover:border-[#D4AF37] hover:text-[#D4AF37] transition-all duration-300 cursor-pointer backdrop-blur-sm"
+              style={{ background: "rgba(12,35,23,0.6)" }}
+            >
+              VIEW KASAVU &rarr;
+            </button>
+          </motion.div>
+
+          {/* Mini trust badges */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.72, duration: 0.8 }}
+            className="mt-5 flex items-center gap-4 justify-center md:justify-start flex-wrap"
+          >
+            {["Pure Kasavu", "Handloom Certified", "Kerala Heritage"].map((label, i) => (
+              <div key={i} className="flex items-center gap-1.5 text-[#EADFC9]/80">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                <span className="text-[9px] sm:text-[10px] tracking-widest uppercase">{label}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </main>
+
+      {/* BOTTOM POOKKALAM GARLAND */}
+      <div className="relative z-10 w-full flex flex-col items-center">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.85, duration: 0.8 }}
+          className="flex items-end justify-center gap-0.5 w-full px-1 overflow-hidden"
+        >
+          {Array.from({ length: 38 }).map((_, i) => {
+            const sz = [10, 14, 18, 22, 18, 14][i % 6];
+            const [c1, c2] = GARLAND_COLORS[i % 5];
+            return (
+              <motion.span key={i}
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 1.9, delay: i * 0.055, repeat: Infinity, ease: "easeInOut" }}
+                style={{ display: "inline-block" }}
+              >
+                <MiniFlower size={sz} c1={c1} c2={c2} />
+              </motion.span>
+            );
+          })}
+        </motion.div>
+        <div className="w-full h-[3px] mt-1" style={{ background: "linear-gradient(90deg,transparent,#D4AF37 18%,#FFD54F 50%,#D4AF37 82%,transparent)" }} />
+        <div className="flex items-center justify-center gap-2.5 py-3">
+          {[0, 1, 2].map((i) => (
+            <button
+              key={i}
+              onClick={() => setDot(i)}
+              style={{
+                width: dot === i ? "24px" : "8px",
+                height: "8px",
+                borderRadius: "4px",
+                background: dot === i ? "linear-gradient(90deg,#D4AF37,#FFD54F)" : "rgba(255,255,255,0.3)",
+                boxShadow: dot === i ? "0 0 10px #D4AF37" : "none",
+                transition: "all 0.3s",
+                border: "none",
+                cursor: "pointer",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* BOTTOM KASAVU BORDER */}
+      <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ background: "linear-gradient(90deg,#B8860B,#D4AF37,#FFD54F,#D4AF37,#B8860B)" }} />
     </section>
   );
 }

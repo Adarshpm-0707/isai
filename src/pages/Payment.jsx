@@ -8,6 +8,7 @@ import Button from '../components/reusable/Button';
 import PriceTag from '../components/reusable/PriceTag';
 import Loader from '../components/reusable/Loader';
 import { CreditCard, Landmark, QrCode, AlertCircle, CheckCircle } from 'lucide-react';
+import { SectionFlower, PookklamGarland, GoldLine } from '../components/layout/OnamEffects';
 
 const loadScript = (src) => {
   return new Promise((resolve) => {

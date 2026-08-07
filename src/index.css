@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 @import "tailwindcss";
 
@@ -59,9 +59,9 @@
   h4,
   h5,
   h6 {
-    font-family: 'Playfair Display', 'Cinzel', serif !important;
-    color: #E3C381 !important;
-    text-shadow: none !important;
+    font-family: 'Playfair Display', 'Cinzel', serif;
+    color: #E3C381;
+    text-shadow: none;
     @apply tracking-wide break-words font-bold;
   }
 
@@ -80,9 +80,6 @@
     @apply tracking-wide break-words font-medium;
   }
 
-  section {
-    background-color: transparent !important;
-  }
 }
 
 /* Glassmorphism Design Utilities */
@@ -156,8 +153,35 @@
   font-family: 'Cinzel Decorative', 'Cinzel', serif !important;
 }
 
+.font-bodoni {
+  font-family: 'Bodoni Moda', serif !important;
+}
+
+.font-cormorant {
+  font-family: 'Cormorant Garamond', serif !important;
+}
+
+.font-italiana {
+  font-family: 'Italiana', serif !important;
+}
+
+.font-prata {
+  font-family: 'Prata', serif !important;
+}
+
+.archivo-black-regular {
+  font-family: "Archivo Black", sans-serif !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+}
+
+.hero-title-font {
+  font-family: 'Archivo Black', sans-serif !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+}
+
 .font-cinzel,
-.font-cormorant,
 .font-cormorant-sc,
 .font-quiche,
 .font-burgues,

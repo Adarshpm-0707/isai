@@ -14,6 +14,7 @@ import SectionHeading from '../components/reusable/SectionHeading';
 import Button from '../components/reusable/Button';
 import { getProductImageList } from '../utils/productHelpers';
 import { ShoppingBag, ArrowLeft, RefreshCw, ShieldCheck, Heart, Star } from 'lucide-react';
+import { SectionFlower, PookklamGarland, GoldLine } from '../components/layout/OnamEffects';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -150,8 +151,11 @@ export default function ProductDetails() {
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-8 sm:space-y-16 text-[#E3C381] bg-transparent">
+      {/* Onam garland top decoration */}
+      <div><GoldLine /><PookklamGarland count={24} /><GoldLine /></div>
       {/* Back button */}
       <div>
+
         <Link
           to="/products"
           className="inline-flex items-center text-[#E3C381] hover:text-[#F0DDB0] font-sans font-bold uppercase text-[10px] sm:text-xs tracking-widest transition-colors"

@@ -9,6 +9,7 @@ import { checkoutService } from '../services/checkoutService';
 import { validatePhone, validatePincode, validateEmail, validateRequired } from '../utils/validators';
 import { getProductImage } from '../utils/productHelpers';
 import { Truck, CreditCard, ShieldCheck } from 'lucide-react';
+import { SectionFlower, PookklamGarland, GoldLine } from '../components/layout/OnamEffects';
 
 const loadScript = (src) => {
   return new Promise((resolve) => {

@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import useAuth from '../hooks/useAuth';
-import SectionHeading from '../components/reusable/SectionHeading';
-import EmptyState from '../components/reusable/EmptyState';
-import Badge from '../components/reusable/Badge';
-import Button from '../components/reusable/Button';
-import { orderService } from '../services/orderService';
-import { getProductImage } from '../utils/productHelpers';
-import { ExternalLink, XCircle } from 'lucide-react';
+﻿import React, { useState, useEffect } from "react";
+import useAuth from "../hooks/useAuth";
+import EmptyState from "../components/reusable/EmptyState";
+import Badge from "../components/reusable/Badge";
+import { orderService } from "../services/orderService";
+import { getProductImage } from "../utils/productHelpers";
+import { XCircle } from "lucide-react";
+import { motion } from "framer-motion";
+import { OnamPageHeading, SectionFlower, PookklamGarland, GoldLine } from "../components/layout/OnamEffects";
 
 export default function OrderHistory() {
   const { user } = useAuth();
@@ -17,159 +17,114 @@ export default function OrderHistory() {
   const fetchOrders = async () => {
     if (!user) return;
     setLoading(true);
-    try {
-      const data = await orderService.getUserOrders(user.id);
-      setOrders(data || []);
-    } catch (err) {
-      console.error('Failed to fetch orders:', err);
-    } finally {
-      setLoading(false);
-    }
+    try { const data = await orderService.getUserOrders(user.id); setOrders(data || []); }
+    catch (err) { console.error("Failed to fetch orders:", err); }
+    finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, [user]);
+  useEffect(() => { fetchOrders(); }, [user]);
 
   const handleCancel = async (orderId) => {
-    if (!window.confirm('Are you sure you want to cancel this order?')) return;
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
     setCancellingId(orderId);
-    try {
-      await orderService.cancelOrder(orderId);
-      alert('Order cancelled successfully.');
-      await fetchOrders();
-    } catch (err) {
-      alert(err.message || 'Failed to cancel order');
-    } finally {
-      setCancellingId(null);
-    }
+    try { await orderService.cancelOrder(orderId); alert("Order cancelled successfully."); await fetchOrders(); }
+    catch (err) { alert(err.message || "Failed to cancel order"); }
+    finally { setCancellingId(null); }
   };
 
   if (orders.length === 0 && !loading) {
-    return (
-      <EmptyState
-        title="No Orders Placed Yet"
-        message="You haven't ordered any items yet. Start exploring our collections today."
-        actionText="Browse Collection"
-        actionPath="/products"
-      />
-    );
+    return <EmptyState title="No Orders Yet" message="You haven't ordered anything yet. Start exploring our Onam collections." actionText="Browse Collection" actionPath="/products" />;
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
-      <SectionHeading
-        title="Order History"
-        subtitle="Manage and track your recent orders"
-      />
+    <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-10 space-y-8"
+      style={{ background: "linear-gradient(180deg,#0C2317 0%,#1A3C2B 40%,#0C2317 100%)" }}>
 
-      <div className="space-y-8">
-        {orders.map((order) => {
-          const formattedDate = new Date(order.created_at).toLocaleDateString('en-IN', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          });
+      <div><GoldLine /><PookklamGarland count={26} /><GoldLine /></div>
+      <OnamPageHeading malayalam="ഓർഡർ ചരിത്രം" english="ORDER HISTORY" />
 
-          let badgeVariant = 'warning';
-          if (order.status === 'shipped') badgeVariant = 'gold';
-          if (order.status === 'delivered' || order.status === 'paid') badgeVariant = 'success';
-          if (order.status === 'cancelled' || order.status === 'failed') badgeVariant = 'danger';
-
-          const isCancelable = ['pending', 'paid', 'confirmed'].includes(order.status);
+      <div className="max-w-4xl mx-auto space-y-6">
+        {orders.map((order, idx) => {
+          const formattedDate = new Date(order.created_at).toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" });
+          let badgeVariant = "warning";
+          if (order.status === "shipped") badgeVariant = "gold";
+          if (order.status === "delivered" || order.status === "paid") badgeVariant = "success";
+          if (order.status === "cancelled" || order.status === "failed") badgeVariant = "danger";
+          const isCancelable = ["pending", "paid", "confirmed"].includes(order.status);
           const items = Array.isArray(order.items) ? order.items : [];
           const addr = order.shipping_address || {};
 
           return (
-            <div
-              key={order.id}
-              className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 shadow-xl rounded-sm overflow-hidden"
-            >
-              {/* Header */}
-              <div className="bg-[#2B1409]/80 border-b border-[#D8A55A]/20 px-6 py-4 flex flex-wrap justify-between items-center gap-4 text-xs font-sans">
-                <div className="flex flex-wrap gap-6">
-                  <div>
-                    <span className="block text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
-                      Order Placed
-                    </span>
-                    <span className="text-[#F6D18A] font-medium">{formattedDate}</span>
-                  </div>
-                  <div>
-                    <span className="block text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
-                      Total Payable
-                    </span>
-                    <span className="text-[#F6D18A] font-bold">
-                      ₹{Number(order.total || order.total_amount || 0).toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-[#D8A55A]/70 uppercase font-bold tracking-wider mb-1">
-                      Payment
-                    </span>
-                    <span className="text-[#F6D18A] uppercase font-bold">
-                      {order.payment_method || 'Prepaid'}
-                    </span>
-                  </div>
-                </div>
+            <motion.div key={order.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.08 }}
+              className="rounded-2xl overflow-hidden shadow-xl"
+              style={{ border: "1.5px solid rgba(212,175,55,0.3)", background: "linear-gradient(135deg,rgba(26,60,43,0.92),rgba(12,35,23,0.96))" }}>
 
+              {/* Header */}
+              <div className="px-5 py-4 flex flex-wrap justify-between items-center gap-3 text-xs border-b" style={{ borderColor: "rgba(212,175,55,0.15)", background: "rgba(212,175,55,0.05)" }}>
+                <div className="flex flex-wrap gap-5">
+                  {[
+                    { label: "Order Placed", value: formattedDate },
+                    { label: "Total", value: `&#8377;${Number(order.total || order.total_amount || 0).toLocaleString("en-IN")}` },
+                    { label: "Payment", value: order.payment_method || "Prepaid" },
+                  ].map((f, i) => (
+                    <div key={i}>
+                      <span className="block text-[#D4AF37]/60 uppercase font-bold tracking-wider mb-0.5 text-[9px] flex items-center gap-1">
+                        <SectionFlower size={10} /> {f.label}
+                      </span>
+                      <span className="text-[#F3E5AB] font-medium" dangerouslySetInnerHTML={{ __html: f.value }} />
+                    </div>
+                  ))}
+                </div>
                 <div className="flex items-center gap-3">
                   <Badge text={order.status} variant={badgeVariant} />
                   {isCancelable && (
-                    <button
-                      onClick={() => handleCancel(order.id)}
-                      disabled={cancellingId === order.id}
-                      className="text-xs text-red-400 hover:text-red-300 underline font-bold flex items-center gap-1"
-                    >
+                    <button onClick={() => handleCancel(order.id)} disabled={cancellingId === order.id}
+                      className="text-xs text-red-400 hover:text-red-300 underline font-bold flex items-center gap-1">
                       <XCircle className="w-3.5 h-3.5" />
-                      {cancellingId === order.id ? 'Cancelling...' : 'Cancel'}
+                      {cancellingId === order.id ? "Cancelling..." : "Cancel"}
                     </button>
                   )}
                 </div>
               </div>
 
               {/* Items */}
-              <div className="divide-y divide-[#D8A55A]/10 px-6">
-                {items.map((item, idx) => (
-                  <div key={idx} className="py-4 flex gap-4 items-center">
-                    <div className="w-12 aspect-[3/4] overflow-hidden bg-[#2B1409] border border-[#D8A55A]/20 flex-shrink-0 rounded">
-                      <img
-                        src={getProductImage(item)}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
+              <div className="divide-y px-5" style={{ divideColor: "rgba(212,175,55,0.1)" }}>
+                {items.map((item, i) => (
+                  <div key={i} className="py-3.5 flex gap-3 items-center border-b" style={{ borderColor: "rgba(212,175,55,0.08)" }}>
+                    <div className="w-10 aspect-[3/4] overflow-hidden flex-shrink-0 rounded-lg" style={{ background: "rgba(12,35,23,0.7)", border: "1px solid rgba(212,175,55,0.25)" }}>
+                      <img src={getProductImage(item)} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-grow min-w-0">
-                      <h4 className="font-playfair text-sm font-bold text-[#F6D18A] truncate">
-                        {item.name}
-                      </h4>
-                      {item.size && (
-                        <p className="text-[10px] text-[#D8A55A]/80 font-sans">Size: {item.size}</p>
-                      )}
+                      <h4 className="font-serif text-sm font-bold text-[#F3E5AB] truncate">{item.name}</h4>
+                      {item.size && <p className="text-[10px] text-[#D4AF37]/60">Size: {item.size}</p>}
                     </div>
-                    <div className="text-right text-xs font-sans">
-                      <p className="text-[#F6D18A] font-medium">
-                        {item.qty} &times; ₹{Number(item.price || 0).toLocaleString('en-IN')}
-                      </p>
+                    <div className="text-right text-xs">
+                      <p className="text-[#D4AF37] font-medium">{item.qty} &times; &#8377;{Number(item.price || 0).toLocaleString("en-IN")}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Shipping Address & Tracking Footer */}
-              <div className="bg-[#2B1409]/60 px-6 py-3 border-t border-[#D8A55A]/10 flex flex-wrap justify-between items-center text-[11px] text-[#D8A55A]/90 gap-2">
-                <div>
-                  <strong>Deliver To:</strong> {addr.name || 'Customer'} ({addr.city}, {addr.pincode})
+              {/* Footer */}
+              <div className="px-5 py-2.5 text-[11px] flex flex-wrap justify-between items-center gap-2"
+                style={{ background: "rgba(12,35,23,0.4)", borderTop: "1px solid rgba(212,175,55,0.1)" }}>
+                <div className="flex items-center gap-1 text-[#EADFC9]/65">
+                  <SectionFlower size={12} />
+                  <strong>Deliver To:</strong>&nbsp;{addr.name || "Customer"} ({addr.city}, {addr.pincode})
                 </div>
                 {order.shiprocket_order_id && (
-                  <div className="flex items-center gap-1 text-[#F6D18A] font-bold">
-                    <span>Tracking ID: {order.shiprocket_order_id}</span>
+                  <div className="flex items-center gap-1 text-[#D4AF37] font-bold">
+                    Tracking ID: {order.shiprocket_order_id}
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
+
+      <div><GoldLine /><PookklamGarland count={26} /><GoldLine /></div>
     </div>
   );
 }

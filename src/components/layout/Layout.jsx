@@ -1,19 +1,18 @@
-import React, { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import Lenis from 'lenis';
-import Navbar from './Navbar';
-import Footer from './Footer';
+﻿import React, { useEffect } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import Lenis from "lenis";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
+import { GlobalOnamOverlay, PookklamGarland, GoldLine } from "./OnamEffects";
 
 export default function Layout() {
   const location = useLocation();
 
-  // Scroll to top on route change
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [location.pathname]);
 
-  // Global Lenis Smooth Scroll
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -22,28 +21,21 @@ export default function Layout() {
       wheelMultiplier: 1.0,
       touchMultiplier: 1.5,
     });
-
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
     const rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
+    return () => { cancelAnimationFrame(rafId); lenis.destroy(); };
   }, []);
 
   return (
-    <div 
+    <div
       className="flex flex-col min-h-screen text-[#E3C381] selection:bg-[#D4AF7A] selection:text-[#0F2318] overflow-x-hidden"
-      style={{ backgroundColor: '#0E2A1C' }}
+      style={{ backgroundColor: "#0E2A1C" }}
     >
-      {/* Header Navigation */}
+      {/* Global floating Onam petals (fixed, behind content) */}
+      <GlobalOnamOverlay />
+
       <Navbar />
 
-      {/* Main Page Area with smooth route transitions */}
       <main className="flex-grow relative w-full">
         <AnimatePresence mode="wait">
           <motion.div
@@ -58,6 +50,13 @@ export default function Layout() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* Onam garland above footer */}
+      <div className="w-full">
+        <GoldLine />
+        <PookklamGarland count={30} />
+        <GoldLine />
+      </div>
 
       <Footer />
     </div>
