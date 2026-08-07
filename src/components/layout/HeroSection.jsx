@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, ShieldCheck, Award } from "lucide-react";
@@ -26,6 +26,22 @@ function KollamRing({ className = "" }) {
           opacity="0.7"
         />
       ))}
+    </svg>
+  );
+}
+
+/* ── Onam SVG Flower Accent ── */
+function SectionFlower({ size = 24, className = "" }) {
+  return (
+    <svg className={className} width={size} height={size} viewBox="0 0 60 60" fill="none">
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((a, i) => (
+        <g key={i} transform={`rotate(${a},30,30)`}>
+          <ellipse cx="30" cy="10" rx="5" ry="12" fill={i % 2 === 0 ? "#FF6B35" : "#FFD54F"} opacity="0.9" />
+        </g>
+      ))}
+      <circle cx="30" cy="30" r="9" fill="#FF8F00" />
+      <circle cx="30" cy="30" r="5.5" fill="#FFD54F" />
+      <circle cx="30" cy="30" r="2.5" fill="white" opacity="0.8" />
     </svg>
   );
 }
@@ -86,14 +102,13 @@ export default function HeroSection({ fabricImageUrl }) {
             className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[#D4AF37]/80 shadow-2xl backdrop-blur-md"
             style={{ background: "rgba(19,51,35,0.85)", boxShadow: "0 4px 20px rgba(212,175,55,0.25)" }}
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#FFD54F] animate-pulse" />
+            <SectionFlower size={16} />
             <span className="text-[#F3E5AB] text-[10px] sm:text-xs font-bold tracking-[0.28em] uppercase">
-              ONAM ROYAL COLLECTION &bull; തിരുവോണം 2025
+              ONAM ROYAL COLLECTION &bull; 2025
             </span>
+            <SectionFlower size={16} />
           </motion.div>
 
-          {/* Heritage Tag */}
-        
         </div>
       </div>
 
@@ -101,18 +116,18 @@ export default function HeroSection({ fabricImageUrl }) {
       <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12 lg:px-20 flex-1 flex flex-col justify-center items-center md:items-start text-center md:text-left py-6">
         <div className="max-w-md sm:max-w-2xl lg:max-w-4xl xl:max-w-5xl w-full">
 
-          {/* Malayalam Sub-heading Badge */}
+          {/* Sub-heading Badge with Flowers */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
             className="mb-3 flex items-center gap-2 justify-center md:justify-start"
           >
-            <div className="h-px w-6 bg-[#D4AF37]" />
+            <SectionFlower size={18} />
             <span className="text-[#FFD54F] font-serif text-xs sm:text-sm tracking-[0.35em] uppercase font-bold drop-shadow">
-              ഐശ്വര്യ സമൃദ്ധമായ തിരുവോണം
+              PROSPEROUS THIRUVONAM COLLECTION
             </span>
-            <div className="h-px w-6 bg-[#D4AF37]" />
+            <SectionFlower size={18} />
           </motion.div>
 
           {/* MAIN HEADING WITH INCREASED 2-LINE TEXT SIZE */}
@@ -134,7 +149,7 @@ export default function HeroSection({ fabricImageUrl }) {
             <span className="block whitespace-nowrap">OF DRAPING</span>
           </motion.h1>
 
-          {/* Gold Decorative Accent Line */}
+          {/* Gold Decorative Accent Line with Center Flower */}
           <motion.div
             initial={{ opacity: 0, scaleX: 0 }}
             animate={{ opacity: 1, scaleX: 1 }}
@@ -142,8 +157,9 @@ export default function HeroSection({ fabricImageUrl }) {
             className="flex items-center gap-2 mt-4 mb-4 justify-center md:justify-start"
             style={{ transformOrigin: "left" }}
           >
-            <div className="h-[2px] w-28 sm:w-44" style={{ background: "linear-gradient(90deg,#D4AF37,#FFD54F,transparent)" }} />
-            <div className="w-2 h-2 rounded-full bg-[#FFD54F] shadow-[0_0_8px_#FFD54F]" />
+            <div className="h-[2px] w-20 sm:w-32" style={{ background: "linear-gradient(90deg,#D4AF37,#FFD54F,transparent)" }} />
+            <SectionFlower size={20} />
+            <div className="h-[2px] w-20 sm:w-32" style={{ background: "linear-gradient(270deg,#D4AF37,#FFD54F,transparent)" }} />
           </motion.div>
 
           {/* SUBTITLE */}

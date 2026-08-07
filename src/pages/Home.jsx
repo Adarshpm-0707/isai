@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, Sparkles, ShieldCheck, Award, Truck, Star, ShoppingBag, Flower2 } from "lucide-react";
@@ -8,11 +8,11 @@ import HeroSection from "../components/layout/HeroSection";
 
 /* ── Onam Kerala Categories ── */
 const KERALA_CATEGORIES = [
-  { name: "KASAVU SAREES", label: "ഓണം പ്രത്യേകത", img: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=300" },
-  { name: "SET MUNDU", label: "TRADITIONAL WEAVE", img: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&q=80&w=300" },
-  { name: "GOLDEN BORDER", label: "ZARI ELEGANCE", img: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=300" },
-  { name: "HANDLOOMS", label: "BALARAMAPURAM", img: "https://images.unsplash.com/photo-1610030470258-a4005cfa2c5a?auto=format&fit=crop&q=80&w=300" },
-  { name: "FESTIVE SILKS", label: "ONAM SPECIAL", img: "https://images.unsplash.com/photo-1583391265517-35bbdba01229?auto=format&fit=crop&q=80&w=300" },
+  { name: "KASAVU SAREES",img: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=300" },
+  { name: "SET MUNDU", img: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&q=80&w=300" },
+  { name: "GOLDEN BORDER", img: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=300" },
+  { name: "HANDLOOMS",img: "https://images.unsplash.com/photo-1610030470258-a4005cfa2c5a?auto=format&fit=crop&q=80&w=300" },
+  { name: "FESTIVE SILKS",  img: "https://images.unsplash.com/photo-1583391265517-35bbdba01229?auto=format&fit=crop&q=80&w=300" },
 ];
 
 const ONAM_COLLECTIONS = [
@@ -52,14 +52,13 @@ function SectionFlower({ size = 30, className = "" }) {
 }
 
 function FlowerDivider() {
-  const items = Array.from({ length: 9 });
   return (
-    <div className="flex items-center justify-center gap-1 my-2">
-      <div className="flex-1 h-px" style={{ background: "linear-gradient(to right,transparent,#D4AF37)" }} />
-      {items.map((_, i) => (
-        <SectionFlower key={i} size={i === 4 ? 28 : 18} />
-      ))}
-      <div className="flex-1 h-px" style={{ background: "linear-gradient(to left,transparent,#D4AF37)" }} />
+    <div className="flex items-center justify-center gap-1.5 my-2">
+      <div className="flex-1 h-px max-w-xs" style={{ background: "linear-gradient(to right,transparent,#D4AF37)" }} />
+      <SectionFlower size={14} />
+      <SectionFlower size={22} />
+      <SectionFlower size={14} />
+      <div className="flex-1 h-px max-w-xs" style={{ background: "linear-gradient(to left,transparent,#D4AF37)" }} />
     </div>
   );
 }
@@ -96,11 +95,11 @@ function PookklamGarland({ count = 20 }) {
 /* ── SECTION HEADING ── */
 function SectionHeading({ malayalam, english }) {
   return (
-    <div className="text-center space-y-2 mb-8">
+    <div className="text-center space-y-1.5 mb-8">
       <div className="flex items-center justify-center gap-2">
-        <SectionFlower size={20} />
+        <SectionFlower size={16} />
         <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.35em] uppercase">{malayalam}</span>
-        <SectionFlower size={20} />
+        <SectionFlower size={16} />
       </div>
       <h2 className="font-serif text-xl sm:text-3xl font-bold tracking-wide uppercase"
         style={{
@@ -140,7 +139,7 @@ export default function Home() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4">
-          <SectionHeading malayalam="ആഘോഷപ്പൊലിമ" english="KERALA HERITAGE CATEGORIES" />
+          <SectionHeading malayalam="ONAM CELEBRATIONS" english="KERALA HERITAGE CATEGORIES" />
           <div className="flex items-center justify-start md:justify-center gap-6 sm:gap-10 overflow-x-auto pb-4 scrollbar-none px-2">
             {KERALA_CATEGORIES.map((cat, idx) => (
               <motion.div
@@ -149,20 +148,11 @@ export default function Home() {
                 onClick={() => navigate(`/products?category=${encodeURIComponent(cat.name)}`)}
                 className="flex flex-col items-center cursor-pointer shrink-0 group"
               >
-                {/* Pookkalam ring frame */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    {[0,60,120,180,240,300].map((a) => (
-                      <div key={a} className="absolute w-3 h-3" style={{ transform: `rotate(${a}deg) translateY(-42px)` }}>
-                        <SectionFlower size={12} />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="relative p-1.5 rounded-full shadow-md group-hover:shadow-xl transition-all"
-                    style={{ background: "linear-gradient(135deg,#D4AF37,#FFF5C0,#B8860B,#FFD54F)" }}>
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#0C2317]">
-                      <img src={cat.img} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                    </div>
+                {/* Gold ring frame */}
+                <div className="relative p-1.5 rounded-full shadow-md group-hover:shadow-xl transition-all"
+                  style={{ background: "linear-gradient(135deg,#D4AF37,#FFF5C0,#B8860B,#FFD54F)" }}>
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-[#0C2317]">
+                    <img src={cat.img} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   </div>
                 </div>
                 <span className="mt-3 text-[10px] sm:text-xs font-bold tracking-wider text-[#0C2317] group-hover:text-[#B8860B] transition-colors text-center">
@@ -187,7 +177,7 @@ export default function Home() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <SectionFlower size={18} />
-              <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase">നെയ്ത്തുഭംഗി</span>
+              <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase">HERITAGE HANDLOOM</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-4xl tracking-wide uppercase font-bold"
               style={{ background: "linear-gradient(135deg,#0C2317,#1A3C2B)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
@@ -210,10 +200,6 @@ export default function Home() {
               style={{ border: "1.5px solid rgba(212,175,55,0.35)" }}
             >
               <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              {/* Flower corner decor */}
-              <div className="absolute top-2 right-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                <SectionFlower size={24} />
-              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-[#0C2317]/92 via-[#0C2317]/30 to-transparent flex flex-col justify-end p-3 sm:p-5">
                 <span className="text-[8px] sm:text-[10px] text-[#F3E5AB] font-bold tracking-widest uppercase mb-1">{item.subtitle}</span>
                 <h3 className="font-serif text-sm sm:text-lg font-bold text-white tracking-wide uppercase leading-snug">{item.title}</h3>
@@ -229,26 +215,16 @@ export default function Home() {
       {/* 4. KASAVU TRUST BADGES */}
       <section className="text-[#F3E5AB] py-10 relative overflow-hidden"
         style={{ background: "linear-gradient(135deg,#0C2317 0%,#1A3C2B 50%,#0C2317 100%)", borderTop: "2px solid #D4AF37", borderBottom: "2px solid #D4AF37" }}>
-        {/* Flower border top */}
-        <div className="absolute top-0 left-0 right-0">
-          <PookklamGarland count={30} />
-        </div>
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center relative z-10 py-4">
           {ONAM_FEATURES.map((feat, idx) => (
             <motion.div key={idx} whileHover={{ y: -4, scale: 1.04 }} className="flex flex-col items-center justify-center space-y-2 p-2">
-              <div className="relative">
-                <SectionFlower size={44} className="opacity-20 absolute inset-0 m-auto" />
-                <div className="relative p-2.5 rounded-full border border-[#D4AF37]/40" style={{ background: "rgba(26,60,43,0.8)" }}>
-                  {feat.icon}
-                </div>
+              <div className="relative p-2.5 rounded-full border border-[#D4AF37]/40" style={{ background: "rgba(26,60,43,0.8)" }}>
+                {feat.icon}
               </div>
               <h4 className="font-serif text-xs sm:text-sm tracking-widest font-bold text-[#F3E5AB]">{feat.title}</h4>
               <p className="text-[9px] sm:text-xs text-[#EADFC9]/80 font-light">{feat.sub}</p>
             </motion.div>
           ))}
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-     
         </div>
       </section>
 
@@ -257,8 +233,7 @@ export default function Home() {
         <div className="flex items-end justify-between mb-4 border-b pb-3" style={{ borderColor: "rgba(212,175,55,0.35)" }}>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <SectionFlower size={18} />
-              <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase">കൈത്തറി രാജാക്കന്മാർ</span>
+              <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase">MASTER WEAVER SAREES</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-4xl tracking-wide uppercase font-bold"
               style={{ background: "linear-gradient(135deg,#0C2317,#1A3C2B)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
@@ -287,10 +262,6 @@ export default function Home() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800"; }}
                 />
-                {/* Onam flower corner decor */}
-                <div className="absolute top-2 right-10 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <SectionFlower size={20} />
-                </div>
                 <button
                   onClick={(e) => e.stopPropagation()}
                   className="absolute top-2.5 right-2.5 p-2 rounded-full bg-white/90 backdrop-blur-sm text-[#0C2317] hover:text-red-600 transition-colors shadow-sm"
@@ -330,24 +301,11 @@ export default function Home() {
           <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=1200"
             alt="Onam Tradition" className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-luminosity" />
 
-          {/* Decorative flowers */}
-          <div className="absolute top-4 right-4 flex gap-2">
-            <SectionFlower size={36} className="opacity-70" />
-            <SectionFlower size={50} className="opacity-85" />
-            <SectionFlower size={36} className="opacity-70" />
-          </div>
-          <div className="absolute bottom-4 right-4 flex gap-2 flex-col items-end">
-            <SectionFlower size={28} className="opacity-50" />
-            <SectionFlower size={40} className="opacity-65" />
-          </div>
-
           <div className="relative z-10 p-6 sm:p-14 max-w-xl space-y-4">
             <div className="flex items-center gap-2">
-              <SectionFlower size={22} />
               <span className="text-[#D4AF37] text-[10px] sm:text-xs font-bold tracking-[0.4em] uppercase">
                 ഓണസന്ദേശം &bull; CELEBRATING TRADITION
               </span>
-              <SectionFlower size={22} />
             </div>
             <h3 className="font-serif text-2xl sm:text-4xl font-bold tracking-wide uppercase leading-tight"
               style={{ color: "#F3E5AB", textShadow: "0 2px 12px rgba(212,175,55,0.3)" }}>
@@ -363,7 +321,6 @@ export default function Home() {
               onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(135deg,#FFD54F,#D4AF37)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(135deg,#D4AF37,#B8860B)"; }}
             >
-              <SectionFlower size={16} />
               DISCOVER ONAM VAULT &rarr;
             </button>
           </div>
