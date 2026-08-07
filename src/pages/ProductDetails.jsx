@@ -151,8 +151,8 @@ export default function ProductDetails() {
 
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-8 sm:space-y-16 text-[#E3C381] bg-transparent">
-      {/* Onam garland top decoration */}
-      <div><GoldLine /><PookklamGarland count={24} /><GoldLine /></div>
+      {/* Gold top accent line */}
+      <div><GoldLine /></div>
       {/* Back button */}
       <div>
 

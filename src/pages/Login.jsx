@@ -1,11 +1,10 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import Button from "../components/reusable/Button";
 import { validateEmail, validateRequired } from "../utils/validators";
 import { AlertCircle, Lock, Mail } from "lucide-react";
 import { motion } from "framer-motion";
-import { OnamPageHeading, SectionFlower, PookklamGarland, GoldLine, MiniFlower } from "../components/layout/OnamEffects";
+import { GoldLine } from "../components/layout/OnamEffects";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -51,17 +50,9 @@ export default function Login() {
       className="min-h-[90vh] flex flex-col items-center justify-center px-4 py-12 relative"
       style={{ background: "linear-gradient(180deg,#0C2317 0%,#1A3C2B 50%,#0C2317 100%)" }}
     >
-      {/* Top flower garland */}
       <div className="absolute top-0 left-0 right-0">
-        <PookklamGarland count={28} />
         <GoldLine />
       </div>
-
-      {/* Corner flowers */}
-      <SectionFlower size={48} className="absolute top-8 left-4 opacity-25 hidden md:block" />
-      <SectionFlower size={36} className="absolute top-12 right-6 opacity-20 hidden md:block" />
-      <SectionFlower size={48} className="absolute bottom-8 left-4 opacity-20 hidden md:block" />
-      <SectionFlower size={36} className="absolute bottom-12 right-6 opacity-25 hidden md:block" />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -69,90 +60,75 @@ export default function Login() {
         transition={{ duration: 0.7 }}
         className="w-full max-w-md space-y-6 relative z-10"
       >
-        {/* Onam heading */}
-        <OnamPageHeading malayalam="ഓണം ലോഗിൻ" english="SIGN IN" />
+        <div className="text-center space-y-2">
+          <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.35em] uppercase">WELCOME BACK</span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-wide text-[#F3E5AB]">
+            Sign In
+          </h1>
+          <p className="text-xs text-[#EADFC9]/80 font-light">Access your exclusive Kerala saree collection</p>
+        </div>
 
-        {error && (
-          <div className="border text-[#F6D18A] p-4 rounded-lg flex items-start gap-2.5"
-            style={{ background: "rgba(43,20,9,0.9)", borderColor: "rgba(212,175,55,0.5)" }}>
-            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-[#FFD54F]" />
-            <p className="text-xs font-medium">{error}</p>
-          </div>
-        )}
-
-        <motion.form
+        <form
           onSubmit={handleSubmit}
-          className="rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden"
-          style={{ background: "linear-gradient(135deg,rgba(26,60,43,0.95),rgba(12,35,23,0.98))", border: "1.5px solid rgba(212,175,55,0.4)" }}
+          className="rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl"
+          style={{ background: "rgba(10,24,16,0.95)", border: "1.5px solid rgba(212,175,55,0.35)" }}
         >
-          {/* Top flower accent */}
-          <div className="flex items-center justify-center gap-1 mb-2">
-            {[0,1,2,3,4].map(i => <MiniFlower key={i} size={14} c1="#FF6B35" c2="#FFD54F" />)}
-          </div>
+          {error && (
+            <div className="p-3 rounded-lg flex items-center gap-2 text-xs font-bold text-red-300 border border-red-500/40" style={{ background: "rgba(120,20,20,0.4)" }}>
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-          {/* Email */}
-          <div className="space-y-1.5">
-            <label className="block text-xs uppercase font-bold text-[#D4AF37] tracking-widest">Email Address</label>
+          <div className="space-y-1">
+            <label className="block text-xs uppercase font-bold text-[#D4AF37] tracking-widest">Email Address *</label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-3 w-4 h-4 text-[#D4AF37]/60" />
               <input
-                type="email" value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg pl-10 pr-4 py-2.5 text-sm placeholder:text-[#D4AF37]/40 focus:outline-none transition-all"
-                style={{ background: "rgba(12,35,23,0.8)", border: "1px solid rgba(212,175,55,0.35)", color: "#F3E5AB" }}
-                onFocus={e => e.currentTarget.style.borderColor = "#D4AF37"}
-                onBlur={e => e.currentTarget.style.borderColor = "rgba(212,175,55,0.35)"}
-                placeholder="name@example.com" required
+                type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#F3E5AB] placeholder:text-[#D4AF37]/40 focus:outline-none focus:border-[#D4AF37] transition-colors"
+                style={{ background: "rgba(12,35,23,0.9)", border: "1px solid rgba(212,175,55,0.35)" }}
+                placeholder="name@example.com"
               />
             </div>
           </div>
 
-          {/* Password */}
-          <div className="space-y-1.5">
-            <label className="block text-xs uppercase font-bold text-[#D4AF37] tracking-widest">Password</label>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center">
+              <label className="block text-xs uppercase font-bold text-[#D4AF37] tracking-widest">Password *</label>
+            </div>
             <div className="relative">
               <Lock className="absolute left-3.5 top-3 w-4 h-4 text-[#D4AF37]/60" />
               <input
-                type="password" value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg pl-10 pr-4 py-2.5 text-sm placeholder:text-[#D4AF37]/40 focus:outline-none transition-all"
-                style={{ background: "rgba(12,35,23,0.8)", border: "1px solid rgba(212,175,55,0.35)", color: "#F3E5AB" }}
-                onFocus={e => e.currentTarget.style.borderColor = "#D4AF37"}
-                onBlur={e => e.currentTarget.style.borderColor = "rgba(212,175,55,0.35)"}
-                placeholder="••••••••" required
+                type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#F3E5AB] placeholder:text-[#D4AF37]/40 focus:outline-none focus:border-[#D4AF37] transition-colors"
+                style={{ background: "rgba(12,35,23,0.9)", border: "1px solid rgba(212,175,55,0.35)" }}
+                placeholder="••••••••"
               />
             </div>
           </div>
 
-          {/* Submit */}
           <div className="pt-2">
-            <button
-              type="submit" disabled={loading}
+            <button type="submit" disabled={loading}
               className="w-full py-3 rounded-lg font-bold text-sm tracking-widest uppercase transition-all disabled:opacity-60 flex items-center justify-center gap-2"
               style={{ background: "linear-gradient(135deg,#D4AF37,#B8860B)", color: "#0C2317", boxShadow: "0 4px 24px rgba(212,175,55,0.4)" }}
-              onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = "linear-gradient(135deg,#FFD54F,#D4AF37)"; } }}
+              onMouseEnter={e => { if (!loading) e.currentTarget.style.background = "linear-gradient(135deg,#FFD54F,#D4AF37)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "linear-gradient(135deg,#D4AF37,#B8860B)"; }}
             >
-              <MiniFlower size={16} c1="#0C2317" c2="#1A3C2B" />
               {loading ? "Authenticating..." : "Sign In"}
             </button>
           </div>
 
           <p className="text-center text-xs text-[#D4AF37]/80 pt-1">
             Don&apos;t have an account?{" "}
-            <Link to="/signup" state={{ from: location.state?.from }}
-              className="text-[#FFD54F] font-bold hover:underline ml-1">
-              Sign Up
+            <Link to="/signup" state={{ from: location.state?.from }} className="text-[#FFD54F] font-bold hover:underline ml-1">
+              Create Account
             </Link>
           </p>
-        </motion.form>
+        </form>
       </motion.div>
 
-      {/* Bottom garland */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <GoldLine />
-        <PookklamGarland count={28} />
-      </div>
+      <div className="absolute bottom-0 left-0 right-0"><GoldLine /></div>
     </div>
   );
 }

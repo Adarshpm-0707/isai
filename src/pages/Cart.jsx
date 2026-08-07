@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useCart from "../hooks/useCart";
 import PriceTag from "../components/reusable/PriceTag";
@@ -36,10 +36,13 @@ export default function Cart() {
     <div className="min-h-screen px-3 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8"
       style={{ background: "linear-gradient(180deg,#0C2317 0%,#1A3C2B 40%,#0C2317 100%)" }}>
 
-      {/* Top garland */}
-      <div><GoldLine /><PookklamGarland count={26} /><GoldLine /></div>
+      {/* Top Gold Line */}
+      <div><GoldLine /></div>
 
-      <OnamPageHeading malayalam="ഷോപ്പിംഗ് ബാഗ്" english="SHOPPING BAG" />
+      <div className="text-center space-y-1 my-4">
+        <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.35em] uppercase block">YOUR SELECTION</span>
+        <h1 className="font-serif text-2xl sm:text-4xl font-bold tracking-wide uppercase text-[#F3E5AB]">SHOPPING BAG</h1>
+      </div>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
         {/* Cart items */}

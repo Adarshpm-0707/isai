@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import EmptyState from "../components/reusable/EmptyState";
 import Badge from "../components/reusable/Badge";
@@ -40,8 +40,11 @@ export default function OrderHistory() {
     <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-10 space-y-8"
       style={{ background: "linear-gradient(180deg,#0C2317 0%,#1A3C2B 40%,#0C2317 100%)" }}>
 
-      <div><GoldLine /><PookklamGarland count={26} /><GoldLine /></div>
-      <OnamPageHeading malayalam="ഓർഡർ ചരിത്രം" english="ORDER HISTORY" />
+      <div><GoldLine /></div>
+      <div className="text-center space-y-1 my-4">
+        <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.35em] uppercase block">PAST PURCHASES</span>
+        <h1 className="font-serif text-2xl sm:text-4xl font-bold tracking-wide uppercase text-[#F3E5AB]">ORDER HISTORY</h1>
+      </div>
 
       <div className="max-w-4xl mx-auto space-y-6">
         {orders.map((order, idx) => {

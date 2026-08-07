@@ -1,8 +1,8 @@
-﻿import React from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, ShieldCheck, Globe, Zap, History, MoveDown } from "lucide-react";
-import { SectionFlower, PookklamGarland, GoldLine, FlowerDivider, OnamPageHeading, MiniFlower } from "../components/layout/OnamEffects";
+import { GoldLine } from "../components/layout/OnamEffects";
 
 const VALUES = [
   { icon: ShieldCheck, title: "Silk Mark Certified", desc: "100% natural fiber purity with authentic gold zari testing." },
@@ -17,6 +17,16 @@ const TIMELINE = [
   { year: "2026", event: "Global Heritage Movement", desc: "Supporting 500+ families through direct, transparent sustainable luxury." },
 ];
 
+function CleanDivider() {
+  return (
+    <div className="flex items-center justify-center gap-2 my-4 px-4 max-w-7xl mx-auto">
+      <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg,transparent,#D4AF37 30%,transparent)" }} />
+      <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+      <div className="flex-1 h-px" style={{ background: "linear-gradient(270deg,transparent,#D4AF37 30%,transparent)" }} />
+    </div>
+  );
+}
+
 export default function About() {
   const { scrollYProgress } = useScroll();
   const titleMove = useTransform(scrollYProgress, [0, 0.5], [0, -150]);
@@ -27,16 +37,13 @@ export default function About() {
 
       {/* ── 1. EDITORIAL HERO ── */}
       <section className="relative pt-16 sm:pt-28 pb-12 px-4 sm:px-6 lg:px-20 max-w-7xl mx-auto overflow-hidden">
-        {/* Top garland */}
-        <div className="mb-8"><GoldLine /><PookklamGarland count={24} /><GoldLine /></div>
+        <div className="mb-8"><GoldLine /></div>
 
         <div className="grid grid-cols-12 gap-6 items-end">
           <div className="col-span-12 lg:col-span-8">
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.9, ease: [0.16,1,0.3,1] }}>
               <div className="flex items-center gap-2 mb-3">
-                <SectionFlower size={24} />
-                <span className="text-[#B8860B] text-[10px] font-bold tracking-[0.35em] uppercase">ഞങ്ങളുടെ കഥ</span>
-                <SectionFlower size={24} />
+                <span className="text-[#B8860B] text-[10px] font-bold tracking-[0.35em] uppercase">OUR HERITAGE STORY</span>
               </div>
               <h1
                 className="text-6xl sm:text-7xl md:text-8xl lg:text-[9rem] leading-[0.9] tracking-tighter mb-4 sm:mb-6 font-extrabold"
@@ -56,17 +63,13 @@ export default function About() {
               Founded in 2026, Isai Tarang operates as a new-age living archive — preserving the rhythmic dance of the shuttle and the soul of the weaver.
             </p>
             <div className="flex items-center gap-2 text-[10px] tracking-[0.3em] font-bold uppercase text-[#D4AF37]">
-              <SectionFlower size={16} /> Our Evolution <MoveDown size={14} className="animate-bounce" />
+              <span>OUR EVOLUTION</span> <MoveDown size={14} className="animate-bounce" />
             </div>
           </motion.div>
         </div>
-        <motion.div style={{ y: titleMove }} className="absolute -right-20 top-20 text-[12rem] sm:text-[18rem] font-extrabold opacity-[0.03] pointer-events-none select-none hidden sm:block"
-          style2={{ fontFamily: "'Cinzel Decorative',serif", color: "#D4AF37" }}>
-          2026
-        </motion.div>
       </section>
 
-      <FlowerDivider count={13} />
+      <CleanDivider />
 
       {/* ── 2. PHILOSOPHY ── */}
       <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-20" style={{ background: "rgba(212,175,55,0.04)" }}>
@@ -74,11 +77,6 @@ export default function About() {
           <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
             className="relative min-h-[240px] sm:aspect-[3/4] rounded-2xl flex items-center justify-center p-6 sm:p-12 overflow-hidden shadow-2xl"
             style={{ background: "rgba(212,175,55,0.07)", border: "1.5px solid rgba(212,175,55,0.3)" }}>
-            {/* Corner flowers */}
-            <SectionFlower size={36} className="absolute top-3 left-3 opacity-40" />
-            <SectionFlower size={36} className="absolute top-3 right-3 opacity-40" />
-            <SectionFlower size={36} className="absolute bottom-3 left-3 opacity-40" />
-            <SectionFlower size={36} className="absolute bottom-3 right-3 opacity-40" />
             <div className="absolute inset-0 opacity-8 flex items-center justify-center rotate-12">
               <span className="text-6xl sm:text-8xl font-serif italic text-[#D4AF37]/20">Silk</span>
             </div>
@@ -94,7 +92,6 @@ export default function About() {
             ].map((item, i) => (
               <div key={i} className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <SectionFlower size={18} />
                   <span className="text-[#D4AF37]/70 font-bold text-[10px] tracking-widest uppercase">{item.num} / {item.section}</span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-serif text-[#F3E5AB]">{item.title}</h3>
@@ -106,20 +103,23 @@ export default function About() {
         </div>
       </section>
 
-      <FlowerDivider count={13} />
+      <CleanDivider />
 
       {/* ── 3. TIMELINE ── */}
       <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-20">
-        <OnamPageHeading malayalam="ഞങ്ങളുടെ ചരിത്രം" english="OUR CHRONICLE" />
+        <div className="text-center space-y-1 mb-10">
+          <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.35em] uppercase block">OUR CHRONICLE</span>
+          <h2 className="font-serif text-2xl sm:text-4xl font-bold tracking-wide uppercase text-[#F3E5AB]">MILESTONES & HISTORY</h2>
+        </div>
         <div className="max-w-5xl mx-auto relative">
           <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px -translate-x-1/2" style={{ background: "rgba(212,175,55,0.25)" }} />
           <div className="space-y-16 sm:space-y-24">
             {TIMELINE.map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 className={`relative flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-start md:items-center gap-6 md:gap-20 pl-12 md:pl-0`}>
-                <div className="absolute left-4 md:left-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full -translate-x-1/2 flex items-center justify-center z-10 shadow-lg top-1 md:top-auto"
-                  style={{ background: "linear-gradient(135deg,#1A3C2B,#0C2317)", border: "2px solid #D4AF37" }}>
-                  <SectionFlower size={20} />
+                <div className="absolute left-4 md:left-1/2 w-8 h-8 rounded-full -translate-x-1/2 flex items-center justify-center z-10 shadow-lg top-1 md:top-auto"
+                  style={{ background: "linear-gradient(135deg,#D4AF37,#B8860B)", border: "2px solid #0C2317" }}>
+                  <div className="w-2 h-2 rounded-full bg-[#0C2317]" />
                 </div>
                 <div className="w-full md:w-1/2 text-left md:text-right">
                   <div className={i % 2 === 0 ? "" : "md:text-left"}>
@@ -142,12 +142,15 @@ export default function About() {
         </div>
       </section>
 
-      <FlowerDivider count={13} />
+      <CleanDivider />
 
       {/* ── 4. VALUES MATRIX ── */}
       <section className="py-12 sm:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <OnamPageHeading malayalam="ഞങ്ങളുടെ മൂല്യങ്ങൾ" english="CORE ARCHITECTURE" />
+          <div className="text-center space-y-1 mb-10">
+            <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.35em] uppercase block">CORE ARCHITECTURE</span>
+            <h2 className="font-serif text-2xl sm:text-4xl font-bold tracking-wide uppercase text-[#F3E5AB]">OUR CORE VALUES</h2>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {VALUES.map((v, i) => {
               const Icon = v.icon;
@@ -155,7 +158,6 @@ export default function About() {
                 <motion.div key={i} whileHover={{ y: -6, scale: 1.02 }}
                   className="rounded-2xl p-6 sm:p-7 group transition-all duration-500 shadow-xl relative overflow-hidden"
                   style={{ background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.2)" }}>
-                  <SectionFlower size={40} className="absolute top-2 right-2 opacity-15 group-hover:opacity-30 transition-opacity" />
                   <div className="text-[10px] font-bold text-[#D4AF37]/40 mb-4 relative z-10">0{i + 1}</div>
                   <Icon className="w-6 h-6 text-[#D4AF37] mb-4 group-hover:scale-110 transition-all relative z-10" />
                   <h4 className="text-base font-bold uppercase tracking-tight mb-2 text-[#F3E5AB] relative z-10">{v.title}</h4>
@@ -170,19 +172,12 @@ export default function About() {
       {/* ── 5. CTA ── */}
       <section className="relative py-16 sm:py-24 overflow-hidden"
         style={{ background: "linear-gradient(135deg,#1A3C2B,#0C2317)", borderTop: "2px solid rgba(212,175,55,0.4)" }}>
-        <div className="absolute top-0 left-0 right-0"><PookklamGarland count={28} /><GoldLine /></div>
-
-        {/* Big flowers */}
-        <SectionFlower size={80} className="absolute top-8 left-8 opacity-15 hidden md:block" />
-        <SectionFlower size={60} className="absolute bottom-8 right-8 opacity-15 hidden md:block" />
-        <SectionFlower size={50} className="absolute top-12 right-20 opacity-10 hidden md:block" />
+        <div className="absolute top-0 left-0 right-0"><GoldLine /></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 pt-6">
           <div className="text-center md:text-left">
             <div className="flex items-center gap-2 mb-3 justify-center md:justify-start">
-              <SectionFlower size={22} />
-              <span className="text-[#D4AF37] text-[10px] font-bold tracking-[0.35em] uppercase">ഓണം ഷോപ്പ്</span>
-              <SectionFlower size={22} />
+              <span className="text-[#D4AF37] text-[10px] font-bold tracking-[0.35em] uppercase">ONAM ARCHIVE</span>
             </div>
             <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold leading-none tracking-tight mb-4"
               style={{ fontFamily: "'Cinzel Decorative','Playfair Display',serif", background: "linear-gradient(180deg,#FFF8E7,#D4AF37)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
@@ -205,7 +200,7 @@ export default function About() {
               style={{ background: "linear-gradient(135deg,#D4AF37,#B8860B)" }} />
           </Link>
         </div>
-        <div className="absolute bottom-0 left-0 right-0"><GoldLine /><PookklamGarland count={28} /></div>
+        <div className="absolute bottom-0 left-0 right-0"><GoldLine /></div>
       </section>
     </div>
   );
