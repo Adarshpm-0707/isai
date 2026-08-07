@@ -31,15 +31,16 @@ export default function AuthProvider({ children }) {
 
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          if (isMounted) setUser(session.user);
-          const prof = await authService.getCurrentProfile();
-          if (isMounted) setProfile(prof);
+        const prof = await authService.getCurrentProfile();
+        if (prof && isMounted) {
+          setUser(prof);
+          setProfile(prof);
         } else {
-          if (isMounted) {
-            setUser(null);
-            setProfile(null);
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user && isMounted) {
+            setUser(session.user);
+            const p = await authService.getCurrentProfile();
+            setProfile(p);
           }
         }
       } catch (err) {
@@ -57,9 +58,6 @@ export default function AuthProvider({ children }) {
           setUser(session.user);
           const prof = await authService.getCurrentProfile();
           setProfile(prof);
-        } else {
-          setUser(null);
-          setProfile(null);
         }
         setLoading(false);
       }
@@ -75,9 +73,10 @@ export default function AuthProvider({ children }) {
     setLoading(true);
     try {
       const data = await authService.signIn({ email, password });
-      setUser(data.user);
-      const prof = await fetchProfile(data.user.id);
-      return { user: data.user, profile: prof };
+      const userObj = data.user || data.profile;
+      setUser(userObj);
+      setProfile(userObj);
+      return { user: userObj, profile: userObj };
     } finally {
       setLoading(false);
     }
@@ -87,7 +86,21 @@ export default function AuthProvider({ children }) {
     setLoading(true);
     try {
       const data = await authService.signUp({ email, password, name, phone, role });
+      const userObj = data.user || data.profile;
+      if (userObj) {
+        setUser(userObj);
+        setProfile(userObj);
+      }
       return data;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    setLoading(true);
+    try {
+      return await authService.signInWithGoogle();
     } finally {
       setLoading(false);
     }
@@ -111,6 +124,7 @@ export default function AuthProvider({ children }) {
     loading,
     isAuthenticated: !!user,
     login,
+    loginWithGoogle,
     register,
     logout,
     refreshProfile,

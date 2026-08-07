@@ -45,7 +45,7 @@ export default function ManageProducts() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
           title="Product Inventory"
@@ -54,42 +54,42 @@ export default function ManageProducts() {
         />
         <Link
           to="/admin/products/new"
-          className="inline-flex items-center gap-2 bg-[#F6D18A] text-[#2B1409] hover:opacity-90 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded shadow-xl transition-all"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all"
         >
           <Plus className="w-4 h-4" /> Add Product
         </Link>
       </div>
 
       {/* Filter & Search Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#2B1409] border border-[#D8A55A]/30 p-4 rounded text-xs">
-        <div className="flex items-center gap-2 bg-[#4A0000] border border-[#D8A55A]/30 rounded px-3 py-2 w-full sm:w-72">
-          <Search className="w-4 h-4 text-[#D8A55A]" />
+      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#0C2317] border border-[#D4AF37]/35 p-4 rounded-xl text-xs">
+        <div className="flex items-center gap-2 bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-3 py-2 w-full sm:w-72">
+          <Search className="w-4 h-4 text-[#D4AF37]" />
           <input
             type="text"
             placeholder="Search by title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none w-full"
+            className="bg-transparent text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none w-full"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[#D8A55A] font-bold uppercase">Category:</span>
+          <span className="text-[#D4AF37] font-bold uppercase">Category:</span>
           <input
             type="text"
             placeholder="Category filter..."
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-[#4A0000] border border-[#D8A55A]/30 text-[#F6D18A] px-3 py-2 rounded focus:outline-none"
+            className="bg-[#1A3C2B] border border-[#D4AF37]/35 text-[#F3E5AB] px-3 py-2 rounded-lg focus:outline-none"
           />
         </div>
       </div>
 
-      <div className="bg-[#2B1409] border border-[#D8A55A]/30 rounded-sm shadow-xl overflow-hidden text-[#D8A55A]">
+      <div className="bg-[#0C2317] border border-[#D4AF37]/35 rounded-xl shadow-xl overflow-hidden text-[#F3E5AB]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs font-sans">
             <thead>
-              <tr className="border-b border-[#D8A55A]/20 text-[#D8A55A]/70 font-bold uppercase tracking-wider bg-[#2B1409]">
+              <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#081A11]">
                 <th className="py-4 px-6">Preview</th>
                 <th className="py-4 px-6">Name</th>
                 <th className="py-4 px-6">Category</th>
@@ -98,11 +98,11 @@ export default function ManageProducts() {
                 <th className="py-4 px-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#D8A55A]/10">
+            <tbody className="divide-y divide-[#D4AF37]/15">
               {products.map((product) => (
-                <tr key={product.id} className="hover:bg-[#5C2F14]/30">
+                <tr key={product.id} className="hover:bg-[#153424]/60 transition-colors">
                   <td className="py-4 px-6">
-                    <div className="w-10 aspect-[3/4] overflow-hidden bg-[#2B1409] border border-[#D8A55A]/20">
+                    <div className="w-10 aspect-[3/4] overflow-hidden bg-[#081A11] border border-[#D4AF37]/30 rounded">
                       <img
                         src={product.images?.[0]}
                         alt={product.name}
@@ -110,22 +110,22 @@ export default function ManageProducts() {
                       />
                     </div>
                   </td>
-                  <td className="py-4 px-6 font-semibold text-[#F6D18A] max-w-xs truncate">
+                  <td className="py-4 px-6 font-semibold text-[#F3E5AB] max-w-xs truncate">
                     {product.name}
                   </td>
-                  <td className="py-4 px-6 uppercase text-[10px] text-[#D8A55A] font-bold">
+                  <td className="py-4 px-6 uppercase text-[10px] text-[#EADFC9] font-bold">
                     {product.category}
                   </td>
                   <td className="py-4 px-6">
                     <PriceTag price={product.discount_price || product.price} size="sm" />
                   </td>
-                  <td className="py-4 px-6 font-medium text-[#D8A55A]">
+                  <td className="py-4 px-6 font-medium text-[#EADFC9]">
                     {product.stock <= 0 ? (
-                      <span className="text-[#F6D18A] bg-[#5C2F14] px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#F6D18A]/30">
+                      <span className="text-[#F3E5AB] bg-[#1A3C2B] px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#D4AF37]/35">
                         Out of Stock
                       </span>
                     ) : product.stock < 5 ? (
-                      <span className="text-[#F6D18A] bg-[#5C2F14]/70 px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#F6D18A]/30">
+                      <span className="text-[#FFD54F] bg-[#1A3C2B]/80 px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#D4AF37]/35">
                         Low Stock ({product.stock})
                       </span>
                     ) : (
@@ -135,7 +135,7 @@ export default function ManageProducts() {
                   <td className="py-4 px-6 text-right space-x-2">
                     <Link
                       to={`/admin/products/edit/${product.id}`}
-                      className="inline-flex p-2 bg-[#5C2F14] text-[#F6D18A] hover:bg-[#F6D18A] hover:text-[#2B1409] border border-[#D8A55A]/30 transition-all rounded-sm"
+                      className="inline-flex p-2 bg-[#1A3C2B] text-[#F3E5AB] hover:bg-[#D4AF37] hover:text-[#0C2317] border border-[#D4AF37]/35 transition-all rounded"
                       title="Edit Product"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -143,7 +143,7 @@ export default function ManageProducts() {
                     <button
                       onClick={() => handleDelete(product.id)}
                       type="button"
-                      className="inline-flex p-2 bg-[#5C2F14]/40 text-[#F6D18A] hover:bg-[#5C2F14] border border-[#D8A55A]/30 transition-all rounded-sm"
+                      className="inline-flex p-2 bg-[#1A3C2B]/50 text-[#F3E5AB] hover:bg-[#1A3C2B] border border-[#D4AF37]/35 transition-all rounded"
                       title="Delete Product"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

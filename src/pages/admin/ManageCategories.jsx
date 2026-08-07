@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { adminLogService } from '../../services/adminLogService';
 import SectionHeading from '../../components/reusable/SectionHeading';
-import Button from '../../components/reusable/Button';
 import Modal from '../../components/reusable/Modal';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, FolderTree } from 'lucide-react';
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
@@ -81,61 +80,93 @@ export default function ManageCategories() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
-      <div className="flex justify-between items-center">
-        <SectionHeading title="Manage Categories" subtitle="Catalog category taxonomies" align="left" />
-        <Button variant="primary" onClick={() => handleOpenModal()}>
-          <Plus className="w-4 h-4 mr-1" /> Add Category
-        </Button>
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <SectionHeading title="Manage Categories" subtitle="Catalog category taxonomies and classification" align="left" />
+        <button
+          onClick={() => handleOpenModal()}
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
+        >
+          <Plus className="w-4 h-4" /> Add Category
+        </button>
       </div>
 
-      <div className="bg-[#2B1409] border border-[#D8A55A]/30 rounded p-6 shadow-xl">
-        <table className="w-full text-left text-xs font-sans">
-          <thead>
-            <tr className="border-b border-[#D8A55A]/20 text-[#D8A55A]/70 uppercase font-bold">
-              <th className="py-3 px-4">Name</th>
-              <th className="py-3 px-4">Slug</th>
-              <th className="py-3 px-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#D8A55A]/10">
-            {categories.map((cat) => (
-              <tr key={cat.id} className="hover:bg-[#5C2F14]/30">
-                <td className="py-3 px-4 font-bold text-[#F6D18A]">{cat.name}</td>
-                <td className="py-3 px-4 text-[#D8A55A] font-mono">{cat.slug}</td>
-                <td className="py-3 px-4 text-right space-x-2">
-                  <button onClick={() => handleOpenModal(cat)} className="text-[#F6D18A] hover:underline">
-                    <Edit2 className="w-4 h-4 inline" />
-                  </button>
-                  <button onClick={() => handleDelete(cat.id)} className="text-red-400 hover:underline">
-                    <Trash2 className="w-4 h-4 inline" />
-                  </button>
-                </td>
+      <div className="bg-[#0C2317] border border-[#D4AF37]/35 rounded-xl shadow-xl overflow-hidden text-[#F3E5AB]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-xs font-sans">
+            <thead>
+              <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#081A11]">
+                <th className="py-4 px-6">Category Name</th>
+                <th className="py-4 px-6">URL Slug</th>
+                <th className="py-4 px-6 text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-[#D4AF37]/15">
+              {categories.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="py-8 text-center text-[#EADFC9]/70 italic">
+                    No categories created yet. Click "Add Category" to create one.
+                  </td>
+                </tr>
+              ) : (
+                categories.map((cat) => (
+                  <tr key={cat.id} className="hover:bg-[#153424]/60 transition-colors">
+                    <td className="py-4 px-6 font-bold text-[#F3E5AB] flex items-center gap-2">
+                      <FolderTree className="w-4 h-4 text-[#D4AF37]" />
+                      <span>{cat.name}</span>
+                    </td>
+                    <td className="py-4 px-6 text-[#EADFC9] font-mono">{cat.slug}</td>
+                    <td className="py-4 px-6 text-right space-x-2">
+                      <button
+                        onClick={() => handleOpenModal(cat)}
+                        className="p-2 bg-[#1A3C2B] text-[#F3E5AB] hover:bg-[#D4AF37] hover:text-[#0C2317] border border-[#D4AF37]/35 transition-all rounded cursor-pointer"
+                        title="Edit Category"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(cat.id)}
+                        className="p-2 bg-red-950/60 text-red-300 hover:bg-red-900 border border-red-500/40 transition-all rounded cursor-pointer"
+                        title="Delete Category"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? 'Edit Category' : 'New Category'}>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs uppercase font-bold text-[#F6D18A]">Category Name</label>
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs font-sans text-[#F3E5AB] p-2">
+          <div className="space-y-1">
+            <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">Category Name *</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#4A0000] border border-[#F6D18A]/30 rounded p-2.5 text-xs text-[#F6D18A] mt-1"
+              className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#F3E5AB] focus:outline-none focus:border-[#D4AF37]"
+              placeholder="e.g. Banarasi Silk"
               required
             />
           </div>
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="secondary" type="button" onClick={() => setModalOpen(false)}>
+          <div className="flex justify-end gap-2 pt-4 border-t border-[#D4AF37]/20">
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="px-4 py-2 rounded-lg font-bold text-xs uppercase text-[#EADFC9] hover:bg-[#1A3C2B]"
+            >
               Cancel
-            </Button>
-            <Button variant="primary" type="submit">
-              Save
-            </Button>
+            </button>
+            <button
+              type="submit"
+              className="px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 shadow-lg"
+            >
+              Save Category
+            </button>
           </div>
         </form>
       </Modal>

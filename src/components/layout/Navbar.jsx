@@ -126,10 +126,17 @@ export default function Navbar() {
 
               <div className="hidden lg:block">
                 {user ? (
-                  <div className="flex items-center gap-4">
-                    <span className="font-sans text-xs text-[#E3C381] font-bold max-w-[120px] truncate" title={user.email}>
-                      {user.email.split('@')[0]}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      to="/profile"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1A3C2B] border border-[#E3C381]/50 text-[#E3C381] hover:text-[#F0DDB0] hover:border-[#E3C381] transition-all font-sans text-xs font-bold"
+                      title="View My Profile & Account Details"
+                    >
+                      <User className="w-3.5 h-3.5 text-[#E3C381]" />
+                      <span className="max-w-[110px] truncate">
+                        {user.name || user.email.split('@')[0]}
+                      </span>
+                    </Link>
                     <button
                       onClick={logout}
                       type="button"

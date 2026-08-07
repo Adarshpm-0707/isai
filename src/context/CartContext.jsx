@@ -11,6 +11,19 @@ export default function CartProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
+  const saveLocalCart = (items) => {
+    localStorage.setItem('isai_cart', JSON.stringify(items));
+  };
+
+  const getLocalCart = () => {
+    try {
+      const localStr = localStorage.getItem('isai_cart');
+      return localStr ? JSON.parse(localStr) : [];
+    } catch (e) {
+      return [];
+    }
+  };
+
   // Load cart initially & when user changes
   useEffect(() => {
     const loadCart = async () => {
@@ -18,35 +31,40 @@ export default function CartProvider({ children }) {
       try {
         if (user) {
           const remoteCart = await cartService.getCart(user.id);
-          const localStr = localStorage.getItem('isai_cart');
-          if (localStr) {
-            const localItems = JSON.parse(localStr);
-            if (localItems.length > 0) {
-              for (const loc of localItems) {
-                await cartService.addToCart({
-                  userId: user.id,
-                  productId: loc.product_id || loc.id,
-                  quantity: loc.quantity || loc.qty || 1,
-                  size: loc.size,
-                });
+          if (remoteCart && Array.isArray(remoteCart)) {
+            const localStr = localStorage.getItem('isai_cart');
+            if (localStr) {
+              const localItems = JSON.parse(localStr);
+              if (localItems.length > 0) {
+                for (const loc of localItems) {
+                  await cartService.addToCart({
+                    userId: user.id,
+                    productId: loc.product_id || loc.id,
+                    quantity: loc.quantity || loc.qty || 1,
+                    size: loc.size,
+                  });
+                }
+                localStorage.removeItem('isai_cart');
               }
-              localStorage.removeItem('isai_cart');
+              const updatedRemote = await cartService.getCart(user.id);
+              if (updatedRemote) {
+                setCartItems(updatedRemote);
+              } else {
+                setCartItems(getLocalCart());
+              }
+            } else {
+              setCartItems(remoteCart);
             }
-            const updatedRemote = await cartService.getCart(user.id);
-            setCartItems(updatedRemote);
           } else {
-            setCartItems(remoteCart);
+            // Database table missing fallback
+            setCartItems(getLocalCart());
           }
         } else {
-          const localStr = localStorage.getItem('isai_cart');
-          if (localStr) {
-            setCartItems(JSON.parse(localStr));
-          } else {
-            setCartItems([]);
-          }
+          setCartItems(getLocalCart());
         }
       } catch (err) {
-        console.error('Error loading cart:', err);
+        console.warn('Error loading cart, using local fallback:', err);
+        setCartItems(getLocalCart());
       } finally {
         setLoading(false);
       }
@@ -55,36 +73,47 @@ export default function CartProvider({ children }) {
     loadCart();
   }, [user]);
 
-  const saveLocalCart = (items) => {
-    localStorage.setItem('isai_cart', JSON.stringify(items));
-  };
-
   const addToCart = async (product, quantity = 1, size = null) => {
     setLoading(true);
+    let successRemote = false;
+
     try {
       if (user) {
-        await cartService.addToCart({
+        const res = await cartService.addToCart({
           userId: user.id,
           productId: product.id,
           quantity,
           size,
         });
-        const updated = await cartService.getCart(user.id);
-        setCartItems(updated);
-      } else {
-        const existingIndex = cartItems.findIndex(
+
+        if (res !== null) {
+          const updated = await cartService.getCart(user.id);
+          if (updated) {
+            setCartItems(updated);
+            successRemote = true;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Remote addToCart warning, falling back to local:', err);
+    }
+
+    if (!successRemote) {
+      // Local storage cart fallback
+      setCartItems((prevItems) => {
+        const existingIndex = prevItems.findIndex(
           (i) => (i.product_id || i.product?.id || i.id) === product.id
         );
         let newItems;
         if (existingIndex > -1) {
-          newItems = [...cartItems];
+          newItems = [...prevItems];
           newItems[existingIndex].quantity = (newItems[existingIndex].quantity || 1) + quantity;
           newItems[existingIndex].size = size || newItems[existingIndex].size;
         } else {
           newItems = [
-            ...cartItems,
+            ...prevItems,
             {
-              id: `guest_${Date.now()}`,
+              id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
               product_id: product.id,
               quantity,
               size,
@@ -92,61 +121,79 @@ export default function CartProvider({ children }) {
             },
           ];
         }
-        setCartItems(newItems);
         saveLocalCart(newItems);
-      }
-    } catch (err) {
-      console.error('Error adding to cart:', err);
-      throw err;
-    } finally {
-      setLoading(false);
+        return newItems;
+      });
     }
+
+    setLoading(false);
   };
 
   const updateQuantity = async (cartItemId, quantity) => {
     setLoading(true);
+    let successRemote = false;
+
     try {
       if (user) {
-        await cartService.updateQuantity(cartItemId, quantity);
-        const updated = await cartService.getCart(user.id);
-        setCartItems(updated);
-      } else {
-        if (quantity <= 0) {
-          await removeFromCart(cartItemId);
-          return;
+        const res = await cartService.updateQuantity(cartItemId, quantity);
+        if (res !== null) {
+          const updated = await cartService.getCart(user.id);
+          if (updated) {
+            setCartItems(updated);
+            successRemote = true;
+          }
         }
-        const newItems = cartItems.map((item) =>
-          item.id === cartItemId ? { ...item, quantity } : item
-        );
-        setCartItems(newItems);
-        saveLocalCart(newItems);
       }
     } catch (err) {
-      console.error('Error updating cart quantity:', err);
-      throw err;
-    } finally {
-      setLoading(false);
+      console.warn('Remote updateQuantity warning:', err);
     }
+
+    if (!successRemote) {
+      setCartItems((prevItems) => {
+        let newItems;
+        if (quantity <= 0) {
+          newItems = prevItems.filter((i) => i.id !== cartItemId && i.product_id !== cartItemId);
+        } else {
+          newItems = prevItems.map((item) =>
+            item.id === cartItemId || item.product_id === cartItemId ? { ...item, quantity } : item
+          );
+        }
+        saveLocalCart(newItems);
+        return newItems;
+      });
+    }
+
+    setLoading(false);
   };
 
   const removeFromCart = async (cartItemId) => {
     setLoading(true);
+    let successRemote = false;
+
     try {
       if (user) {
-        await cartService.removeFromCart(cartItemId);
-        const updated = await cartService.getCart(user.id);
-        setCartItems(updated);
-      } else {
-        const newItems = cartItems.filter((item) => item.id !== cartItemId);
-        setCartItems(newItems);
-        saveLocalCart(newItems);
+        const res = await cartService.removeFromCart(cartItemId);
+        if (res) {
+          const updated = await cartService.getCart(user.id);
+          if (updated) {
+            setCartItems(updated);
+            successRemote = true;
+          }
+        }
       }
     } catch (err) {
-      console.error('Error removing item from cart:', err);
-      throw err;
-    } finally {
-      setLoading(false);
+      console.warn('Remote removeFromCart warning:', err);
     }
+
+    if (!successRemote) {
+      setCartItems((prevItems) => {
+        const newItems = prevItems.filter((item) => item.id !== cartItemId && item.product_id !== cartItemId);
+        saveLocalCart(newItems);
+        return newItems;
+      });
+    }
+
+    setLoading(false);
   };
 
   const clearCart = async () => {
@@ -155,14 +202,13 @@ export default function CartProvider({ children }) {
       if (user) {
         await cartService.clearCart(user.id);
       }
-      setCartItems([]);
-      setAppliedCoupon(null);
-      localStorage.removeItem('isai_cart');
     } catch (err) {
-      console.error('Error clearing cart:', err);
-    } finally {
-      setLoading(false);
+      console.warn('Remote clearCart warning:', err);
     }
+    setCartItems([]);
+    setAppliedCoupon(null);
+    localStorage.removeItem('isai_cart');
+    setLoading(false);
   };
 
   const applyCoupon = async (code) => {

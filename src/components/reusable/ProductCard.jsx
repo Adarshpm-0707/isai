@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Eye } from 'lucide-react';
+import { ShoppingBag, Eye, Zap } from 'lucide-react';
 import useCart from '../../hooks/useCart';
 import PriceTag from './PriceTag';
 import { getProductImage } from '../../utils/productHelpers';
@@ -10,9 +10,25 @@ const PLACEHOLDER =
   'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=700';
 
 export default function ProductCard({ product }) {
+  const navigate = useNavigate();
   const { addToCart } = useCart();
   const [imgError, setImgError] = useState(false);
   const primaryImage = imgError ? PLACEHOLDER : getProductImage(product);
+
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (product.stock <= 0) return;
+    addToCart(product, 1);
+    navigate('/checkout');
+  };
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (product.stock <= 0) return;
+    addToCart(product, 1);
+  };
 
   return (
     <motion.div
@@ -43,7 +59,7 @@ export default function ProductCard({ product }) {
           />
         </Link>
 
-        {/* Category badge — compact on mobile */}
+        {/* Category badge */}
         {product.category && (
           <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-gradient-to-r from-[#E3C381] via-[#D4AF7A] to-[#C8A96E] text-[#0F2318] font-bold text-[7px] sm:text-[9px] uppercase tracking-[0.15em] sm:tracking-[0.2em] px-1.5 sm:px-2.5 py-0.5 sm:py-1 z-20 pointer-events-none shadow-md rounded-full leading-tight">
             {product.category}
@@ -59,23 +75,33 @@ export default function ProductCard({ product }) {
           </div>
         )}
 
-        {/* Action buttons overlay — icon-only on mobile, text+icon on sm+ */}
+        {/* Action buttons hover overlay */}
         {product.stock > 0 && (
-          <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 flex items-center gap-1.5 sm:gap-2 opacity-100 sm:opacity-0 sm:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-20">
+          <div className="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 flex items-center gap-1.5 opacity-100 sm:opacity-0 sm:translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 z-20">
 
-            {/* Mobile: icon-only cart button / Desktop: text+icon */}
+            {/* Buy Now Button */}
             <button
-              onClick={(e) => { e.preventDefault(); addToCart(product, 1); }}
+              onClick={handleBuyNow}
               type="button"
-              title="Add to Cart"
-              className="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 bg-gradient-to-r from-[#E3C381] via-[#D4AF7A] to-[#C8A96E] text-[#0F2318] font-extrabold text-[8px] sm:text-[10px] uppercase tracking-[0.1em] sm:tracking-[0.2em] py-2 sm:py-2.5 hover:brightness-110 transition-all duration-300 cursor-pointer shadow-lg rounded-lg sm:rounded-xl"
+              title="Buy Now (Instant Checkout)"
+              className="flex-1 flex items-center justify-center gap-1 bg-gradient-to-r from-[#E3C381] via-[#D4AF7A] to-[#C8A96E] text-[#0F2318] font-extrabold text-[8px] sm:text-[10px] uppercase tracking-wider py-2 sm:py-2.5 hover:brightness-110 transition-all cursor-pointer shadow-lg rounded-lg sm:rounded-xl"
             >
-              <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-              <span className="hidden sm:inline">Add to Cart</span>
-              <span className="sm:hidden">Cart</span>
+              <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 fill-current" />
+              <span>Buy Now</span>
             </button>
 
-            {/* Eye / View button */}
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              type="button"
+              title="Add to Cart"
+              className="p-2 sm:px-2.5 bg-[#0F2318]/90 text-[#E3C381] border border-[#E3C381]/40 hover:bg-[#E3C381] hover:text-[#0F2318] transition-colors rounded-lg sm:rounded-xl shadow-lg shrink-0 flex items-center gap-1 text-[8px] sm:text-[10px] font-bold uppercase cursor-pointer"
+            >
+              <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+              <span className="hidden md:inline">Cart</span>
+            </button>
+
+            {/* View Details Button */}
             <Link
               to={`/products/${product.id}`}
               title="View Details"
@@ -88,23 +114,29 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* ── DETAILS AREA ── */}
-      <div className="p-2.5 sm:p-4 border-t border-[#E3C381]/15 bg-[#E3C381]/5 text-[#E3C381] flex-grow flex flex-col justify-between gap-2">
+      <div className="p-2.5 sm:p-4 border-t border-[#E3C381]/15 bg-[#E3C381]/5 text-[#E3C381] flex-grow flex flex-col justify-between gap-2.5">
 
         {/* Product name */}
         <Link
           to={`/products/${product.id}`}
-          className="block font-playfair text-xs sm:text-sm font-bold text-[#E3C381] hover:text-[#F0DDB0] transition-colors line-clamp-2 sm:line-clamp-1 leading-snug tracking-wide"
+          className="block font-serif text-xs sm:text-sm font-bold text-[#E3C381] hover:text-[#F0DDB0] transition-colors line-clamp-2 sm:line-clamp-1 leading-snug tracking-wide"
         >
           {product.name}
         </Link>
 
-        {/* Price + Stock — stacked on mobile, side-by-side on sm+ */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pt-1.5 border-t border-[#E3C381]/10 mt-auto">
+        {/* Price & Buy Now Button Footer */}
+        <div className="flex items-center justify-between gap-1 pt-1.5 border-t border-[#E3C381]/10 mt-auto">
           <PriceTag price={product.price} size="sm" />
+          
           {product.stock > 0 ? (
-            <span className="font-bold text-[7px] sm:text-[9px] uppercase tracking-[0.1em] sm:tracking-[0.15em] text-[#E3C381]/80 bg-[#E3C381]/10 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-[#E3C381]/20 w-fit">
-              In Stock
-            </span>
+            <button
+              onClick={handleBuyNow}
+              type="button"
+              className="px-2.5 py-1 rounded-lg font-extrabold text-[9px] sm:text-[10px] uppercase tracking-wider bg-gradient-to-r from-[#E3C381] to-[#D4AF7A] text-[#0F2318] hover:brightness-110 transition-all flex items-center gap-1 shadow cursor-pointer shrink-0"
+            >
+              <Zap className="w-3 h-3 fill-current" />
+              <span>Buy Now</span>
+            </button>
           ) : (
             <span className="font-bold text-[7px] sm:text-[9px] uppercase tracking-[0.1em] text-[#E3C381]/40 bg-black/20 px-1.5 py-0.5 rounded-full w-fit">
               Sold Out

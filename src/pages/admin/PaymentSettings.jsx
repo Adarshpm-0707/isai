@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { adminLogService } from '../../services/adminLogService';
 import SectionHeading from '../../components/reusable/SectionHeading';
-import Button from '../../components/reusable/Button';
 import { CreditCard, Save, CheckCircle } from 'lucide-react';
 
 export default function PaymentSettings() {
@@ -47,45 +46,45 @@ export default function PaymentSettings() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
-      <SectionHeading title="Payment Gateway Settings" subtitle="Configure Razorpay merchant keys" align="left" />
+    <div className="max-w-4xl mx-auto space-y-8 text-[#F3E5AB]">
+      <SectionHeading title="Payment Gateway Settings" subtitle="Configure Razorpay merchant keys and checkout status" align="left" />
 
-      <form onSubmit={handleSubmit} className="bg-[#2B1409] border border-[#D8A55A]/30 p-8 rounded-lg space-y-6 shadow-xl text-xs font-sans">
-        <div className="flex items-center gap-3 pb-4 border-b border-[#D8A55A]/20">
-          <CreditCard className="w-6 h-6 text-[#F6D18A]" />
-          <h3 className="font-playfair text-lg font-bold text-[#F6D18A]">Razorpay API Integration</h3>
+      <form onSubmit={handleSubmit} className="bg-[#0C2317] border border-[#D4AF37]/35 p-6 sm:p-8 rounded-2xl space-y-6 shadow-2xl text-xs font-sans">
+        <div className="flex items-center gap-3 pb-4 border-b border-[#D4AF37]/25">
+          <CreditCard className="w-6 h-6 text-[#D4AF37]" />
+          <h3 className="font-serif text-lg font-bold text-[#F3E5AB] uppercase tracking-wider">Razorpay API Integration</h3>
         </div>
 
-        <div>
-          <label className="block uppercase font-bold text-[#F6D18A]">Gateway Provider</label>
+        <div className="space-y-1.5">
+          <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">Gateway Provider</label>
           <input
             type="text"
             value={form.gateway}
             disabled
-            className="w-full bg-[#4A0000]/50 border border-[#F6D18A]/20 rounded p-2.5 text-[#F6D18A] mt-1 font-mono"
+            className="w-full bg-[#081A11] border border-[#D4AF37]/20 rounded-lg p-2.5 text-[#EADFC9]/60 font-mono cursor-not-allowed uppercase"
           />
         </div>
 
-        <div>
-          <label className="block uppercase font-bold text-[#F6D18A]">Razorpay Key ID (rzp_live_... / rzp_test_...)</label>
+        <div className="space-y-1.5">
+          <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">Razorpay Key ID (rzp_live_... / rzp_test_...)</label>
           <input
             type="text"
             value={form.api_key}
             onChange={(e) => setForm({ ...form, api_key: e.target.value })}
             placeholder="rzp_test_xxxxxxxxxxxx"
-            className="w-full bg-[#4A0000] border border-[#F6D18A]/30 rounded p-2.5 text-[#F6D18A] mt-1 font-mono"
+            className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-[#F3E5AB] font-mono focus:outline-none focus:border-[#D4AF37]"
             required
           />
         </div>
 
-        <div>
-          <label className="block uppercase font-bold text-[#F6D18A]">Razorpay Key Secret</label>
+        <div className="space-y-1.5">
+          <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">Razorpay Key Secret</label>
           <input
             type="password"
             value={form.api_secret}
             onChange={(e) => setForm({ ...form, api_secret: e.target.value })}
             placeholder="••••••••••••••••"
-            className="w-full bg-[#4A0000] border border-[#F6D18A]/30 rounded p-2.5 text-[#F6D18A] mt-1 font-mono"
+            className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-[#F3E5AB] font-mono focus:outline-none focus:border-[#D4AF37]"
             required
           />
         </div>
@@ -96,24 +95,28 @@ export default function PaymentSettings() {
             id="is_active"
             checked={form.is_active}
             onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-            className="accent-[#E88D37]"
+            className="accent-[#D4AF37]"
           />
-          <label htmlFor="is_active" className="text-[#F6D18A] font-bold">
+          <label htmlFor="is_active" className="text-[#F3E5AB] font-bold">
             Enable Razorpay Checkout Gateway
           </label>
         </div>
 
         {savedMessage && (
-          <div className="bg-green-950/60 border border-green-700 text-green-400 p-3 rounded flex items-center gap-2">
-            <CheckCircle className="w-4 h-4" />
+          <div className="bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 p-3 rounded-lg flex items-center gap-2 font-bold">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
             <span>Payment settings updated successfully!</span>
           </div>
         )}
 
-        <div className="pt-4 border-t border-[#D8A55A]/20 flex justify-end">
-          <Button type="submit" variant="primary">
-            <Save className="w-4 h-4 mr-1" /> Save Settings
-          </Button>
+        <div className="pt-4 border-t border-[#D4AF37]/25 flex justify-end">
+          <button
+            type="submit"
+            className="px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 flex items-center gap-2 shadow-xl cursor-pointer"
+          >
+            <Save className="w-4 h-4" />
+            <span>Save Settings</span>
+          </button>
         </div>
       </form>
     </div>

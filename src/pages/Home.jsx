@@ -228,74 +228,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. FEATURED SAREES */}
-      <section className="py-12 sm:py-16 px-4 max-w-7xl mx-auto">
-        <div className="flex items-end justify-between mb-4 border-b pb-3" style={{ borderColor: "rgba(212,175,55,0.35)" }}>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase">MASTER WEAVER SAREES</span>
-            </div>
-            <h2 className="font-serif text-2xl sm:text-4xl tracking-wide uppercase font-bold"
-              style={{ background: "linear-gradient(135deg,#0C2317,#1A3C2B)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-              FEATURED KERALA SAREES
-            </h2>
-          </div>
-          <button onClick={() => navigate("/products")}
-            className="text-[10px] sm:text-xs font-bold tracking-widest text-[#B8860B] hover:text-[#0C2317] hover:underline uppercase transition-colors flex items-center gap-1">
-            VIEW ALL ({products.length}) &rarr;
-          </button>
-        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-          {products.slice(0, 4).map((product) => (
-            <motion.div
-              key={product.id}
-              whileHover={{ y: -6 }}
-              className="rounded-xl overflow-hidden border shadow-md hover:shadow-xl transition-all flex flex-col justify-between group"
-              style={{ background: "white", borderColor: "rgba(212,175,55,0.3)" }}
-            >
-              <div className="relative aspect-[3/4] overflow-hidden bg-gray-50 cursor-pointer"
-                onClick={() => navigate(`/product/${product.id}`)}>
-                <img
-                  src={getProductImage(product)}
-                  alt={product.name || "Kasavu Saree"}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800"; }}
-                />
-                <button
-                  onClick={(e) => e.stopPropagation()}
-                  className="absolute top-2.5 right-2.5 p-2 rounded-full bg-white/90 backdrop-blur-sm text-[#0C2317] hover:text-red-600 transition-colors shadow-sm"
-                >
-                  <Heart size={14} />
-                </button>
-                <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 text-[#F3E5AB] text-[8px] sm:text-[9px] font-bold uppercase tracking-widest rounded-full border border-[#D4AF37]"
-                  style={{ background: "#0C2317" }}>
-                  {product.category || "Kerala Kasavu"}
-                </span>
-              </div>
-              <div className="p-3 sm:p-4 space-y-2">
-                <h3 onClick={() => navigate(`/product/${product.id}`)}
-                  className="font-serif text-xs sm:text-sm text-[#0C2317] font-bold truncate cursor-pointer hover:text-[#B8860B] transition-colors">
-                  {product.name || "Traditional Kerala Saree"}
-                </h3>
-                <div className="flex items-center justify-between pt-1 border-t" style={{ borderColor: "#EADFC9" }}>
-                  <p className="text-xs sm:text-sm font-bold text-[#B8860B]">
-                    &#8377;{product.price ? product.price.toLocaleString("en-IN") : "4,999"}
-                  </p>
-                  <button onClick={() => navigate(`/product/${product.id}`)}
-                    className="p-1.5 rounded-md text-[#F3E5AB] hover:bg-[#B8860B] transition-colors"
-                    style={{ background: "#0C2317" }}>
-                    <ShoppingBag size={12} />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
 
       {/* 6. ONAM STORYTELLING BANNER */}
-      <section className="px-4 max-w-7xl mx-auto pb-12 sm:pb-16">
+      <section className="px-4 max-w-7xl mx-auto pb-12 sm:pb-16 mt-15">
         <div className="relative rounded-2xl overflow-hidden min-h-[280px] sm:min-h-[340px] flex items-center shadow-2xl"
           style={{ background: "linear-gradient(135deg,#0C2317,#1A3C2B)", border: "2px solid #D4AF37" }}>
           <img src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=1200"

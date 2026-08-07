@@ -40,9 +40,8 @@ export default function Footer() {
               </h4>
               <ul className="space-y-1.5 text-[11px] text-[#D8D0C0]">
                 <li><Link to="/about" className="hover:text-[#E3C381] transition-colors">Our Story</Link></li>
-                <li><a href="#" className="hover:text-[#E3C381] transition-colors">Shipping</a></li>
-                <li><a href="#" className="hover:text-[#E3C381] transition-colors">Terms</a></li>
-                <li><a href="#" className="hover:text-[#E3C381] transition-colors">Privacy</a></li>
+                <li><Link to="/terms-conditions" className="hover:text-[#E3C381] transition-colors">Terms</Link></li>
+                <li><Link to="/privacy-policy" className="hover:text-[#E3C381] transition-colors">Privacy</Link></li>
               </ul>
             </div>
           </div>
@@ -105,9 +104,8 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-[#D8A55A]">
               <li><Link to="/about" className="hover:text-[#F6D18A] transition-colors">Our Story</Link></li>
-              <li><a href="#" className="hover:text-[#F6D18A] transition-colors">Shipping & Returns</a></li>
-              <li><a href="#" className="hover:text-[#F6D18A] transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-[#F6D18A] transition-colors">Privacy Policy</a></li>
+              <li><Link to="/terms-conditions" className="hover:text-[#F6D18A] transition-colors">Terms of Service</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-[#F6D18A] transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
 

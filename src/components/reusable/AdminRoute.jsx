@@ -18,7 +18,7 @@ export default function AdminRoute({ children }) {
     if (user && role !== 'admin') {
       alert('Access denied: Admin privileges required.');
     }
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
   return children;

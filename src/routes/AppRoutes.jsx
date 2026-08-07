@@ -14,28 +14,66 @@ import Checkout from '../pages/Checkout';
 import Payment from '../pages/Payment';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
+import CustomerProfile from '../pages/CustomerProfile';
 import OrderSuccess from '../pages/OrderSuccess';
 import OrderHistory from '../pages/OrderHistory';
+import PrivacyPolicy from '../pages/PrivacyPolicy';
+import TermsConditions from '../pages/TermsConditions';
 import NotFound from '../pages/NotFound';
 
+import AdminLayout from '../components/layout/AdminLayout';
+
 // Admin Pages
+import AdminLogin from '../pages/admin/AdminLogin';
+import AdminSignup from '../pages/admin/AdminSignup';
 import AdminDashboard from '../pages/admin/AdminDashboard';
+import AdminProfile from '../pages/admin/AdminProfile';
 import ManageProducts from '../pages/admin/ManageProducts';
 import AddEditProduct from '../pages/admin/AddEditProduct';
 import ManageOrders from '../pages/admin/ManageOrders';
 import ManageCategories from '../pages/admin/ManageCategories';
 import ManageCoupons from '../pages/admin/ManageCoupons';
 import ManageAdmins from '../pages/admin/ManageAdmins';
+import ManageCustomers from '../pages/admin/ManageCustomers';
 import PaymentSettings from '../pages/admin/PaymentSettings';
 import ActivityLogs from '../pages/admin/ActivityLogs';
 
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Admin Login & Signup outside Layout */}
+      <Route path="admin/login" element={<AdminLogin />} />
+      <Route path="admin/signup" element={<AdminSignup />} />
+
+      {/* Admin Protected Sidebar Layout */}
+      <Route
+        element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }
+      >
+        <Route path="admin" element={<AdminDashboard />} />
+        <Route path="admin/profile" element={<AdminProfile />} />
+        <Route path="admin/customers" element={<ManageCustomers />} />
+        <Route path="admin/products" element={<ManageProducts />} />
+        <Route path="admin/products/new" element={<AddEditProduct />} />
+        <Route path="admin/products/edit/:id" element={<AddEditProduct />} />
+        <Route path="admin/orders" element={<ManageOrders />} />
+        <Route path="admin/categories" element={<ManageCategories />} />
+        <Route path="admin/coupons" element={<ManageCoupons />} />
+        <Route path="admin/admins" element={<ManageAdmins />} />
+        <Route path="admin/payment-settings" element={<PaymentSettings />} />
+        <Route path="admin/activity-logs" element={<ActivityLogs />} />
+      </Route>
+
+      {/* Public & Customer Layout */}
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
+        <Route path="privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="terms-conditions" element={<TermsConditions />} />
         <Route path="products" element={<Products />} />
         <Route path="products/:id" element={<ProductDetails />} />
         <Route path="product/:id" element={<ProductDetails />} />
@@ -78,86 +116,20 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
-        {/* Admin Routes */}
         <Route
-          path="admin"
+          path="profile"
           element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
+            <ProtectedRoute>
+              <CustomerProfile />
+            </ProtectedRoute>
           }
         />
         <Route
-          path="admin/products"
+          path="account"
           element={
-            <AdminRoute>
-              <ManageProducts />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="admin/products/new"
-          element={
-            <AdminRoute>
-              <AddEditProduct />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="admin/products/edit/:id"
-          element={
-            <AdminRoute>
-              <AddEditProduct />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="admin/orders"
-          element={
-            <AdminRoute>
-              <ManageOrders />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="admin/categories"
-          element={
-            <AdminRoute>
-              <ManageCategories />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="admin/coupons"
-          element={
-            <AdminRoute>
-              <ManageCoupons />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="admin/admins"
-          element={
-            <AdminRoute>
-              <ManageAdmins />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="admin/payment-settings"
-          element={
-            <AdminRoute>
-              <PaymentSettings />
-            </AdminRoute>
-          }
-        />
-        <Route
-          path="admin/activity-logs"
-          element={
-            <AdminRoute>
-              <ActivityLogs />
-            </AdminRoute>
+            <ProtectedRoute>
+              <CustomerProfile />
+            </ProtectedRoute>
           }
         />
 
