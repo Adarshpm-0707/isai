@@ -8,11 +8,11 @@ import HeroSection from "../components/layout/HeroSection";
 
 /* ── Onam Kerala Categories ── */
 const KERALA_CATEGORIES = [
-  { name: "KASAVU SAREES",img: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=300" },
+  { name: "KASAVU SAREES", img: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=300" },
   { name: "SET MUNDU", img: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&q=80&w=300" },
   { name: "GOLDEN BORDER", img: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=300" },
-  { name: "HANDLOOMS",img: "https://images.unsplash.com/photo-1610030470258-a4005cfa2c5a?auto=format&fit=crop&q=80&w=300" },
-  { name: "FESTIVE SILKS",  img: "https://images.unsplash.com/photo-1583391265517-35bbdba01229?auto=format&fit=crop&q=80&w=300" },
+  { name: "HANDLOOMS", img: "https://images.unsplash.com/photo-1610030470258-a4005cfa2c5a?auto=format&fit=crop&q=80&w=300" },
+  { name: "FESTIVE SILKS", img: "https://images.unsplash.com/photo-1583391265517-35bbdba01229?auto=format&fit=crop&q=80&w=300" },
 ];
 
 const ONAM_COLLECTIONS = [
@@ -39,7 +39,7 @@ const REVIEWS = [
 function SectionFlower({ size = 30, className = "" }) {
   return (
     <svg className={className} width={size} height={size} viewBox="0 0 60 60" fill="none">
-      {[0,45,90,135,180,225,270,315].map((a, i) => (
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((a, i) => (
         <g key={i} transform={`rotate(${a},30,30)`}>
           <ellipse cx="30" cy="10" rx="5" ry="12" fill={i % 2 === 0 ? "#FF6B35" : "#FFD54F"} opacity="0.88" />
         </g>
@@ -64,22 +64,22 @@ function FlowerDivider() {
 }
 
 function PookklamGarland({ count = 20 }) {
-  const colors = [["#FF6B35","#FFD54F"],["#FFD54F","#FF8F00"],["#FF8F00","#FF6B35"],["#E65100","#FFA000"],["#FFA000","#FFD54F"]];
+  const colors = [["#FF6B35", "#FFD54F"], ["#FFD54F", "#FF8F00"], ["#FF8F00", "#FF6B35"], ["#E65100", "#FFA000"], ["#FFA000", "#FFD54F"]];
   return (
     <div className="flex items-center justify-center gap-0.5 overflow-hidden">
       {Array.from({ length: count }).map((_, i) => {
         const [c1, c2] = colors[i % 5];
-        const sz = [10,14,18,14][i % 4];
+        const sz = [10, 14, 18, 14][i % 4];
         return (
           <motion.span key={i}
-            animate={{ y: [0,-4,0] }}
-            transition={{ duration:1.8, delay: i*0.07, repeat:Infinity, ease:"easeInOut" }}
-            style={{ display:"inline-block" }}
+            animate={{ y: [0, -4, 0] }}
+            transition={{ duration: 1.8, delay: i * 0.07, repeat: Infinity, ease: "easeInOut" }}
+            style={{ display: "inline-block" }}
           >
             <svg width={sz} height={sz} viewBox="0 0 40 40" fill="none">
-              {[0,60,120,180,240,300].map((a,j) => (
+              {[0, 60, 120, 180, 240, 300].map((a, j) => (
                 <g key={j} transform={`rotate(${a},20,20)`}>
-                  <ellipse cx="20" cy="7" rx="4" ry="10" fill={j%2===0?c1:c2} opacity="0.9" />
+                  <ellipse cx="20" cy="7" rx="4" ry="10" fill={j % 2 === 0 ? c1 : c2} opacity="0.9" />
                 </g>
               ))}
               <circle cx="20" cy="20" r="6" fill="#FFA000" />
@@ -128,13 +128,13 @@ export default function Home() {
       {/* 1. HERO */}
       <HeroSection />
 
-   
+
 
       {/* 2. POOKKALAM CATEGORY CIRCLES */}
       <section className="py-10 sm:py-14 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#FFFDF5,#FFF8E7,#FFFDF5)" }}>
         {/* Top flower border */}
         <div className="w-full mb-6">
-        
+
           <div className="h-px w-full mt-1" style={{ background: "linear-gradient(90deg,transparent,#D4AF37 30%,#FFD54F 50%,#D4AF37 70%,transparent)" }} />
         </div>
 
@@ -167,7 +167,7 @@ export default function Home() {
         {/* Bottom flower border */}
         <div className="w-full mt-6">
           <div className="h-px w-full mb-1" style={{ background: "linear-gradient(90deg,transparent,#D4AF37 30%,#FFD54F 50%,#D4AF37 70%,transparent)" }} />
-         
+
         </div>
       </section>
 
@@ -180,7 +180,7 @@ export default function Home() {
               <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase">HERITAGE HANDLOOM</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-4xl tracking-wide uppercase font-bold"
-              style={{ background: "linear-gradient(135deg,#0C2317,#1A3C2B)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+              style={{ background: "linear-gradient(135deg,#0C2317,#1A3C2B)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               ONAM SPECIAL WEAVES
             </h2>
           </div>
@@ -236,7 +236,7 @@ export default function Home() {
               <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.3em] uppercase">MASTER WEAVER SAREES</span>
             </div>
             <h2 className="font-serif text-2xl sm:text-4xl tracking-wide uppercase font-bold"
-              style={{ background: "linear-gradient(135deg,#0C2317,#1A3C2B)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+              style={{ background: "linear-gradient(135deg,#0C2317,#1A3C2B)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
               FEATURED KERALA SAREES
             </h2>
           </div>
@@ -327,7 +327,7 @@ export default function Home() {
         </div>
       </section>
 
-    
+
 
     </div>
   );

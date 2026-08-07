@@ -94,7 +94,7 @@ export default function HeroSection({ fabricImageUrl }) {
       <div className="relative z-10 w-full pt-8 sm:pt-10 px-4 sm:px-8 md:px-12 lg:px-20 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           
-          {/* Onam Festival Announcement Badge */}
+          {/* Onam Festival Announcement Badge with Flowers */}
           <motion.div
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -149,7 +149,7 @@ export default function HeroSection({ fabricImageUrl }) {
             <span className="block whitespace-nowrap">OF DRAPING</span>
           </motion.h1>
 
-          {/* Gold Decorative Accent Line with Center Flower */}
+          {/* Gold Decorative Accent Line with Flower */}
           <motion.div
             initial={{ opacity: 0, scaleX: 0 }}
             animate={{ opacity: 1, scaleX: 1 }}
