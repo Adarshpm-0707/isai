@@ -129,28 +129,13 @@ export default function Home() {
       {/* 1. HERO */}
       <HeroSection />
 
-      {/* ONAM FESTIVE WELCOME BAR */}
-      <div
-        className="text-[#F3E5AB] py-3 px-4 text-center relative overflow-hidden"
-        style={{ background: "linear-gradient(90deg,#0C2317,#1A3C2B,#0C2317)" }}
-      >
-        <div className="absolute inset-0 opacity-20">
-          <PookklamGarland count={30} />
-        </div>
-        <p className="relative z-10 text-[10px] sm:text-xs font-semibold tracking-[0.25em] uppercase flex items-center justify-center gap-3 flex-wrap">
-          <SectionFlower size={16} />
-          ONAM EXCLUSIVE HANDLOOM COLLECTION
-          <span className="text-[#D4AF37] hidden sm:inline">•</span>
-          <span className="text-[#FFD54F]">🌸 തിരുവോണം എഡിഷൻ 🌸</span>
-          <SectionFlower size={16} />
-        </p>
-      </div>
+   
 
       {/* 2. POOKKALAM CATEGORY CIRCLES */}
       <section className="py-10 sm:py-14 relative overflow-hidden" style={{ background: "linear-gradient(180deg,#FFFDF5,#FFF8E7,#FFFDF5)" }}>
         {/* Top flower border */}
         <div className="w-full mb-6">
-          <PookklamGarland count={25} />
+        
           <div className="h-px w-full mt-1" style={{ background: "linear-gradient(90deg,transparent,#D4AF37 30%,#FFD54F 50%,#D4AF37 70%,transparent)" }} />
         </div>
 
@@ -192,7 +177,7 @@ export default function Home() {
         {/* Bottom flower border */}
         <div className="w-full mt-6">
           <div className="h-px w-full mb-1" style={{ background: "linear-gradient(90deg,transparent,#D4AF37 30%,#FFD54F 50%,#D4AF37 70%,transparent)" }} />
-          <PookklamGarland count={25} />
+         
         </div>
       </section>
 
@@ -263,7 +248,7 @@ export default function Home() {
           ))}
         </div>
         <div className="absolute bottom-0 left-0 right-0">
-          <PookklamGarland count={30} />
+     
         </div>
       </section>
 
