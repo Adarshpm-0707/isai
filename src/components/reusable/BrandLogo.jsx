@@ -34,6 +34,7 @@ export function LotusEmblem({ className = 'w-8 h-8 sm:w-10 sm:h-10 object-contai
 export default function BrandLogo({
   to = '/',
   className = '',
+  imgClassName = '',
   size = 'md',
   asImage = false,
 }) {
@@ -46,7 +47,7 @@ export default function BrandLogo({
     '2xl': 'h-24 sm:h-32',
   };
 
-  const selectedSize = sizeClasses[size] || sizeClasses.md;
+  const selectedSize = imgClassName || sizeClasses[size] || sizeClasses.md;
 
   const imageElement = (
     <img

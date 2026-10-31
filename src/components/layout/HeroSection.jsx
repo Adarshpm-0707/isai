@@ -101,7 +101,10 @@ export default function HeroSection() {
       </div>
 
       {/* ── 2. MOBILE HERO — Premium Redesign (< lg only) ── */}
-      <div className="lg:hidden relative w-full overflow-hidden" style={{ minHeight: '100svh' }}>
+      <div
+        className="lg:hidden relative w-full overflow-hidden flex flex-col justify-end"
+        style={{ height: 'calc(100svh - 70px)', minHeight: '520px' }}
+      >
 
         {/* ── Background: Full bleed saree model ── */}
         <div className="absolute inset-0 z-0">
@@ -111,36 +114,23 @@ export default function HeroSection() {
             className="w-full h-full object-cover object-top"
           />
           {/* Layered gradients for depth & text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#120B09]/70 via-transparent via-40% to-[#120B09]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#120B09] via-[#120B09]/40 to-transparent" style={{ height: '55%', top: 'auto' }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#120B09]/60 via-transparent via-35% to-[#120B09]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#120B09] via-[#120B09]/60 to-transparent" style={{ height: '60%', top: 'auto' }} />
           {/* Subtle left vignette */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#120B09]/60 via-transparent to-transparent" />
         </div>
 
-        {/* ── TOP: Brand Label Strip ── */}
-        <div className="absolute top-0 left-0 right-0 z-20 pt-4 pb-3 px-5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <LotusEmblem className="w-6 h-6 object-contain filter drop-shadow-[0_0_8px_rgba(223,193,138,0.6)]" />
-            <span className="text-[9px] font-semibold tracking-[0.28em] uppercase text-[#DFC18A]/90">
-              ISAI TARANG
-            </span>
-          </div>
-          <span className="text-[8px] font-semibold tracking-[0.22em] uppercase text-[#C7B5A7]/70 border border-[#DFC18A]/20 px-2 py-1 rounded-full bg-[#120B09]/50 backdrop-blur-sm">
-            THE EDIT
-          </span>
-        </div>
-
         {/* ── BOTTOM: Content Overlay (text + CTAs) ── */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 px-5 pb-8 pt-14">
+        <div className="relative z-20 px-5 pb-6 sm:pb-8 pt-10">
           {/* Micro eyebrow line */}
           <motion.div
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="flex items-center gap-2.5 mb-3"
+            className="flex items-center gap-2 mb-2 sm:mb-2.5"
           >
             <span className="w-5 h-px bg-[#DFC18A]" />
-            <span className="text-[9px] font-semibold tracking-[0.30em] uppercase text-[#DFC18A]">
+            <span className="text-[9px] font-semibold tracking-[0.28em] uppercase text-[#DFC18A]">
               Woven Heritage Collection
             </span>
           </motion.div>
@@ -150,8 +140,8 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.2 }}
-            className="font-serif leading-[1.08] mb-3 drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]"
-            style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif", fontSize: 'clamp(2rem, 9vw, 2.6rem)' }}
+            className="font-serif leading-[1.1] mb-2.5 drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]"
+            style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif", fontSize: 'clamp(1.85rem, 8vw, 2.4rem)' }}
           >
             <span className="block text-[#FDF8F4] font-normal">Woven in Heritage.</span>
             <span className="block italic font-light text-[#D4855A] mt-0.5">Worn with Grace.</span>
@@ -162,7 +152,7 @@ export default function HeroSection() {
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
             transition={{ duration: 0.55, delay: 0.35 }}
-            className="w-14 h-[1.5px] bg-gradient-to-r from-[#DFC18A] to-[#C8A27A] origin-left mb-3"
+            className="w-12 h-[1.5px] bg-gradient-to-r from-[#DFC18A] to-[#C8A27A] origin-left mb-2.5"
           />
 
           {/* Subtitle — airy, light */}
@@ -170,39 +160,37 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.42 }}
-            className="text-[#D6C9B8] text-[13px] leading-relaxed font-light mb-5 max-w-[280px]"
+            className="text-[#D6C9B8] text-xs sm:text-[13px] leading-relaxed font-light mb-4 max-w-[290px]"
           >
             Timeless sarees, thoughtfully chosen for every story you carry.
           </motion.p>
 
-          {/* CTA Button Row — side by side on mobile */}
+          {/* CTA Button Row — side by side on mobile, fully visible above fold */}
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.52 }}
-            className="flex items-center gap-3 mb-6"
+            className="flex items-center gap-2.5 sm:gap-3"
           >
             {/* Primary — filled forest green pill */}
             <button
               onClick={() => navigate('/products')}
               type="button"
-              className="group flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-[#163326] active:bg-[#204634] text-[#FDF8F4] text-[10px] font-semibold tracking-[0.15em] uppercase border border-[#2A563E] shadow-[0_4px_20px_rgba(22,51,38,0.55)] transition-all duration-200 cursor-pointer"
+              className="group flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-[#163326] active:bg-[#204634] text-[#FDF8F4] text-[11px] font-semibold tracking-[0.14em] uppercase border border-[#2A563E] shadow-[0_4px_20px_rgba(22,51,38,0.55)] transition-all duration-200 cursor-pointer"
             >
               <span>Shop Now</span>
-              <ArrowRight className="w-3 h-3 transition-transform duration-200 group-active:translate-x-1 shrink-0" />
+              <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-active:translate-x-1 shrink-0" />
             </button>
 
             {/* Secondary — ghost gold outline */}
             <button
               onClick={() => navigate('/about#our-story')}
               type="button"
-              className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full border border-[#C8A27A]/70 bg-[#120B09]/40 backdrop-blur-sm text-[#DFC18A] text-[10px] font-semibold tracking-[0.15em] uppercase transition-all duration-200 cursor-pointer active:bg-[#DFC18A]/10"
+              className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full border border-[#C8A27A]/70 bg-[#120B09]/50 backdrop-blur-sm text-[#DFC18A] text-[11px] font-semibold tracking-[0.14em] uppercase transition-all duration-200 cursor-pointer active:bg-[#DFC18A]/10"
             >
               <span>Our Story</span>
             </button>
           </motion.div>
-
-
         </div>
       </div>
     </section>
