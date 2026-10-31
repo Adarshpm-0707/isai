@@ -10,11 +10,10 @@ import QtySelector from '../components/reusable/QtySelector';
 import PriceTag from '../components/reusable/PriceTag';
 import Badge from '../components/reusable/Badge';
 import ProductCard from '../components/reusable/ProductCard';
-import SectionHeading from '../components/reusable/SectionHeading';
 import Button from '../components/reusable/Button';
+import { FloralOrnament } from '../components/reusable/FloralOrnament';
 import { getProductImageList } from '../utils/productHelpers';
-import { ShoppingBag, ArrowLeft, RefreshCw, ShieldCheck, Heart, Star } from 'lucide-react';
-import { SectionFlower, PookklamGarland, GoldLine } from '../components/layout/OnamEffects';
+import { ShoppingBag, ArrowLeft, RefreshCw, ShieldCheck, Heart, Star, Check } from 'lucide-react';
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -27,7 +26,7 @@ export default function ProductDetails() {
     MOCK_PRODUCTS.find((p) => p.id === id || String(p.id) === String(id) || p.slug === id) || null
   );
   const [qty, setQty] = useState(1);
-  const [selectedSize, setSelectedSize] = useState('Standard');
+  const [selectedSize, setSelectedSize] = useState('Standard (5.5m + 0.8m Blouse)');
   const [addedMessage, setAddedMessage] = useState(false);
 
   // Reviews state
@@ -38,7 +37,6 @@ export default function ProductDetails() {
 
   useEffect(() => {
     let isMounted = true;
-
     const local = MOCK_PRODUCTS.find((p) => p.id === id || String(p.id) === String(id) || p.slug === id);
     if (local && isMounted) setProduct(local);
 
@@ -99,24 +97,22 @@ export default function ProductDetails() {
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     if (!user) {
-      alert('Please login to leave a review.');
+      alert('Please login to post a review');
       return;
     }
-    if (!userComment.trim()) return;
-
     setSubmittingReview(true);
     try {
-      const { error } = await supabase.from('reviews').insert({
-        product_id: product.id,
-        user_id: user.id,
-        rating: userRating,
-        comment: userComment.trim(),
-      });
-
+      const { data, error } = await supabase.from('reviews').insert([
+        {
+          product_id: product.id,
+          user_id: user.id,
+          rating: userRating,
+          comment: userComment,
+        },
+      ]);
       if (error) throw error;
-
       setUserComment('');
-      await fetchReviews(product.id);
+      fetchReviews(product.id);
     } catch (err) {
       alert(err.message || 'Failed to submit review');
     } finally {
@@ -126,16 +122,16 @@ export default function ProductDetails() {
 
   const relatedItems = products
     .filter((p) => String(p.id) !== String(product?.id))
-    .slice(0, 3);
+    .slice(0, 4);
 
   if (!product) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-6 min-h-[60vh]">
-        <h2 className="font-playfair text-3xl font-bold text-[#2B1409] uppercase">Product Not Found</h2>
-        <p className="text-[#5C2F14]">This product does not exist or has been archived.</p>
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-6 min-h-[60vh] bg-[#120B09]">
+        <h2 className="font-serif text-3xl font-bold text-[#FDF8F4] uppercase">Product Not Found</h2>
+        <p className="text-[#C7B5A7]">This product does not exist or has been archived.</p>
         <Link
           to="/products"
-          className="inline-flex items-center text-[#2B1409] font-bold uppercase text-xs tracking-wider border-b-2 border-[#D8A55A] pb-1"
+          className="inline-flex items-center text-[#DFC18A] font-bold uppercase text-xs tracking-wider border-b border-[#DFC18A] pb-1"
         >
           <ArrowLeft className="w-4 h-4 mr-1" /> Back to Collections
         </Link>
@@ -147,228 +143,166 @@ export default function ProductDetails() {
   const avgRating =
     reviews.length > 0
       ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
-      : product.rating || 0;
+      : product.rating || '5.0';
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-8 sm:space-y-16 text-[#E3C381] bg-transparent">
-      {/* Gold top accent line */}
-      <div><GoldLine /></div>
-      {/* Back button */}
-      <div>
-
-        <Link
-          to="/products"
-          className="inline-flex items-center text-[#E3C381] hover:text-[#F0DDB0] font-sans font-bold uppercase text-[10px] sm:text-xs tracking-widest transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 mr-1.5 sm:mr-2" /> Back to Collection
-        </Link>
-      </div>
-
-      {/* Main product showcase */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10 lg:gap-16">
+    <div className="min-h-screen bg-[#120B09] text-[#FDF8F4]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 sm:space-y-12">
+        {/* Back Link */}
         <div>
-          <ImageGallery images={getProductImageList(product)} />
-        </div>
-
-        {/* Product Details Right */}
-        <div className="flex flex-col justify-between space-y-6 sm:space-y-8 p-4 sm:p-8 bg-[#E3C381]/10 border border-[#E3C381]/25 rounded-2xl shadow-xl">
-          <div className="space-y-4 sm:space-y-6">
-            <div className="flex justify-between items-start gap-4">
-              <div className="space-y-1.5 sm:space-y-2">
-                {product.category && <Badge text={product.category} variant="gold" />}
-                <h1 className="font-playfair text-2xl sm:text-4xl md:text-5xl font-bold text-[#E3C381] tracking-wide uppercase leading-tight">
-                  {product.name}
-                </h1>
-              </div>
-              <button
-                onClick={handleToggleWishlist}
-                className="p-2.5 sm:p-3 bg-[#0F2318] border border-[#E3C381]/30 rounded-full hover:border-[#E3C381] transition-all shrink-0"
-                title={inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              >
-                <Heart
-                  className={`w-4 h-4 sm:w-5 sm:h-5 ${inWishlist ? 'fill-red-500 text-red-500' : 'text-[#E3C381]'}`}
-                />
-              </button>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <PriceTag price={product.discount_price || product.price} size="lg" />
-              {product.discount_price && product.original_price && (
-                <span className="line-through text-xs sm:text-sm text-[#D4AF7A]/60">
-                  ₹{Number(product.original_price).toLocaleString('en-IN')}
-                </span>
-              )}
-              <div className="flex items-center gap-1 text-[10px] sm:text-xs text-[#E3C381] bg-[#0F2318] px-2.5 py-1 rounded-full border border-[#E3C381]/20">
-                <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-[#E3C381]" />
-                <span>
-                  {avgRating} ({reviews.length || product.review_count || 0} reviews)
-                </span>
-              </div>
-            </div>
-
-            <div className="h-[1px] bg-[#E3C381]/20" />
-
-            <p className="font-sans text-xs sm:text-sm text-[#D8D0C0] leading-relaxed font-medium">
-              {product.description}
-            </p>
-
-            {/* Size/Variant selector */}
-            <div className="space-y-2">
-              <label className="text-[10px] sm:text-xs uppercase font-bold text-[#E3C381] tracking-wider">Select Size / Variant:</label>
-              <div className="flex flex-wrap gap-2">
-                {['Standard', 'Free Size', 'Custom Stitch'].map((sz) => (
-                  <button
-                    key={sz}
-                    type="button"
-                    onClick={() => setSelectedSize(sz)}
-                    className={`px-3 py-1.5 border text-[10px] sm:text-xs font-bold rounded-lg transition-all ${
-                      selectedSize === sz
-                        ? 'border-[#E3C381] bg-[#E3C381]/20 text-[#E3C381]'
-                        : 'border-[#E3C381]/30 text-[#D8D0C0] hover:border-[#E3C381]/60'
-                    }`}
-                  >
-                    {sz}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2 text-xs font-sans text-[#D8D0C0] font-medium">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#E3C381] flex-shrink-0" />
-                <span>100% Certified Authentic Product Guarantee.</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 text-[#E3C381] flex-shrink-0" />
-                <span>Easy 7-day exchange and returns policy.</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4 sm:space-y-6 pt-4 sm:pt-6 border-t border-[#E3C381]/20">
-            {product.stock > 0 ? (
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-                <div className="space-y-1">
-                  <span className="block font-sans text-[10px] uppercase font-bold text-[#D4AF7A] tracking-wider">
-                    Quantity
-                  </span>
-                  <QtySelector qty={qty} onChange={setQty} stock={product.stock} />
-                </div>
-
-                <div className="flex-grow flex flex-col justify-end pt-1 sm:pt-0">
-                  <Button
-                    onClick={handleAddToCart}
-                    variant="primary"
-                    size="lg"
-                    className="w-full justify-center gap-2"
-                  >
-                    <ShoppingBag className="w-4 h-4" /> Add to Shopping Bag
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-[#E3C381]/10 border border-[#E3C381]/30 text-[#E3C381] p-3 sm:p-4 text-center font-bold font-sans uppercase text-xs tracking-wider rounded-xl">
-                Out of Stock
-              </div>
-            )}
-
-            {addedMessage && (
-              <div className="bg-[#E3C381]/20 border border-[#E3C381] text-[#E3C381] p-3 text-center font-sans text-xs rounded-xl shadow-md font-bold">
-                Item added to your Shopping Bag successfully!
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Reviews Section */}
-      <section className="pt-12 border-t border-[#F6D18A]/30 space-y-8">
-        <SectionHeading title="Customer Reviews" subtitle="Verified ratings & feedback" />
-
-        {/* Submit Review Form */}
-        {user && (
-          <form
-            onSubmit={handleSubmitReview}
-            className="bg-[#F6D18A]/10 border border-[#F6D18A]/30 p-6 rounded-lg space-y-4 max-w-2xl"
+          <Link
+            to="/products"
+            className="inline-flex items-center text-[#DFC18A] hover:text-[#FDF8F4] text-xs uppercase tracking-wider font-medium transition-colors"
           >
-            <h4 className="font-playfair text-lg font-bold text-[#F6D18A]">Write a Review</h4>
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-[#D8A55A] font-bold">Rating:</label>
-              <div className="flex gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setUserRating(star)}
-                    className="p-1 focus:outline-none"
+            <ArrowLeft className="w-3.5 h-3.5 mr-1.5" /> Back to Collections
+          </Link>
+        </div>
+
+        {/* Main Product Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14">
+          {/* Left Gallery */}
+          <div>
+            <ImageGallery images={getProductImageList(product)} />
+          </div>
+
+          {/* Right Info Card */}
+          <div className="flex flex-col justify-between space-y-6 p-6 sm:p-8 bg-[#1E130F] border border-[#35221B] rounded-2xl shadow-2xl">
+            <div className="space-y-4">
+              <div className="flex justify-between items-start gap-4">
+                <div className="space-y-2">
+                  {product.category && <Badge text={product.category} variant="gold" />}
+                  <h1
+                    className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal text-[#FDF8F4] leading-snug"
+                    style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
                   >
-                    <Star
-                      className={`w-5 h-5 ${
-                        star <= userRating ? 'fill-[#F6D18A] text-[#F6D18A]' : 'text-[#D8A55A]/40'
+                    {product.name}
+                  </h1>
+                </div>
+
+                <button
+                  onClick={handleToggleWishlist}
+                  className="p-2.5 rounded-full bg-[#160E0B] border border-[#35221B] hover:border-[#DFC18A] text-[#C7B5A7] transition-all shrink-0"
+                  title={inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                >
+                  <Heart
+                    className={`w-4 h-4 ${inWishlist ? 'fill-[#C86A27] text-[#C86A27]' : ''}`}
+                  />
+                </button>
+              </div>
+
+              {/* Price Row */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <PriceTag price={product.discount_price || product.price} size="lg" />
+                {(product.discount_price || product.originalPrice) && (
+                  <span className="line-through text-sm text-[#8E7B6F]">
+                    ₹{Number(product.original_price || product.originalPrice || Math.round(product.price * 1.35)).toLocaleString('en-IN')}
+                  </span>
+                )}
+                <div className="flex items-center gap-1 text-xs text-[#DFC18A] bg-[#160E0B] px-2.5 py-1 rounded-full border border-[#35221B] ml-2">
+                  <Star className="w-3.5 h-3.5 fill-current" />
+                  <span>
+                    {avgRating} ({reviews.length || product.reviewsCount || 124} reviews)
+                  </span>
+                </div>
+              </div>
+
+              <div className="h-px bg-[#2C1C16]" />
+
+              <p className="text-xs sm:text-sm text-[#C7B5A7] leading-relaxed font-light">
+                {product.description ||
+                  'Authentic handloom saree woven with pure silk and traditional zari. Comes with Silk Mark purity assurance.'}
+              </p>
+
+              {/* Variant Selector */}
+              <div className="space-y-2 pt-2">
+                <label className="text-[10px] sm:text-xs uppercase font-semibold text-[#DFC18A] tracking-wider">
+                  Drape Length & Blouse:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {['Standard (5.5m + 0.8m Blouse)', 'Custom Stitched Blouse'].map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => setSelectedSize(sz)}
+                      className={`px-3 py-1.5 border text-xs rounded-lg transition-all ${
+                        selectedSize === sz
+                          ? 'border-[#DFC18A] bg-[#DFC18A]/10 text-[#DFC18A] font-medium'
+                          : 'border-[#35221B] text-[#8E7B6F] hover:border-[#DFC18A]/50'
                       }`}
-                    />
-                  </button>
-                ))}
+                    >
+                      {sz}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Trust assurances */}
+              <div className="space-y-2 text-xs text-[#8E7B6F] pt-2">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#DFC18A] shrink-0" />
+                  <span>100% Certified Authentic Pure Silk Guarantee.</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4 text-[#DFC18A] shrink-0" />
+                  <span>Pan-India complimentary delivery & 7-day easy returns.</span>
+                </div>
               </div>
             </div>
-            <textarea
-              rows={3}
-              value={userComment}
-              onChange={(e) => setUserComment(e.target.value)}
-              placeholder="Share your feedback about this product..."
-              className="w-full bg-[#4A0000]/60 border border-[#F6D18A]/30 rounded p-3 text-xs text-[#F6D18A] placeholder:text-[#D8A55A]/50 focus:outline-none focus:border-[#F6D18A]"
-              required
-            />
-            <Button type="submit" variant="primary" size="sm" disabled={submittingReview}>
-              {submittingReview ? 'Submitting...' : 'Submit Review'}
-            </Button>
-          </form>
-        )}
 
-        {/* Reviews List */}
-        <div className="space-y-4">
-          {reviews.length === 0 ? (
-            <p className="text-xs text-[#D8A55A]/80 italic">No reviews yet for this product.</p>
-          ) : (
-            reviews.map((rev) => (
-              <div
-                key={rev.id}
-                className="bg-[#F6D18A]/5 border border-[#F6D18A]/20 p-4 rounded-lg space-y-2"
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-xs text-[#F6D18A]">
-                    {rev.profiles?.name || 'Verified Purchaser'}
-                  </span>
-                  <div className="flex items-center gap-1">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} className="w-3 h-3 fill-[#F6D18A] text-[#F6D18A]" />
-                    ))}
+            {/* Actions */}
+            <div className="space-y-4 pt-6 border-t border-[#2C1C16]">
+              {product.stock > 0 ? (
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <div className="shrink-0">
+                    <QtySelector qty={qty} onChange={setQty} stock={product.stock} />
                   </div>
-                </div>
-                <p className="text-xs text-[#D8A55A] leading-relaxed">{rev.comment}</p>
-                <span className="text-[10px] text-[#D8A55A]/50">
-                  {new Date(rev.created_at).toLocaleDateString()}
-                </span>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
 
-      {/* Related Products */}
-      {relatedItems.length > 0 && (
-        <section className="pt-16 border-t border-[#F6D18A]/30">
-          <SectionHeading
-            title="Pairs Excellently With"
-            subtitle="Explore other heirloom masterpieces in this style"
-          />
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
-            {relatedItems.map((item) => (
-              <ProductCard key={item.id} product={item} />
-            ))}
+                  <button
+                    onClick={handleAddToCart}
+                    type="button"
+                    className="flex-1 py-3.5 px-6 rounded-full bg-[#C86A27] hover:bg-[#DB7B32] text-white font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl cursor-pointer"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Add to Shopping Bag</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-[#160E0B] border border-[#35221B] text-[#DFC18A] p-3 text-center uppercase text-xs tracking-wider rounded-xl">
+                  Currently Sold Out
+                </div>
+              )}
+
+              {addedMessage && (
+                <div className="bg-[#160E0B] border border-[#C86A27] text-[#DFC18A] p-3 text-center text-xs rounded-xl shadow-md flex items-center justify-center gap-2">
+                  <Check className="w-4 h-4 text-[#C86A27]" />
+                  <span>Added to your shopping bag!</span>
+                </div>
+              )}
+            </div>
           </div>
-        </section>
-      )}
+        </div>
+
+        {/* Related Sarees */}
+        {relatedItems.length > 0 && (
+          <section className="pt-12 border-t border-[#2A1B15]">
+            <div className="text-center mb-8">
+              <h3
+                className="font-serif text-2xl sm:text-3xl text-[#FDF8F4]"
+                style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
+              >
+                Pairs Excellently With
+              </h3>
+              <FloralOrnament className="mt-1" />
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+              {relatedItems.map((item) => (
+                <ProductCard key={item.id} product={item} />
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 }

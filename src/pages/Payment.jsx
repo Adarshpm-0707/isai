@@ -3,12 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import useCart from '../hooks/useCart';
 import useAuth from '../hooks/useAuth';
 import { supabase } from '../lib/supabaseClient';
-import SectionHeading from '../components/reusable/SectionHeading';
-import Button from '../components/reusable/Button';
 import PriceTag from '../components/reusable/PriceTag';
-import Loader from '../components/reusable/Loader';
-import { CreditCard, Landmark, QrCode, AlertCircle, CheckCircle } from 'lucide-react';
-import { SectionFlower, PookklamGarland, GoldLine } from '../components/layout/OnamEffects';
+import BrandLogo from '../components/reusable/BrandLogo';
+import { CreditCard, Landmark, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import { FloralOrnament } from '../components/reusable/FloralOrnament';
 
 const loadScript = (src) => {
   return new Promise((resolve) => {
@@ -24,19 +22,18 @@ export default function Payment() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { cart, cartTotal, clearCart } = useCart();
-  
+  const { cartItems, totalAmount, clearCart } = useCart();
+
   const shippingAddress = location.state?.shippingAddress;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fallback: If address is missing, redirect back to checkout
   useEffect(() => {
-    if (!shippingAddress && cart.length > 0) {
+    if (!shippingAddress && cartItems.length > 0) {
       console.warn('Shipping address missing in location state. Redirecting to checkout.');
       navigate('/checkout');
     }
-  }, [shippingAddress, cart, navigate]);
+  }, [shippingAddress, cartItems, navigate]);
 
   const handleOrderCreation = async (paymentId) => {
     try {
@@ -47,8 +44,8 @@ export default function Payment() {
       const { data: orderData, error: orderErr } = await supabase
         .from('orders')
         .insert({
-          user_id: user.id,
-          total_amount: cartTotal,
+          user_id: user?.id,
+          total_amount: totalAmount,
           status: 'pending',
           payment_id: paymentId,
         })
@@ -58,12 +55,15 @@ export default function Payment() {
       if (orderErr) throw orderErr;
 
       // 2. Create order items rows
-      const itemsToInsert = cart.map(item => ({
-        order_id: orderData.id,
-        product_id: item.product_id,
-        qty: item.qty,
-        price: item.price,
-      }));
+      const itemsToInsert = cartItems.map((item) => {
+        const prod = item.product || item;
+        return {
+          order_id: orderData.id,
+          product_id: item.product_id || prod.id,
+          qty: item.quantity || item.qty || 1,
+          price: prod.discount_price ?? prod.price ?? item.price ?? 0,
+        };
+      });
 
       const { error: itemsErr } = await supabase
         .from('order_items')
@@ -71,56 +71,50 @@ export default function Payment() {
 
       if (itemsErr) throw itemsErr;
 
-      // 3. Clear cart in Supabase & Local state
+      // 3. Clear cart
       await clearCart();
 
       // 4. Success redirect
       setLoading(false);
-      navigate('/order-success', { state: { orderId: orderData.id, totalAmount: cartTotal } });
+      navigate('/order-success', { state: { orderId: orderData.id, totalAmount } });
     } catch (err) {
-      console.error('Order creation failed:', err);
-      setError('Database transaction failed: ' + err.message);
+      console.error('Order creation error:', err);
+      setError(err.message || 'Failed to complete transaction.');
       setLoading(false);
     }
   };
 
-  // Real Razorpay dynamic handler
   const handleRazorpayPayment = async () => {
     setLoading(true);
     setError(null);
 
-    const sdkLoaded = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
-    if (!sdkLoaded) {
-      setError('Razorpay SDK failed to load. Please verify your connection or use simulation.');
+    const isLoaded = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
+    if (!isLoaded) {
+      setError('Razorpay SDK failed to load. Please check your network connection.');
       setLoading(false);
       return;
     }
 
     const options = {
-      key: 'rzp_test_placeholder_key', // Mock/test key placeholder
-      amount: cartTotal * 100, // in paise
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+      amount: totalAmount * 100,
       currency: 'INR',
-      name: 'Isai Tarang',
-      description: 'Handcrafted Heirlooms',
-      image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=100',
-      handler: async function (response) {
-        // Success callback
-        const paymentId = response.razorpay_payment_id || `rzp-mock-${Date.now()}`;
-        await handleOrderCreation(paymentId);
-      },
+      name: 'Isaitarang Sarees',
+      description: 'Handcrafted Heritage Saree Order',
       prefill: {
-        name: shippingAddress?.name || '',
-        email: shippingAddress?.email || '',
+        name: shippingAddress?.name || user?.email?.split('@')[0],
+        email: shippingAddress?.email || user?.email,
         contact: shippingAddress?.phone || '',
       },
-      theme: {
-        color: '#6B0F1A',
+      theme: { color: '#C86A27' },
+      handler: async function (response) {
+        await handleOrderCreation(response.razorpay_payment_id);
       },
       modal: {
         ondismiss: function () {
           setLoading(false);
-        }
-      }
+        },
+      },
     };
 
     try {
@@ -131,26 +125,25 @@ export default function Payment() {
       });
       rzp.open();
     } catch (err) {
-      console.error('Razorpay initialization error:', err);
-      setError('Failed to initialize Razorpay checkout. Please use simulation below.');
+      setError('Failed to initialize Razorpay checkout. Please try simulation below.');
       setLoading(false);
     }
   };
 
-  // Simulated Bypass Gateway
   const handleSimulatedPayment = async () => {
     setLoading(true);
-    // Simulate API delay
     setTimeout(async () => {
       const mockPaymentId = `sim-pay-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
       await handleOrderCreation(mockPaymentId);
-    }, 1500);
+    }, 1200);
   };
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-        <p className="font-sans text-[#F6D18A] font-bold text-sm uppercase tracking-widest animate-pulse">
+      <div className="min-h-[70vh] bg-[#120B09] flex flex-col items-center justify-center space-y-4 p-4 text-center">
+        <BrandLogo size="lg" className="mb-2" />
+        <div className="w-10 h-10 border-2 border-[#C86A27] border-t-transparent rounded-full animate-spin" />
+        <p className="font-serif text-[#DFC18A] text-sm uppercase tracking-widest">
           Processing transaction... Please wait.
         </p>
       </div>
@@ -158,107 +151,92 @@ export default function Payment() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8 text-[#D8A55A]">
-      <SectionHeading
-        title="Secured Payment Gateway"
-        subtitle="Finalize order and verify transaction method"
-      />
-
-      {error && (
-        <div className="bg-[#2B1409] border border-[#B67A2F] text-[#F6D18A] p-4 rounded-sm flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <p className="text-xs font-sans font-medium">{error}</p>
+    <div className="min-h-screen bg-[#120B09] text-[#FDF8F4] py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto space-y-8">
+        <div>
+          <button
+            onClick={() => navigate('/checkout')}
+            className="inline-flex items-center text-xs text-[#DFC18A] uppercase tracking-wider font-semibold hover:text-[#FDF8F4] transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 mr-1.5" /> Back to Checkout
+          </button>
         </div>
-      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-        
-        {/* Payment selections */}
-        <div className="md:col-span-2 space-y-6">
-          
-          <div className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm space-y-4 shadow-xl">
-            <h3 className="font-playfair text-base font-bold text-[#F6D18A] uppercase tracking-wider pb-3 border-b border-[#D8A55A]/20">
-              Gateway Selections
-            </h3>
+        <div className="text-center space-y-1">
+          <p className="text-xs uppercase tracking-[0.28em] font-semibold text-[#DFC18A]">
+            Secure Verification
+          </p>
+          <h1
+            className="font-serif text-3xl sm:text-4xl text-[#FDF8F4]"
+            style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
+          >
+            Payment Gateway
+          </h1>
+          <FloralOrnament className="mt-1" />
+        </div>
 
-            {/* Razorpay Gateway */}
-            <div className="border border-[#D8A55A]/20 p-5 hover:border-[#F6D18A] transition-all cursor-pointer rounded-sm flex justify-between items-center group bg-[#2B1409]"
-                 onClick={handleRazorpayPayment}>
+        {error && (
+          <div className="bg-[#1E130F] border border-red-500/40 text-red-300 p-4 rounded-xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-400" />
+            <p className="text-xs font-medium">{error}</p>
+          </div>
+        )}
+
+        <div className="bg-[#1E130F] border border-[#35221B] rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="flex items-center justify-between pb-4 border-b border-[#2C1C16]">
+            <div>
+              <p className="text-xs text-[#8E7B6F]">Total Payable Amount</p>
+              <p className="text-2xl font-bold text-[#FDF8F4] mt-0.5">₹{totalAmount.toLocaleString('en-IN')}</p>
+            </div>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#160E0B] border border-[#35221B] text-[#DFC18A]">
+              256-bit SSL Secure
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {/* Razorpay Gateway Card */}
+            <div
+              onClick={handleRazorpayPayment}
+              className="p-5 rounded-xl border border-[#35221B] hover:border-[#DFC18A] bg-[#160E0B] transition-all cursor-pointer flex justify-between items-center group"
+            >
               <div className="flex gap-4 items-center">
-                <div className="p-3 bg-[#5C2F14] border border-[#D8A55A]/30 rounded-full">
-                  <Landmark className="w-6 h-6 text-[#F6D18A]" />
+                <div className="w-12 h-12 rounded-full bg-[#1E130F] border border-[#DFC18A]/30 flex items-center justify-center text-[#DFC18A]">
+                  <Landmark className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-[#F6D18A]">
-                    Razorpay Checkout
+                  <h4 className="text-sm font-semibold text-[#FDF8F4] group-hover:text-[#DFC18A] transition-colors">
+                    Razorpay Online Checkout
                   </h4>
-                  <p className="text-[10px] text-[#D8A55A]/80 font-sans">
-                    Pay securely using UPI, Cards, Netbanking, or Wallet
+                  <p className="text-xs text-[#8E7B6F]">
+                    UPI, Credit/Debit Cards, Netbanking & Wallets
                   </p>
                 </div>
               </div>
-              <CheckCircle className="w-5 h-5 text-[#F6D18A] opacity-50 group-hover:opacity-100 transition-opacity" />
+              <CheckCircle className="w-5 h-5 text-[#C86A27] opacity-60 group-hover:opacity-100" />
             </div>
 
-            {/* Test Simulation Bypass */}
-            <div className="border border-[#D8A55A]/20 p-5 hover:border-[#F6D18A] transition-all cursor-pointer rounded-sm flex justify-between items-center group bg-[#5C2F14]/40"
-                 onClick={handleSimulatedPayment}>
+            {/* Test Simulation Mode */}
+            <div
+              onClick={handleSimulatedPayment}
+              className="p-5 rounded-xl border border-[#35221B] hover:border-[#DFC18A]/60 bg-[#160E0B]/70 transition-all cursor-pointer flex justify-between items-center group"
+            >
               <div className="flex gap-4 items-center">
-                <div className="p-3 bg-[#5C2F14] border border-[#D8A55A]/30 rounded-full">
-                  <CreditCard className="w-6 h-6 text-[#F6D18A]" />
+                <div className="w-12 h-12 rounded-full bg-[#1E130F] border border-[#35221B] flex items-center justify-center text-[#8E7B6F]">
+                  <CreditCard className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-sans text-xs font-bold uppercase tracking-wider text-[#F6D18A]">
-                    Simulate Payment (Bypass Sandbox)
+                  <h4 className="text-sm font-semibold text-[#C7B5A7] group-hover:text-[#FDF8F4] transition-colors">
+                    Simulate Payment (Sandbox Test)
                   </h4>
-                  <p className="text-[10px] text-[#D8A55A]/80 font-sans">
-                    Fast payment bypass testing mode. Generates mock transaction codes.
+                  <p className="text-xs text-[#8E7B6F]">
+                    Instant test transaction for rapid order verification
                   </p>
                 </div>
               </div>
-              <CheckCircle className="w-5 h-5 text-[#F6D18A] opacity-50 group-hover:opacity-100 transition-opacity" />
+              <CheckCircle className="w-5 h-5 text-[#8E7B6F] opacity-50 group-hover:opacity-100" />
             </div>
-
           </div>
         </div>
-
-        {/* Invoice Summary */}
-        <aside className="bg-gradient-to-b from-[#2B1409] to-[#3E1B0E] border border-[#D8A55A]/30 p-6 rounded-sm space-y-6 shadow-xl text-[#D8A55A]">
-          <h3 className="font-playfair text-base font-bold text-[#F6D18A] uppercase tracking-wider pb-3 border-b border-[#D8A55A]/20">
-            Invoice Summary
-          </h3>
-
-          <div className="space-y-3 text-xs font-sans">
-            <div className="flex justify-between text-[#D8A55A]/80">
-              <span>Items Total</span>
-              <span>₹{cartTotal.toLocaleString('en-IN')}</span>
-            </div>
-            <div className="flex justify-between text-[#D8A55A]/80">
-              <span>Shipping Fee</span>
-              <span className="text-[#F6D18A] font-bold uppercase">Free</span>
-            </div>
-            <div className="h-[1px] bg-[#D8A55A]/20 mt-2" />
-            <div className="flex justify-between text-sm text-[#F6D18A] font-bold uppercase tracking-wider pt-2">
-              <span>Payable Total</span>
-              <span>₹{cartTotal.toLocaleString('en-IN')}</span>
-            </div>
-          </div>
-
-          {shippingAddress && (
-            <div className="pt-4 border-t border-[#D8A55A]/20 space-y-2">
-              <h4 className="font-sans text-[10px] uppercase font-bold text-[#D8A55A]/70 tracking-wider">
-                Shipping Address
-              </h4>
-              <p className="text-[10px] font-sans text-[#D8A55A]/90 leading-relaxed font-light">
-                <strong className="text-[#F6D18A]">{shippingAddress.name}</strong><br />
-                {shippingAddress.addressLine1}, {shippingAddress.addressLine2 && `${shippingAddress.addressLine2}, `}
-                {shippingAddress.city}, {shippingAddress.state} - {shippingAddress.pincode}<br />
-                Phone: {shippingAddress.phone}
-              </p>
-            </div>
-          )}
-        </aside>
-
       </div>
     </div>
   );

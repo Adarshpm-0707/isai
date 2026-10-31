@@ -5,16 +5,16 @@ export default function PriceTag({ price, originalPrice, className = '', size = 
   const sizeClasses = {
     sm: 'text-xs sm:text-sm',
     md: 'text-sm sm:text-base font-semibold',
-    lg: 'text-lg sm:text-xl md:text-2xl font-bold',
+    lg: 'text-xl sm:text-2xl md:text-3xl font-bold',
   };
 
   return (
-    <div className={`flex items-center gap-2 font-sans ${className}`}>
-      <span className={`text-[#F6D18A] font-bold ${sizeClasses[size]} tracking-wide`}>
+    <div className={`flex items-baseline gap-2 font-sans ${className}`}>
+      <span className={`text-[#FDF8F4] font-bold ${sizeClasses[size]} tracking-tight`}>
         {formatPrice(price)}
       </span>
       {originalPrice && (
-        <span className="text-[#D8A55A]/60 line-through text-xs md:text-sm font-light">
+        <span className="text-[#8E7B6F] line-through text-xs md:text-sm font-normal">
           {formatPrice(originalPrice)}
         </span>
       )}

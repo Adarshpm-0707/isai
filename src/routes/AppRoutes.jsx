@@ -19,6 +19,8 @@ import OrderSuccess from '../pages/OrderSuccess';
 import OrderHistory from '../pages/OrderHistory';
 import PrivacyPolicy from '../pages/PrivacyPolicy';
 import TermsConditions from '../pages/TermsConditions';
+import FAQ from '../pages/FAQ';
+import Contact from '../pages/Contact';
 import NotFound from '../pages/NotFound';
 
 import AdminLayout from '../components/layout/AdminLayout';
@@ -72,6 +74,8 @@ export default function AppRoutes() {
         {/* Public Routes */}
         <Route index element={<Home />} />
         <Route path="about" element={<About />} />
+        <Route path="contact" element={<Contact />} />
+        <Route path="faq" element={<FAQ />} />
         <Route path="privacy-policy" element={<PrivacyPolicy />} />
         <Route path="terms-conditions" element={<TermsConditions />} />
         <Route path="products" element={<Products />} />

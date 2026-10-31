@@ -19,7 +19,7 @@ import {
   User,
   UserCheck,
 } from "lucide-react";
-import logoImg from "../../assets/ISAI (2).png";
+import logoImg from "../../assets/isai_logo.png";
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -53,20 +53,20 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#081A11] flex text-[#F3E5AB] font-sans">
+    <div className="min-h-screen bg-[#120B09] flex text-[#FDF8F4] font-sans">
       
       {/* ─── DESKTOP SIDEBAR ─── */}
-      <aside className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-30 bg-[#0C2317] border-r border-[#D4AF37]/35 shadow-2xl">
+      <aside className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-30 bg-[#160E0B] border-r border-[#35221B] shadow-2xl">
         
         {/* Brand Header */}
-        <div className="h-16 flex items-center gap-3 px-5 border-b border-[#D4AF37]/35 bg-[#081A11]/80 shrink-0">
-          <img src={logoImg} alt="Isai Logo" className="h-9 w-auto object-contain" />
+        <div className="h-18 flex items-center gap-3 px-5 border-b border-[#35221B] bg-[#120B09] shrink-0">
+          <img src={logoImg} alt="Isaitarang Logo" className="h-10 w-auto object-contain" />
           <div>
-            <h2 className="font-serif text-xs font-extrabold text-[#F3E5AB] uppercase tracking-wider leading-none">
-              ISAI TARANG
+            <h2 className="font-serif text-xs font-bold text-[#FDF8F4] uppercase tracking-wider leading-none">
+              Isaitarang
             </h2>
-            <span className="text-[9px] font-bold text-[#D4AF37] tracking-widest uppercase flex items-center gap-1 mt-1">
-              <Shield className="w-2.5 h-2.5 text-[#D4AF37]" /> Admin Panel
+            <span className="text-[9px] font-semibold text-[#DFC18A] tracking-widest uppercase flex items-center gap-1 mt-1">
+              <Shield className="w-2.5 h-2.5 text-[#DFC18A]" /> Admin Panel
             </span>
           </div>
         </div>
@@ -80,13 +80,13 @@ export default function AdminLayout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium uppercase tracking-wider transition-all ${
                   active
-                    ? "bg-gradient-to-r from-[#1A3C2B] to-[#0F2A1C] text-[#F3E5AB] border-l-4 border-[#D4AF37] shadow-xl"
-                    : "text-[#EADFC9]/75 hover:bg-[#153424] hover:text-[#F3E5AB]"
+                    ? "bg-[#1E130F] text-[#DFC18A] border-l-4 border-[#C86A27] shadow-lg"
+                    : "text-[#C7B5A7] hover:bg-[#1E130F]/60 hover:text-[#FDF8F4]"
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${active ? "text-[#FFD54F]" : "text-[#D4AF37]/70"}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${active ? "text-[#C86A27]" : "text-[#DFC18A]/60"}`} />
                 <span>{item.name}</span>
               </Link>
             );
@@ -94,19 +94,19 @@ export default function AdminLayout() {
         </nav>
 
         {/* Sidebar Footer Quick Links */}
-        <div className="p-4 border-t border-[#D4AF37]/25 space-y-2 bg-[#081A11]/60 text-xs">
+        <div className="p-4 border-t border-[#35221B] space-y-2 bg-[#120B09] text-xs">
           <Link
             to="/"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-between px-3 py-2 rounded text-[#EADFC9] hover:bg-[#1A3C2B] hover:text-[#F3E5AB] font-semibold transition-colors"
+            className="flex items-center justify-between px-3 py-2 rounded-lg text-[#C7B5A7] hover:bg-[#1E130F] hover:text-[#DFC18A] font-medium transition-colors"
           >
             <span>Live Store Preview</span>
-            <ExternalLink className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <ExternalLink className="w-3.5 h-3.5 text-[#DFC18A]" />
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-between px-3 py-2 rounded text-red-400 hover:bg-red-950/60 hover:text-red-300 font-bold transition-colors cursor-pointer"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-red-400 hover:bg-red-950/40 hover:text-red-300 font-medium transition-colors cursor-pointer"
           >
             <span>Sign Out Admin</span>
             <LogOut className="w-3.5 h-3.5" />
@@ -121,15 +121,15 @@ export default function AdminLayout() {
             className="fixed inset-0 bg-black/80 backdrop-blur-xs"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative flex-1 max-w-xs w-full bg-[#0C2317] border-r border-[#D4AF37]/40 flex flex-col z-50">
-            <div className="p-4 flex items-center justify-between border-b border-[#D4AF37]/30">
+          <div className="relative flex-1 max-w-xs w-full bg-[#160E0B] border-r border-[#35221B] flex flex-col z-50">
+            <div className="p-4 flex items-center justify-between border-b border-[#35221B]">
               <div className="flex items-center gap-2">
-                <img src={logoImg} alt="Logo" className="h-8 w-auto" />
-                <span className="font-bold text-xs uppercase text-[#F3E5AB]">Admin Panel</span>
+                <img src={logoImg} alt="Logo" className="h-8 w-auto object-contain" />
+                <span className="font-bold text-xs uppercase text-[#DFC18A]">Admin Panel</span>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1 text-[#F3E5AB] hover:bg-[#1A3C2B] rounded"
+                className="p-1 text-[#C7B5A7] hover:text-[#FDF8F4] rounded"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -143,29 +143,29 @@ export default function AdminLayout() {
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wider ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium uppercase tracking-wider ${
                       active
-                        ? "bg-[#1A3C2B] text-[#F3E5AB] border-l-4 border-[#D4AF37]"
-                        : "text-[#EADFC9] hover:bg-[#153424]"
+                        ? "bg-[#1E130F] text-[#DFC18A] border-l-4 border-[#C86A27]"
+                        : "text-[#C7B5A7] hover:bg-[#1E130F]/60 hover:text-[#FDF8F4]"
                     }`}
                   >
-                    <Icon className="w-4 h-4 text-[#D4AF37]" />
+                    <Icon className="w-4 h-4 text-[#DFC18A]" />
                     <span>{item.name}</span>
                   </Link>
                 );
               })}
             </nav>
-            <div className="p-4 border-t border-[#D4AF37]/25 space-y-2">
+            <div className="p-4 border-t border-[#35221B] space-y-2">
               <Link
                 to="/"
                 onClick={() => setMobileOpen(false)}
-                className="block text-center py-2 border border-[#D4AF37]/40 text-[#F3E5AB] text-xs font-bold rounded"
+                className="block text-center py-2 border border-[#35221B] bg-[#1E130F] text-[#DFC18A] text-xs font-semibold rounded-lg"
               >
                 View Live Store
               </Link>
               <button
                 onClick={handleLogout}
-                className="w-full py-2 bg-red-950/60 text-red-300 border border-red-500/30 text-xs font-bold rounded"
+                className="w-full py-2 bg-red-950/40 text-red-300 border border-red-500/30 text-xs font-semibold rounded-lg"
               >
                 Sign Out
               </button>
@@ -178,15 +178,15 @@ export default function AdminLayout() {
       <div className="flex-1 md:pl-64 flex flex-col min-w-0">
         
         {/* Top Header Bar */}
-        <header className="h-16 bg-[#0C2317]/95 border-b border-[#D4AF37]/35 sticky top-0 z-20 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between">
+        <header className="h-16 bg-[#160E0B]/95 border-b border-[#35221B] sticky top-0 z-20 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-lg text-[#F3E5AB] hover:bg-[#1A3C2B] border border-[#D4AF37]/30"
+              className="md:hidden p-2 rounded-lg text-[#DFC18A] hover:bg-[#1E130F] border border-[#35221B]"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-sm sm:text-base font-bold uppercase tracking-wider text-[#F3E5AB] font-serif">
+            <h1 className="text-sm sm:text-base font-normal uppercase tracking-wider text-[#FDF8F4] font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
               {navigationItems.find((i) => isActive(i.path))?.name || "Admin Management"}
             </h1>
           </div>
@@ -197,21 +197,21 @@ export default function AdminLayout() {
             title="View Admin Profile"
           >
             <div className="text-right hidden sm:block">
-              <span className="block text-xs font-bold text-[#F3E5AB]">
+              <span className="block text-xs font-medium text-[#FDF8F4]">
                 {profile?.name || user?.email || "System Admin"}
               </span>
-              <span className="block text-[10px] text-[#D4AF37] uppercase tracking-widest">
+              <span className="block text-[10px] text-[#DFC18A] uppercase tracking-widest">
                 System Admin Profile
               </span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#1A3C2B] border border-[#D4AF37] flex items-center justify-center text-[#F3E5AB] font-bold text-xs uppercase shadow-md">
+            <div className="w-8 h-8 rounded-full bg-[#1E130F] border border-[#DFC18A] flex items-center justify-center text-[#DFC18A] font-bold text-xs uppercase shadow-md">
               {(profile?.name || user?.email || "A")[0]}
             </div>
           </div>
         </header>
 
         {/* Render Page Children */}
-        <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-[#081A11]">
+        <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-[#120B09]">
           <Outlet />
         </main>
       </div>

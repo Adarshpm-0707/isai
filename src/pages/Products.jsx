@@ -1,175 +1,238 @@
-﻿import React, { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import useProducts from "../hooks/useProducts";
-import ProductCard from "../components/reusable/ProductCard";
-import EmptyState from "../components/reusable/EmptyState";
-import { SlidersHorizontal, Search, RefreshCw, ChevronRight } from "lucide-react";
-import { OnamPageHeading, SectionFlower, PookklamGarland, GoldLine, MiniFlower } from "../components/layout/OnamEffects";
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import useProducts from '../hooks/useProducts';
+import ProductCard from '../components/reusable/ProductCard';
+import EmptyState from '../components/reusable/EmptyState';
+import { FloralOrnament } from '../components/reusable/FloralOrnament';
+import { SlidersHorizontal, Search, RefreshCw, ChevronRight } from 'lucide-react';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 12;
 
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const categoryParam = searchParams.get("category") || "All";
+  const categoryParam = searchParams.get('category') || 'All';
+  const searchParamQuery = searchParams.get('search') || '';
   const { products, fetchProducts, getCategories } = useProducts();
 
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParamQuery);
   const [priceRange, setPriceRange] = useState(100000);
-  const [sortBy, setSortBy] = useState("newest");
+  const [sortBy, setSortBy] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => { fetchProducts(); }, [fetchProducts]);
-  useEffect(() => { setSelectedCategory(categoryParam); setCurrentPage(1); }, [categoryParam]);
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  useEffect(() => {
+    setSelectedCategory(categoryParam);
+    setCurrentPage(1);
+  }, [categoryParam]);
+
+  useEffect(() => {
+    if (searchParamQuery) {
+      setSearchQuery(searchParamQuery);
+      setCurrentPage(1);
+    }
+  }, [searchParamQuery]);
 
   const categoryCounts = useMemo(() => {
     const counts = { All: products.length };
-    (products || []).forEach(p => { if (p.category) counts[p.category] = (counts[p.category] || 0) + 1; });
+    (products || []).forEach((p) => {
+      if (p.category) counts[p.category] = (counts[p.category] || 0) + 1;
+    });
     return counts;
   }, [products]);
 
   const filteredProducts = useMemo(() => {
     return (products || [])
-      .filter(p => {
-        const matchCategory = !selectedCategory || selectedCategory === "All" || p.category?.toLowerCase() === selectedCategory.toLowerCase();
+      .filter((p) => {
+        const matchCategory =
+          !selectedCategory ||
+          selectedCategory === 'All' ||
+          p.category?.toLowerCase() === selectedCategory.toLowerCase();
         const matchPrice = (p.price || 0) <= priceRange;
-        const matchSearch = !searchQuery.trim() || p.name?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchSearch =
+          !searchQuery.trim() ||
+          p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.category?.toLowerCase().includes(searchQuery.toLowerCase());
         return matchCategory && matchPrice && matchSearch;
       })
       .sort((a, b) => {
-        if (sortBy === "price-low-high") return a.price - b.price;
-        if (sortBy === "price-high-low") return b.price - a.price;
+        if (sortBy === 'price-low-high') return a.price - b.price;
+        if (sortBy === 'price-high-low') return b.price - a.price;
         return new Date(b.created_at || Date.now()) - new Date(a.created_at || Date.now());
       });
   }, [products, selectedCategory, priceRange, searchQuery, sortBy]);
 
-  const paginatedProducts = useMemo(() =>
-    filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+  const paginatedProducts = useMemo(
+    () =>
+      filteredProducts.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+      ),
     [filteredProducts, currentPage]
   );
 
-  const categoriesList = ["All", ...getCategories().filter(c => c !== "All")];
+  const categoriesList = ['All', ...getCategories().filter((c) => c !== 'All')];
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: "linear-gradient(180deg,#0C2317 0%,#1A3C2B 30%,#0C2317 100%)" }}>
-
-      {/* ── ONAM HEADER ── */}
-      <header className="relative pt-10 sm:pt-20 px-4 sm:px-6 max-w-7xl mx-auto">
-        {/* Top garland */}
-        <div className="mb-6">
-          <GoldLine />
-          <PookklamGarland count={24} />
-          <GoldLine />
-        </div>
-
-        <div className="flex flex-col md:flex-row items-start justify-between gap-6">
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <div className="flex items-center gap-2 mb-2">
-              <SectionFlower size={24} />
-              <span className="text-[#B8860B] text-[10px] font-bold tracking-[0.35em] uppercase">ഉൽപ്പന്ന ശേഖരം</span>
-              <SectionFlower size={24} />
-            </div>
-            <h1
-              className="text-4xl sm:text-6xl md:text-7xl font-extrabold leading-[0.95] tracking-wide uppercase"
-              style={{
-                fontFamily: "'Cinzel Decorative','Playfair Display',serif",
-                background: "linear-gradient(180deg,#FFF8E7 0%,#F3E5AB 45%,#D4AF37 100%)",
-                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-                filter: "drop-shadow(0 2px 16px rgba(212,175,55,0.3))",
-              }}
-            >
-              The Onam<br />Anthology
-            </h1>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-sm pt-2">
-            <div className="h-px w-12 mb-3" style={{ background: "#D4AF37" }} />
-            <p className="text-xs sm:text-sm font-light leading-relaxed text-[#EADFC9]/80">
-              A curated collection of Silk Mark certified heritage and contemporary Kerala handloom.
-            </p>
-            <div className="mt-4 flex items-center gap-2 text-[10px] tracking-[0.3em] font-bold uppercase text-[#D4AF37]">
-              <SectionFlower size={16} /> Scroll To Explore <ChevronRight size={14} className="animate-bounce" />
-            </div>
-          </motion.div>
-        </div>
+    <div className="min-h-screen pb-24 bg-[#120B09] text-[#FDF8F4]">
+      {/* ── HEADER ── */}
+      <header className="relative pt-10 sm:pt-16 px-4 sm:px-6 max-w-7xl mx-auto text-center">
+        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}>
+          <p className="text-[#DFC18A] text-xs font-semibold tracking-[0.28em] uppercase mb-1.5">
+            Handcrafted Drapery
+          </p>
+          <h1
+            className="font-serif text-3xl sm:text-5xl md:text-6xl font-normal text-[#FDF8F4] tracking-tight leading-tight"
+            style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
+          >
+            The Saree <span className="italic text-[#DFC18A]">Anthology</span>
+          </h1>
+          <FloralOrnament className="mt-2" />
+          <p className="text-xs sm:text-sm text-[#C7B5A7] max-w-lg mx-auto font-light mt-3 leading-relaxed">
+            Curated pure silks, Kanchipuram weaves, soft handlooms, and lightweight georgettes crafted for every occasion.
+          </p>
+        </motion.div>
       </header>
 
-      {/* ── CATEGORY TABS & FILTERS ── */}
+      {/* ── CATEGORY TABS & CONTROLS ── */}
       <section className="mt-8 sm:mt-12 px-4 sm:px-6 max-w-7xl mx-auto space-y-5">
-        <div className="flex items-center gap-5 sm:gap-8 pb-3 overflow-x-auto no-scrollbar border-b" style={{ borderColor: "rgba(212,175,55,0.25)" }}>
-          {categoriesList.map(cat => (
-            <button key={cat}
-              onClick={() => { setSelectedCategory(cat); setCurrentPage(1); }}
-              className={`relative whitespace-nowrap text-[10px] sm:text-[11px] font-bold tracking-[0.28em] uppercase transition-all flex items-center gap-1 ${selectedCategory.toLowerCase() === cat.toLowerCase() ? "text-[#D4AF37]" : "text-[#D4AF37]/40 hover:text-[#D4AF37]"}`}
-            >
-              {selectedCategory.toLowerCase() === cat.toLowerCase() && <SectionFlower size={12} />}
-              {cat}
-              <span className="text-[8px] opacity-50 font-light italic">{categoryCounts[cat] || 0}</span>
-              {selectedCategory.toLowerCase() === cat.toLowerCase() && (
-                <motion.div layoutId="onamUnderline" className="absolute -bottom-3 left-0 right-0 h-[2px]" style={{ background: "linear-gradient(90deg,#D4AF37,#FFD54F)" }} />
-              )}
-            </button>
-          ))}
+        {/* Category Horizontal Bar */}
+        <div className="flex items-center gap-3 sm:gap-6 pb-2 overflow-x-auto no-scrollbar border-b border-[#2C1C16]">
+          {categoriesList.map((cat) => {
+            const isSelected = selectedCategory.toLowerCase() === cat.toLowerCase();
+            return (
+              <button
+                key={cat}
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  setCurrentPage(1);
+                }}
+                className={`relative whitespace-nowrap text-xs font-medium tracking-wider uppercase py-2 px-1 transition-all ${
+                  isSelected
+                    ? 'text-[#DFC18A] font-semibold'
+                    : 'text-[#8E7B6F] hover:text-[#C7B5A7]'
+                }`}
+              >
+                <span>{cat}</span>
+                <span className="text-[9px] opacity-60 ml-1">
+                  ({categoryCounts[cat] || 0})
+                </span>
+                {isSelected && (
+                  <motion.div
+                    layoutId="categoryUnderline"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C86A27]"
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Search & Controls */}
+        {/* Search & Filter Toolbar */}
         <div className="relative">
-          <div className="rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row items-center justify-between gap-3 shadow-xl"
-            style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.22)", backdropFilter: "blur(12px)" }}>
-            <div className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 w-full md:w-80 transition-all"
-              style={{ background: "rgba(12,35,23,0.9)", border: "1px solid rgba(212,175,55,0.3)" }}>
-              <Search size={16} className="text-[#D4AF37]/70 shrink-0" />
-              <input type="text" placeholder="Search sarees & collections..."
+          <div className="bg-[#1E130F] border border-[#35221B] rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row items-center justify-between gap-3 shadow-xl">
+            {/* Search Input */}
+            <div className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 w-full md:w-80 bg-[#160E0B] border border-[#35221B] text-[#FDF8F4]">
+              <Search size={15} className="text-[#8E7B6F] shrink-0" />
+              <input
+                type="text"
+                placeholder="Search sarees & weaves..."
                 value={searchQuery}
-                onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                className="bg-transparent border-none text-xs placeholder:text-[#D4AF37]/40 focus:outline-none w-full font-medium text-[#F3E5AB]"
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="bg-transparent border-none text-xs placeholder:text-[#8E7B6F] focus:outline-none w-full text-[#FDF8F4]"
               />
-              {searchQuery && <button onClick={() => setSearchQuery("")} className="text-xs text-[#D4AF37]/60 hover:text-[#D4AF37]">&#x2715;</button>}
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-xs text-[#8E7B6F] hover:text-[#FDF8F4]"
+                >
+                  ✕
+                </button>
+              )}
             </div>
 
+            {/* Sorting & Filter Buttons */}
             <div className="flex items-center gap-2.5 w-full md:w-auto justify-between md:justify-end">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-widest text-[#D4AF37]/70 font-bold hidden sm:inline">Sort:</span>
-                <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-                  className="rounded-xl px-3 py-2 text-xs focus:outline-none cursor-pointer"
-                  style={{ background: "rgba(12,35,23,0.9)", border: "1px solid rgba(212,175,55,0.3)", color: "#D4AF37" }}>
+                <span className="text-[10px] uppercase tracking-wider text-[#8E7B6F] font-bold hidden sm:inline">
+                  Sort:
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-[#160E0B] border border-[#35221B] text-[#C7B5A7] rounded-xl px-3 py-2 text-xs focus:outline-none cursor-pointer"
+                >
                   <option value="newest">Newest Arrivals</option>
                   <option value="price-low-high">Price: Low to High</option>
                   <option value="price-high-low">Price: High to Low</option>
                 </select>
               </div>
-              <button onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-[10px] font-bold uppercase tracking-widest transition-all ${showFilters ? "text-[#0C2317]" : "text-[#D4AF37]"}`}
-                style={{ background: showFilters ? "linear-gradient(135deg,#D4AF37,#B8860B)" : "rgba(12,35,23,0.9)", borderColor: "rgba(212,175,55,0.4)" }}>
-                <SlidersHorizontal size={13} /> Filters
+
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-medium uppercase tracking-wider transition-all cursor-pointer ${
+                  showFilters
+                    ? 'bg-[#C86A27] text-white border-[#C86A27]'
+                    : 'bg-[#160E0B] text-[#C7B5A7] border-[#35221B] hover:text-[#DFC18A]'
+                }`}
+              >
+                <SlidersHorizontal size={13} />
+                <span>Filters</span>
               </button>
-              <button onClick={() => { setSearchQuery(""); setPriceRange(100000); setSortBy("newest"); setSelectedCategory("All"); }}
-                className="p-2 border rounded-xl transition-all text-[#D4AF37]"
-                style={{ background: "rgba(12,35,23,0.9)", borderColor: "rgba(212,175,55,0.3)" }}>
+
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setPriceRange(100000);
+                  setSortBy('newest');
+                  setSelectedCategory('All');
+                }}
+                title="Reset Filters"
+                className="p-2 border border-[#35221B] rounded-xl bg-[#160E0B] text-[#8E7B6F] hover:text-[#DFC18A] transition-all cursor-pointer"
+              >
                 <RefreshCw size={13} />
               </button>
             </div>
           </div>
 
+          {/* Collapsible Filter Slider */}
           <AnimatePresence>
             {showFilters && (
-              <motion.div initial={{ opacity: 0, y: -10, height: 0 }} animate={{ opacity: 1, y: 0, height: "auto" }} exit={{ opacity: 0, y: -10, height: 0 }}
-                className="overflow-hidden mt-3">
-                <div className="rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xl"
-                  style={{ background: "rgba(10,24,16,0.97)", border: "1px solid rgba(212,175,55,0.3)" }}>
-                  <div className="flex justify-between items-center">
-                    <label className="text-[10px] tracking-[0.3em] uppercase text-[#D4AF37]/70 font-bold flex items-center gap-1">
-                      <SectionFlower size={14} /> Max Price
-                    </label>
-                    <span className="text-xs font-bold text-[#D4AF37]">&#8377; {priceRange.toLocaleString()}</span>
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden mt-3"
+              >
+                <div className="bg-[#1A100C] border border-[#35221B] rounded-2xl p-5 space-y-3 shadow-xl">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-semibold text-[#DFC18A] uppercase tracking-wider text-[11px]">
+                      Max Price Range
+                    </span>
+                    <span className="font-bold text-[#FDF8F4]">
+                      ₹{priceRange.toLocaleString('en-IN')}
+                    </span>
                   </div>
-                  <input type="range" min="2000" max="100000" step="5000" value={priceRange}
-                    onChange={e => setPriceRange(Number(e.target.value))}
-                    className="w-full h-[3px] appearance-none rounded-lg cursor-pointer accent-[#D4AF37]" />
-                  <div className="flex justify-between text-[9px] text-[#D4AF37]/40">
-                    <span>&#8377; 2,000</span><span>&#8377; 1,00,000</span>
+                  <input
+                    type="range"
+                    min="1500"
+                    max="100000"
+                    step="2000"
+                    value={priceRange}
+                    onChange={(e) => setPriceRange(Number(e.target.value))}
+                    className="w-full h-1.5 appearance-none rounded-lg cursor-pointer accent-[#C86A27] bg-[#2A1B15]"
+                  />
+                  <div className="flex justify-between text-[10px] text-[#8E7B6F]">
+                    <span>₹1,500</span>
+                    <span>₹1,00,000</span>
                   </div>
                 </div>
               </motion.div>
@@ -178,37 +241,47 @@ export default function Products() {
         </div>
       </section>
 
-      {/* ── PRODUCT GRID ── */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 pt-10">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
-          {paginatedProducts.map((product, idx) => (
-            <motion.div key={product.id}
-              initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ duration: 0.6, delay: (idx % 3) * 0.08 }}
-              className="h-full">
+      {/* ── PRODUCTS GRID ── */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          {paginatedProducts.map((product) => (
+            <div key={product.id} className="h-full">
               <ProductCard product={product} />
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        {paginatedProducts.length === 0 && <EmptyState title="No Sarees Found" onAction={() => setSearchQuery("")} />}
+        {paginatedProducts.length === 0 && (
+          <EmptyState
+            title="No Sarees Found"
+            message="Try refining your filter criteria or search keyword."
+            onAction={() => {
+              setSearchQuery('');
+              setSelectedCategory('All');
+            }}
+          />
+        )}
 
+        {/* Pagination Bar */}
         {filteredProducts.length > ITEMS_PER_PAGE && (
-          <div className="mt-20 flex items-center justify-between border-t pt-6" style={{ borderColor: "rgba(212,175,55,0.2)" }}>
-            <div className="flex items-center gap-1.5 text-[10px] tracking-[0.35em] uppercase text-[#D4AF37]/60">
-              <SectionFlower size={14} /> Page {currentPage} of {Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)}
-            </div>
-            <div className="flex gap-3">
-              <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}
-                className="px-6 py-2.5 border text-[10px] uppercase tracking-widest transition-all disabled:opacity-20 rounded-lg text-[#D4AF37]"
-                style={{ borderColor: "rgba(212,175,55,0.35)", background: "rgba(12,35,23,0.8)" }}>
+          <div className="mt-16 flex items-center justify-between border-t border-[#2C1C16] pt-6">
+            <span className="text-xs text-[#8E7B6F]">
+              Page {currentPage} of {Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)}
+            </span>
+            <div className="flex gap-2">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+                className="px-4 py-2 border border-[#35221B] rounded-lg text-xs uppercase tracking-wider text-[#C7B5A7] disabled:opacity-30 hover:border-[#DFC18A] transition-colors"
+              >
                 Prev
               </button>
-              <button disabled={currentPage >= Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)}
-                onClick={() => setCurrentPage(p => p + 1)}
-                className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-20 rounded-lg flex items-center gap-1.5"
-                style={{ background: "linear-gradient(135deg,#D4AF37,#B8860B)", color: "#0C2317" }}>
-                <MiniFlower size={14} c1="#0C2317" c2="#1A3C2B" /> Next
+              <button
+                disabled={currentPage >= Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                className="px-4 py-2 bg-[#C86A27] text-white rounded-lg text-xs uppercase tracking-wider font-semibold disabled:opacity-30 hover:bg-[#DB7B32] transition-colors"
+              >
+                Next
               </button>
             </div>
           </div>

@@ -1,13 +1,13 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CheckCircle2, Download, Printer, ShoppingBag, ClipboardList, FileText } from 'lucide-react';
+import { CheckCircle2, Download, ShoppingBag, ClipboardList, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { GoldLine } from '../components/layout/OnamEffects';
+import BrandLogo from '../components/reusable/BrandLogo';
+import { FloralOrnament } from '../components/reusable/FloralOrnament';
 
 export default function OrderSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
-  const autoTriggeredRef = useRef(false);
 
   const orderState = location.state || {};
   const orderId = orderState.orderId;
@@ -23,11 +23,10 @@ export default function OrderSuccess() {
     }
   }, [orderId, navigate]);
 
-  // Function to generate and print/download the Tax Invoice PDF
   const handleDownloadInvoice = () => {
     const printWindow = window.open('', '_blank', 'width=800,height=900');
     if (!printWindow) {
-      alert('Please allow popups to download/print your Invoice.');
+      alert('Please allow popups to download or print your Invoice.');
       return;
     }
 
@@ -51,7 +50,7 @@ export default function OrderSuccess() {
         <head>
           <title>Invoice - ${orderId}</title>
           <style>
-            @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap');
             body {
               font-family: 'Inter', sans-serif;
               color: #1A202C;
@@ -71,119 +70,36 @@ export default function OrderSuccess() {
               display: flex;
               justify-content: space-between;
               align-items: flex-start;
-              border-bottom: 2px solid #D4AF37;
+              border-bottom: 2px solid #C86A27;
               padding-bottom: 20px;
               margin-bottom: 24px;
             }
             .brand-title {
-              font-family: 'Cinzel', serif;
+              font-family: 'Playfair Display', serif;
               font-size: 26px;
               font-weight: 700;
-              color: #0C2317;
+              color: #120B09;
               margin: 0;
-              letter-spacing: 1px;
             }
-            .brand-sub {
-              font-size: 11px;
-              color: #B8860B;
-              text-transform: uppercase;
-              letter-spacing: 2px;
-              margin-top: 4px;
-              font-weight: 700;
-            }
-            .inv-badge {
-              text-align: right;
-            }
-            .inv-title {
-              font-size: 22px;
-              font-weight: 700;
-              color: #0C2317;
-              text-transform: uppercase;
-              letter-spacing: 1px;
-            }
-            .meta-table {
-              width: 100%;
-              margin-bottom: 24px;
-            }
-            .meta-col {
-              width: 50%;
-              vertical-align: top;
-            }
-            .meta-box {
-              background-color: #F8FAFC;
-              border: 1px solid #E2E8F0;
-              padding: 16px;
-              border-radius: 6px;
-            }
-            .meta-label {
+            .brand-subtitle {
               font-size: 10px;
+              letter-spacing: 2px;
               text-transform: uppercase;
-              color: #718096;
-              font-weight: 700;
-              letter-spacing: 1px;
-              margin-bottom: 6px;
+              color: #C86A27;
+              margin-top: 4px;
             }
-            .items-table {
+            table {
               width: 100%;
               border-collapse: collapse;
               margin-top: 20px;
-              margin-bottom: 24px;
             }
-            .items-table th {
-              background-color: #0C2317;
-              color: #F3E5AB;
-              padding: 12px;
-              font-size: 11px;
+            th {
+              background: #1E130F;
+              color: #DFC18A;
+              padding: 10px;
               text-transform: uppercase;
-              letter-spacing: 1px;
-            }
-            .totals-container {
-              display: flex;
-              justify-content: flex-end;
-              margin-top: 20px;
-            }
-            .totals-box {
-              width: 280px;
-              background-color: #F8FAFC;
-              border: 1px solid #E2E8F0;
-              border-radius: 6px;
-              padding: 16px;
-            }
-            .totals-row {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 8px;
-              font-size: 12px;
-            }
-            .totals-row.grand {
-              border-top: 2px solid #D4AF37;
-              padding-top: 10px;
-              font-size: 16px;
-              font-weight: 700;
-              color: #0C2317;
-            }
-            .footer {
-              margin-top: 40px;
-              border-top: 1px solid #E2E8F0;
-              padding-top: 20px;
-              text-align: center;
               font-size: 11px;
-              color: #718096;
-            }
-            .stamp {
-              display: inline-block;
-              border: 2px dashed #D4AF37;
-              color: #0C2317;
-              padding: 6px 16px;
-              font-weight: 700;
-              font-size: 11px;
-              text-transform: uppercase;
               letter-spacing: 1px;
-              margin-top: 12px;
-            }
-            @media print {
-              body { padding: 0; }
-              .invoice-container { border: none; box-shadow: none; }
             }
           </style>
         </head>
@@ -191,199 +107,125 @@ export default function OrderSuccess() {
           <div class="invoice-container">
             <div class="header">
               <div>
-                <h1 class="brand-title">ISAI TARANG</h1>
-                <div class="brand-sub">Handcrafted Heritage Sarees</div>
-                <div style="font-size: 11px; color: #4A5568; margin-top: 8px;">
-                  GSTIN: 33AAAAA0000A1Z5 | Reg: Kanchipuram, TN<br/>
-                  Phone: +91 90488 68444 | Email: support@isaitarang.com
-                </div>
+                <h1 class="brand-title">ISAITARANG</h1>
+                <div class="brand-subtitle">DRAPED STORIES</div>
+                <p style="font-size: 11px; color: #718096; margin-top: 8px;">
+                  Pallikkunnu, Kannur, Kerala 670004<br>
+                  Email: isaitarang9@gmail.com | Phone: +91 9048868444
+                </p>
               </div>
-              <div class="inv-badge">
-                <div class="inv-title">TAX INVOICE</div>
-                <div style="font-size: 12px; font-weight: 600; color: #4A5568; margin-top: 4px;"># ${orderId}</div>
-                <div style="font-size: 11px; color: #718096; margin-top: 2px;">Date: ${orderDate}</div>
+              <div style="text-align: right;">
+                <h2 style="font-size: 18px; color: #C86A27; margin: 0;">TAX INVOICE</h2>
+                <p style="font-size: 12px; color: #718096; margin: 4px 0 0 0;"><strong>Order ID:</strong> ${orderId}</p>
+                <p style="font-size: 12px; color: #718096; margin: 2px 0 0 0;"><strong>Date:</strong> ${orderDate}</p>
               </div>
             </div>
-
-            <table class="meta-table">
-              <tr>
-                <td class="meta-col" style="padding-right: 10px;">
-                  <div class="meta-box">
-                    <div class="meta-label">Billed & Shipped To</div>
-                    <div style="font-weight: 700; font-size: 14px; color: #1A202C;">${shippingAddress.name || 'Valued Customer'}</div>
-                    <div style="font-size: 12px; color: #4A5568; margin-top: 4px;">
-                      ${shippingAddress.addressLine1 || ''} ${shippingAddress.addressLine2 || ''}<br/>
-                      ${shippingAddress.city || ''}, ${shippingAddress.state || ''} - ${shippingAddress.pincode || ''}<br/>
-                      Phone: ${shippingAddress.phone || 'N/A'}<br/>
-                      Email: ${shippingAddress.email || 'N/A'}
-                    </div>
-                  </div>
-                </td>
-                <td class="meta-col" style="padding-left: 10px;">
-                  <div class="meta-box">
-                    <div class="meta-label">Payment Information</div>
-                    <div style="font-size: 13px; font-weight: 700; color: #0C2317;">${paymentMethod}</div>
-                    <div style="font-size: 12px; color: #4A5568; margin-top: 4px;">
-                      Fulfillment Status: <strong style="color: #2F855A;">CONFIRMED / PENDING SHIPMENT</strong><br/>
-                      Invoice Currency: <strong>INR (₹)</strong><br/>
-                      Place of Supply: <strong>India</strong>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </table>
-
-            <table class="items-table">
+            <table>
               <thead>
                 <tr>
-                  <th style="width: 8%;">S.No</th>
-                  <th style="text-align: left; width: 47%;">Product Description</th>
-                  <th style="width: 15%;">Qty</th>
-                  <th style="text-align: right; width: 15%;">Rate (₹)</th>
-                  <th style="text-align: right; width: 15%;">Total (₹)</th>
+                  <th>#</th>
+                  <th style="text-align: left;">Saree Item</th>
+                  <th>Qty</th>
+                  <th style="text-align: right;">Unit Price</th>
+                  <th style="text-align: right;">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 ${itemsRowsHTML}
               </tbody>
             </table>
-
-            <div class="totals-container">
-              <div class="totals-box">
-                <div class="totals-row">
-                  <span>Subtotal:</span>
-                  <span>₹${Number(totalAmount).toLocaleString('en-IN')}</span>
-                </div>
-                <div class="totals-row">
-                  <span>Shipping & Delivery:</span>
-                  <span style="color: #2F855A; font-weight: 600;">FREE</span>
-                </div>
-                <div class="totals-row grand">
-                  <span>Grand Total:</span>
-                  <span>₹${Number(totalAmount).toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="footer">
-              <p>Thank you for shopping with <strong>Isai Tarang Heritage Sarees</strong>. This is a computer-generated tax invoice.</p>
-              <div class="stamp">OFFICIAL VERIFIED BILL</div>
+            <div style="margin-top: 24px; text-align: right;">
+              <p style="font-size: 16px; font-weight: 700; color: #120B09;">Grand Total: ₹${totalAmount.toLocaleString('en-IN')}</p>
             </div>
           </div>
+          <script>
+            window.onload = function() { window.print(); }
+          </script>
         </body>
       </html>
     `;
 
     printWindow.document.write(invoiceHTML);
     printWindow.document.close();
-    printWindow.focus();
-
-    // Trigger Print / PDF Save
-    setTimeout(() => {
-      printWindow.print();
-    }, 500);
   };
 
-  // Automatically trigger invoice generation on page load once
-  useEffect(() => {
-    if (orderId && !autoTriggeredRef.current) {
-      autoTriggeredRef.current = true;
-      const timer = setTimeout(() => {
-        handleDownloadInvoice();
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [orderId]);
-
-  if (!orderId) return null;
-
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-16 relative"
-      style={{ background: 'linear-gradient(180deg,#0C2317 0%,#1A3C2B 50%,#0C2317 100%)' }}
-    >
-      <div className="absolute top-0 left-0 right-0">
-        <GoldLine />
-      </div>
-
+    <div className="min-h-screen bg-[#120B09] flex flex-col items-center justify-center px-4 py-16 text-[#FDF8F4]">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-        className="w-full max-w-md space-y-6 relative z-10 text-center"
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md space-y-6 text-center"
       >
-        {/* Check icon */}
+        {/* Brand Logo */}
         <div className="flex justify-center">
-          <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="w-20 h-20 rounded-full flex items-center justify-center shadow-2xl relative"
-            style={{ background: 'linear-gradient(135deg,#1A3C2B,#0C2317)', border: '2px solid #D4AF37' }}
-          >
-            <CheckCircle2 className="w-10 h-10 relative z-10" style={{ color: '#D4AF37' }} />
-          </motion.div>
+          <BrandLogo size="lg" />
+        </div>
+
+        {/* Checkmark icon */}
+        <div className="flex justify-center">
+          <div className="w-20 h-20 rounded-full bg-[#1E130F] border-2 border-[#DFC18A] flex items-center justify-center shadow-2xl">
+            <CheckCircle2 className="w-10 h-10 text-[#C86A27]" />
+          </div>
         </div>
 
         <div className="space-y-1">
-          <span className="text-[#B8860B] text-[10px] sm:text-xs font-bold tracking-[0.35em] uppercase block">
-            TRANSACTION SUCCESSFUL
-          </span>
-          <h1 className="font-serif text-2xl sm:text-4xl font-bold tracking-wide uppercase text-[#F3E5AB]">
-            ORDER CONFIRMED
+          <p className="text-[#DFC18A] text-xs font-semibold tracking-[0.28em] uppercase">
+            Order Confirmed
+          </p>
+          <h1
+            className="font-serif text-3xl sm:text-4xl text-[#FDF8F4]"
+            style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
+          >
+            Thank You for Your Order
           </h1>
+          <FloralOrnament className="mt-1" />
         </div>
 
-        <p className="text-sm text-[#EADFC9]/85 max-w-sm mx-auto">
-          Your order has been placed. Your official invoice bill has been generated automatically below.
+        <p className="text-xs sm:text-sm text-[#C7B5A7] font-light max-w-sm mx-auto">
+          Your order has been recorded in our weaving queue. Your official tax invoice has been generated below.
         </p>
 
-        {/* Automatic Invoice Bill Card */}
-        <div
-          className="rounded-2xl p-6 space-y-4 shadow-2xl text-left"
-          style={{
-            background: 'linear-gradient(135deg,rgba(26,60,43,0.95),rgba(12,35,23,0.98))',
-            border: '1.5px solid rgba(212,175,55,0.4)',
-          }}
-        >
-          <div className="pb-3 border-b flex items-center justify-between" style={{ borderColor: 'rgba(212,175,55,0.2)' }}>
-            <h3 className="font-serif text-sm font-bold uppercase tracking-wider text-[#F3E5AB] flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#D4AF37]" /> Official Invoice Summary
+        {/* Invoice Summary Card */}
+        <div className="bg-[#1E130F] border border-[#35221B] rounded-2xl p-6 space-y-4 text-left shadow-2xl">
+          <div className="pb-3 border-b border-[#2C1C16] flex items-center justify-between">
+            <h3 className="font-serif text-sm font-semibold text-[#FDF8F4] flex items-center gap-2">
+              <FileText className="w-4 h-4 text-[#DFC18A]" /> Invoice Summary
             </h3>
-            <span className="text-[10px] text-[#D4AF37] font-bold uppercase bg-[#D4AF37]/15 px-2 py-0.5 rounded-full border border-[#D4AF37]/30">
+            <span className="text-[10px] text-[#DFC18A] uppercase font-bold bg-[#160E0B] px-2.5 py-0.5 rounded-full border border-[#35221B]">
               Tax Invoice
             </span>
           </div>
 
-          <div className="space-y-2.5 text-xs">
+          <div className="space-y-2 text-xs text-[#C7B5A7]">
             <div className="flex justify-between">
-              <span className="text-[#EADFC9]/70">Invoice / Order Code</span>
-              <span className="font-mono text-[#D4AF37] font-bold">{orderId}</span>
+              <span>Order Reference</span>
+              <span className="font-mono text-[#DFC18A] font-semibold">{orderId}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#EADFC9]/70">Customer Name</span>
-              <span className="text-[#F3E5AB] font-bold">{shippingAddress.name || 'Valued Customer'}</span>
+              <span>Customer</span>
+              <span className="text-[#FDF8F4]">{shippingAddress.name || 'Valued Patron'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#EADFC9]/70">Date &amp; Time</span>
-              <span className="text-[#EADFC9] font-medium">{orderDate}</span>
+              <span>Date</span>
+              <span>{orderDate}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#EADFC9]/70">Payment Mode</span>
-              <span className="text-[#EADFC9] font-bold">{paymentMethod}</span>
+              <span>Payment Mode</span>
+              <span className="text-[#FDF8F4]">{paymentMethod}</span>
             </div>
-            <div className="flex justify-between border-t pt-2" style={{ borderColor: 'rgba(212,175,55,0.2)' }}>
-              <span className="text-[#F3E5AB] font-bold text-sm">Grand Total</span>
-              <span className="text-[#D4AF37] font-bold text-base">₹{totalAmount.toLocaleString('en-IN')}</span>
+            <div className="flex justify-between border-t border-[#2C1C16] pt-2 font-bold text-sm text-[#FDF8F4]">
+              <span>Total Paid</span>
+              <span className="text-[#DFC18A] text-base">₹{totalAmount.toLocaleString('en-IN')}</span>
             </div>
           </div>
 
-          {/* Download / Print Invoice Button */}
+          {/* Download button */}
           <button
             onClick={handleDownloadInvoice}
-            className="w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer"
-            style={{ background: 'linear-gradient(135deg,#D4AF37,#B8860B)', color: '#0C2317' }}
+            className="w-full py-3 rounded-full bg-[#C86A27] hover:bg-[#DB7B32] text-white font-semibold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-lg"
           >
-            <Download size={15} /> Download / Print Official Invoice Bill
+            <Download size={14} /> Download Tax Invoice Bill
           </button>
         </div>
 
@@ -391,24 +233,18 @@ export default function OrderSuccess() {
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <button
             onClick={() => navigate('/orders')}
-            className="flex-1 py-3 border rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-[#F3E5AB] flex items-center justify-center gap-2 cursor-pointer"
-            style={{ borderColor: 'rgba(212,175,55,0.4)', background: 'rgba(12,35,23,0.8)' }}
+            className="flex-1 py-3 rounded-full border border-[#35221B] bg-[#1E130F] text-xs font-semibold uppercase tracking-wider text-[#C7B5A7] hover:text-[#FDF8F4] hover:border-[#DFC18A] transition-all flex items-center justify-center gap-2"
           >
-            <ClipboardList size={14} /> My Orders
+            <ClipboardList size={14} /> View My Orders
           </button>
           <button
             onClick={() => navigate('/products')}
-            className="flex-1 py-3 border rounded-xl text-xs font-bold uppercase tracking-widest transition-all text-[#F3E5AB] hover:bg-[#D4AF37]/20 flex items-center justify-center gap-2 cursor-pointer"
-            style={{ borderColor: 'rgba(212,175,55,0.4)', background: 'rgba(26,60,43,0.6)' }}
+            className="flex-1 py-3 rounded-full bg-[#160E0B] border border-[#DFC18A]/40 text-xs font-semibold uppercase tracking-wider text-[#DFC18A] hover:bg-[#DFC18A]/10 transition-all flex items-center justify-center gap-2"
           >
             <ShoppingBag size={14} /> Continue Shopping
           </button>
         </div>
       </motion.div>
-
-      <div className="absolute bottom-0 left-0 right-0">
-        <GoldLine />
-      </div>
     </div>
   );
 }
