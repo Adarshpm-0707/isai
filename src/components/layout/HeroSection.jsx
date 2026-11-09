@@ -22,7 +22,6 @@ export default function HeroSection() {
           {/* Multi-stop Luxury Espresso Gradient Overlay for crisp text legibility */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#0E0705] via-[#0E0705]/90 via-35% via-[#0E0705]/45 via-65% to-transparent pointer-events-none" />
           <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0E0705] via-[#0E0705]/70 to-transparent pointer-events-none" />
-          <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#0E0705]/70 to-transparent pointer-events-none" />
         </div>
 
         {/* Container for Left Text & Actions */}
@@ -35,7 +34,6 @@ export default function HeroSection() {
               transition={{ duration: 0.6, delay: 0.05 }}
               className="flex items-center gap-3"
             >
-              <span className="w-8 h-[1.5px] bg-[#DFC18A]" />
               <span className="text-xs font-semibold tracking-[0.28em] uppercase text-[#DFC18A]">
                 Woven Heritage Collection
               </span>
@@ -55,14 +53,6 @@ export default function HeroSection() {
                 Worn with Grace.
               </span>
             </motion.h1>
-
-            {/* Decorative Divider */}
-            <motion.div
-              initial={{ opacity: 0, scaleX: 0 }}
-              animate={{ opacity: 1, scaleX: 1 }}
-              transition={{ duration: 0.6, delay: 0.18 }}
-              className="w-14 h-[1.5px] bg-gradient-to-r from-[#DFC18A] to-[#C8A27A] origin-left"
-            />
 
             {/* Subtitle */}
             <motion.p
@@ -106,7 +96,7 @@ export default function HeroSection() {
       <div
         className="lg:hidden relative w-full overflow-hidden flex flex-col justify-end"
         style={{
-          height: 'calc(100svh - 70px)',
+          height: 'calc(100svh - 62px)',
           minHeight: '520px',
           maxHeight: '880px',
         }}
@@ -119,7 +109,6 @@ export default function HeroSection() {
             className="w-full h-full object-cover object-center sm:object-top"
           />
           {/* Layered gradients for depth & text legibility matching reference */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0E0705]/60 via-transparent via-25% to-transparent pointer-events-none" />
           <div
             className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0E0705] via-[#0E0705]/85 via-50% to-transparent pointer-events-none"
             style={{ height: '62%' }}
@@ -137,7 +126,6 @@ export default function HeroSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="flex items-center gap-2 mb-2 sm:mb-2.5"
           >
-            <span className="w-5 h-px bg-[#DFC18A]" />
             <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.28em] uppercase text-[#DFC18A]">
               Woven Heritage Collection
             </span>
@@ -157,14 +145,6 @@ export default function HeroSection() {
             <span className="block text-[#FDF8F4] font-normal">Woven in Heritage.</span>
             <span className="block italic font-light text-[#D4855A] mt-0.5">Worn with Grace.</span>
           </motion.h1>
-
-          {/* Animated gold rule */}
-          <motion.div
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 0.55, delay: 0.28 }}
-            className="w-12 h-[1.5px] bg-gradient-to-r from-[#DFC18A] to-[#C8A27A] origin-left mb-2.5 sm:mb-3"
-          />
 
           {/* Subtitle — airy, light */}
           <motion.p

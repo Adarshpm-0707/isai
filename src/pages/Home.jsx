@@ -66,7 +66,7 @@ const TRUST_BADGES = [
   {
     icon: <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-[#DFC18A] stroke-[1.8]" />,
     title: 'Pan India Delivery',
-    subtitle: '4–5 Days Express Shipping',
+    subtitle: '4-5 Days Express Shipping',
   },
   {
     icon: <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-[#DFC18A] stroke-[1.8]" />,
@@ -391,7 +391,6 @@ export default function Home() {
 
           {/* Top-left eyebrow tag */}
           <div className="absolute top-7 left-8 flex items-center gap-3 z-10">
-            <span className="w-6 h-px bg-[#DFC18A]" />
             <span className="text-[9px] font-bold tracking-[0.32em] uppercase text-[#DFC18A]">
               THE ISAI TARANG EDIT
             </span>
@@ -418,16 +417,10 @@ export default function Home() {
                 <span className="italic font-light text-[#D4855A]">in a Modern Light</span>
               </h2>
 
-              {/* Gold rule */}
-              <div
-                className="w-14 h-[1.5px]"
-                style={{ background: 'linear-gradient(to right, #DFC18A, #C8A27A60)' }}
-              />
-
               {/* Subtitle */}
               <p className="text-[#C7B5A7] font-light leading-[1.75] max-w-[340px]"
                 style={{ fontSize: 'clamp(0.82rem, 1.1vw, 1rem)' }}>
-                Sarees for today's woman — rooted in heritage, thoughtfully designed for her world.
+                Sarees for today's woman, rooted in heritage, thoughtfully designed for her world.
               </p>
 
               {/* CTA */}
@@ -487,7 +480,6 @@ export default function Home() {
 
           {/* Top eyebrow tag */}
           <div className="absolute top-5 left-5 flex items-center gap-2 z-10">
-            <span className="w-4 h-px bg-[#DFC18A]" />
             <span className="text-[8px] font-bold tracking-[0.30em] uppercase text-[#DFC18A]">
               THE ISAI TARANG EDIT
             </span>
@@ -513,15 +505,9 @@ export default function Home() {
               <span className="block italic font-light text-[#D4855A]">in a Modern Light</span>
             </h3>
 
-            {/* Gold rule */}
-            <div
-              className="w-10 h-[1.5px] mb-3"
-              style={{ background: 'linear-gradient(to right, #DFC18A, #C8A27A60)' }}
-            />
-
             {/* Body */}
             <p className="text-[12px] text-[#C7B5A7] leading-relaxed font-light mb-5 max-w-[260px]">
-              Sarees for today's woman — rooted in heritage, designed for her world.
+              Sarees for today's woman, rooted in heritage, designed for her world.
             </p>
 
             {/* CTA */}

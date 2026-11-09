@@ -52,7 +52,7 @@ export default function BrandLogo({
   const imageElement = (
     <img
       src={officialLogo}
-      alt="Isai Tarang — Elegance in Every Thread"
+      alt="Isai Tarang, Elegance in Every Thread"
       className={`${selectedSize} w-auto object-contain transition-all duration-300 group-hover:scale-105 filter drop-shadow-[0_3px_15px_rgba(223,193,138,0.35)]`}
     />
   );

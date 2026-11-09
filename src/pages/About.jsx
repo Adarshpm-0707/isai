@@ -104,13 +104,9 @@ export default function About() {
           {/* Brand Emblem & Overline */}
           <div className="inline-flex flex-col items-center space-y-2.5">
             <LotusEmblem className="w-10 h-10 sm:w-14 sm:h-14 object-contain filter drop-shadow-[0_0_20px_rgba(223,193,138,0.45)]" />
-            <div className="flex items-center gap-3">
-              <span className="w-8 sm:w-12 h-px bg-gradient-to-r from-transparent to-[#DFC18A]" />
-              <span className="text-[#DFC18A] text-[11px] sm:text-xs font-semibold tracking-[0.32em] uppercase font-sans">
-                Curated Indian Heritage & Ethnic Wear
-              </span>
-              <span className="w-8 sm:w-12 h-px bg-gradient-to-l from-transparent to-[#DFC18A]" />
-            </div>
+            <span className="text-[#DFC18A] text-[11px] sm:text-xs font-semibold tracking-[0.32em] uppercase font-sans">
+              Curated Indian Heritage & Ethnic Wear
+            </span>
           </div>
 
           {/* Main Title as Specified */}
@@ -122,7 +118,6 @@ export default function About() {
             <br />
             <span className="italic font-light text-[#E5C58A] relative inline-block mt-1">
               Isai Tarang
-              <span className="absolute left-0 right-0 -bottom-2 h-[2px] bg-gradient-to-r from-transparent via-[#DFC18A] to-transparent opacity-80" />
             </span>
           </h1>
 
@@ -347,7 +342,6 @@ export default function About() {
                 <span className="font-serif text-3xl sm:text-4xl text-[#DFC18A] font-light">
                   {s.number}
                 </span>
-                <span className="w-8 h-px bg-[#DFC18A]/30" />
               </div>
               <h4 className="font-serif text-base sm:text-lg font-semibold text-[#FDF8F4]">
                 {s.title}

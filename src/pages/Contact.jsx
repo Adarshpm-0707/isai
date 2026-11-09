@@ -69,7 +69,7 @@ export default function Contact() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-xs sm:text-sm md:text-base text-[#C7B5A7] font-light max-w-2xl mx-auto leading-relaxed"
           >
-            Whether you are inquiring about authentic Kerala weaves, temple Kanchipurams, bespoke bridal curation, or tracking your order — our team is here to assist you with warmth and devotion.
+            Whether you are inquiring about authentic Kerala weaves, temple Kanchipurams, bespoke bridal curation, or tracking your order, our team is here to assist you with warmth and devotion.
           </motion.p>
         </div>
       </section>
@@ -115,11 +115,9 @@ export default function Contact() {
                   Contact Information
                 </h2>
                 
-                {/* Gold rule with central lotus flourish */}
-                <div className="flex items-center justify-center gap-3 mt-3">
-                  <span className="w-12 h-px bg-gradient-to-r from-transparent to-[#DFC18A]/60" />
+                {/* Central lotus flourish */}
+                <div className="flex items-center justify-center mt-3">
                   <LotusEmblem className="w-5 h-5 text-[#DFC18A]" />
-                  <span className="w-12 h-px bg-gradient-to-l from-transparent to-[#DFC18A]/60" />
                 </div>
               </div>
 
@@ -174,7 +172,7 @@ export default function Contact() {
                     <p className="text-xs sm:text-sm text-[#E2D5C8] font-light leading-relaxed mt-0.5">
                       Divyadeepam, P.O. Pallikkunnu,
                       <br />
-                      Kannur – 670004
+                      Kannur 670004
                     </p>
                   </div>
                 </div>
@@ -371,7 +369,7 @@ export default function Contact() {
             Visit Our Design Studio
           </h3>
           <p className="text-xs sm:text-sm text-[#C7B5A7] font-light max-w-md mx-auto leading-relaxed mb-6">
-            Divyadeepam, P.O. Pallikkunnu, Kannur – 670004, Kerala.
+            Divyadeepam, P.O. Pallikkunnu, Kannur 670004, Kerala.
             <br />
             Open Monday through Saturday from 10:00 AM to 5:00 PM.
           </p>

@@ -44,7 +44,7 @@ export const FAQ_DATA = [
     answer: (
       <>
         Orders are generally delivered within{' '}
-        <strong className="text-[#DFC18A] font-medium">4–5 working days after dispatch</strong>, depending on your location and courier service. Express shipping may be available on request, subject to availability and additional charges. Please contact us before placing your order to check.
+        <strong className="text-[#DFC18A] font-medium">4 to 5 working days after dispatch</strong>, depending on your location and courier service. Express shipping may be available on request, subject to availability and additional charges. Please contact us before placing your order to check.
       </>
     ),
   },

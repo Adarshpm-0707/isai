@@ -46,17 +46,17 @@ export default function Navbar() {
     <>
       {/* ── MAIN HEADER NAVBAR (CENTRALIZED LOGO) ── */}
       <header
-        className={`sticky top-0 z-40 transition-all duration-300 font-sans bg-cover bg-center ${
+        className={`sticky top-0 z-40 transition-all duration-300 font-sans bg-cover bg-center bg-no-repeat ${
           scrolled
-            ? 'border-b border-[#301F18] shadow-[0_6px_28px_rgba(0,0,0,0.85)] py-1.5'
-            : 'border-b border-[#261610] py-2 sm:py-3'
+            ? 'border-b border-[#F6D18A]/40 shadow-[0_6px_28px_rgba(0,0,0,0.85)] py-0.5 sm:py-1'
+            : 'border-b border-[#F6D18A]/30 py-1 sm:py-1.5'
         }`}
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(14, 7, 5, 0.72), rgba(14, 7, 5, 0.90)), url(${navbarBg})`,
+          backgroundImage: `url(${navbarBg})`,
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="flex items-center justify-between h-[70px] sm:h-20 lg:h-24">
+        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 relative">
+          <div className="flex items-center justify-between h-[60px] sm:h-[68px] lg:h-20">
 
             {/* ── LEFT: Mobile Hamburger OR Desktop Navigation Links ── */}
             <div className="flex items-center z-10">
@@ -65,7 +65,7 @@ export default function Navbar() {
                 onClick={() => setMobileOpen((o) => !o)}
                 type="button"
                 aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-                className="lg:hidden w-10 h-10 rounded-xl bg-[#1C120E] border border-[#301F18] flex items-center justify-center text-white hover:text-[#DFC18A] transition-all cursor-pointer shadow-sm"
+                className="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1C120E]/80 border border-[#301F18] flex items-center justify-center text-white hover:text-[#DFC18A] transition-all cursor-pointer shadow-sm"
               >
                 <div className="w-4 flex flex-col items-center gap-1">
                   <span className={`block h-[1.8px] bg-current transition-all duration-300 ${mobileOpen ? 'w-4 rotate-45 translate-y-[5.5px]' : 'w-4'}`} />
@@ -108,7 +108,7 @@ export default function Navbar() {
             <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 pointer-events-auto flex items-center justify-center z-20">
               <BrandLogo
                 to="/"
-                imgClassName="h-[52px] sm:h-16 lg:h-20 xl:h-[88px]"
+                imgClassName="h-[56px] xs:h-[58px] sm:h-[66px] lg:h-20 xl:h-[88px]"
               />
             </div>
 

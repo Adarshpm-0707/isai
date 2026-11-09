@@ -90,12 +90,9 @@ export default function Footer() {
 
           {/* COLUMN 2: COLLECTIONS (lg:col-span-2) */}
           <div className="lg:col-span-2 space-y-3.5">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-px bg-[#DFC18A]" />
-              <h5 className="font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#DFC18A]">
-                Collections
-              </h5>
-            </div>
+            <h5 className="font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#DFC18A]">
+              Collections
+            </h5>
             <ul className="space-y-2.5 text-xs text-[#C7B5A7]">
               <li>
                 <Link to="/products?category=Kanchipuram" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
@@ -132,12 +129,9 @@ export default function Footer() {
 
           {/* COLUMN 3: INFORMATION & CUSTOMER CARE (lg:col-span-3) */}
           <div className="lg:col-span-3 space-y-3.5">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-px bg-[#DFC18A]" />
-              <h5 className="font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#DFC18A]">
-                Customer Care
-              </h5>
-            </div>
+            <h5 className="font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#DFC18A]">
+              Customer Care
+            </h5>
             <ul className="space-y-2.5 text-xs text-[#C7B5A7]">
               <li>
                 <Link to="/about" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
@@ -174,12 +168,9 @@ export default function Footer() {
 
           {/* COLUMN 4: DESIGN STUDIO & CONTACT (lg:col-span-3) */}
           <div className="lg:col-span-3 space-y-3.5">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-px bg-[#DFC18A]" />
-              <h5 className="font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#DFC18A]">
-                Design Studio
-              </h5>
-            </div>
+            <h5 className="font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#DFC18A]">
+              Design Studio
+            </h5>
 
             <div className="p-4 rounded-2xl bg-[#160E0B] border border-[#2C1B14] space-y-3 text-xs">
               {/* Address */}
@@ -190,7 +181,7 @@ export default function Footer() {
                     Divyadeepam, P.O. Pallikkunnu,
                   </p>
                   <p className="text-[#A89689] font-light">
-                    Kannur – 670004, Kerala, India
+                    Kannur 670004, Kerala, India
                   </p>
                 </div>
               </div>
