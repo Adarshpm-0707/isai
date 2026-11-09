@@ -4,7 +4,7 @@ import useAuth from '../hooks/useAuth';
 import { validateEmail, validateRequired } from '../utils/validators';
 import { AlertCircle, Lock, Mail, User, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { LotusEmblem } from '../components/reusable/BrandLogo';
+import BrandLogo, { LotusEmblem } from '../components/reusable/BrandLogo';
 import { FloralOrnament } from '../components/reusable/FloralOrnament';
 
 const inputClass =

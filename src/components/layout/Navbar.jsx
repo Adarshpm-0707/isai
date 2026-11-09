@@ -7,6 +7,7 @@ import useCart from '../../hooks/useCart';
 import useWishlist from '../../hooks/useWishlist';
 import BrandLogo from '../reusable/BrandLogo';
 import MobileMenu from './MobileMenu';
+import navbarBg from '../../assets/navbarbg.png';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -45,11 +46,14 @@ export default function Navbar() {
     <>
       {/* ── MAIN HEADER NAVBAR (CENTRALIZED LOGO) ── */}
       <header
-        className={`sticky top-0 z-40 transition-all duration-300 font-sans ${
+        className={`sticky top-0 z-40 transition-all duration-300 font-sans bg-cover bg-center ${
           scrolled
-            ? 'bg-[#120B09]/98 backdrop-blur-xl border-b border-[#2C1B14] shadow-[0_6px_28px_rgba(0,0,0,0.7)] py-1.5'
-            : 'bg-[#140C0A]/95 backdrop-blur-md border-b border-[#261610] py-2 sm:py-3'
+            ? 'border-b border-[#301F18] shadow-[0_6px_28px_rgba(0,0,0,0.85)] py-1.5'
+            : 'border-b border-[#261610] py-2 sm:py-3'
         }`}
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(14, 7, 5, 0.72), rgba(14, 7, 5, 0.90)), url(${navbarBg})`,
+        }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex items-center justify-between h-[70px] sm:h-20 lg:h-24">
