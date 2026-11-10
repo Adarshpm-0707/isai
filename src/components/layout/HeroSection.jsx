@@ -17,11 +17,11 @@ export default function HeroSection() {
           <img
             src={heroLaptopBg}
             alt="Isai Tarang Heritage Sarees - Pure Silk Handloom Collection"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover object-right xl:object-center transition-transform duration-1000 scale-100 hover:scale-[1.015]"
           />
-          {/* Multi-stop Luxury Espresso Gradient Overlay for crisp text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0E0705] via-[#0E0705]/90 via-35% via-[#0E0705]/45 via-65% to-transparent pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0E0705] via-[#0E0705]/70 to-transparent pointer-events-none" />
         </div>
 
         {/* Container for Left Text & Actions */}
@@ -106,6 +106,9 @@ export default function HeroSection() {
           <img
             src={heroModelImg}
             alt="Indian woman draped in pure silk saree - Isai Tarang"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
             className="w-full h-full object-cover object-center sm:object-top"
           />
           {/* Layered gradients for depth & text legibility matching reference */}

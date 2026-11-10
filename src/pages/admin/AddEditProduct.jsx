@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { categoryService } from '../../services/categoryService';
 import { productService } from '../../services/productService';
 import { adminLogService } from '../../services/adminLogService';
 import SectionHeading from '../../components/reusable/SectionHeading';
-import { ArrowLeft, Save, Upload, Info } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Info, Plus } from 'lucide-react';
 
 export default function AddEditProduct() {
   const { id } = useParams();
@@ -20,10 +21,36 @@ export default function AddEditProduct() {
   const [discountPrice, setDiscountPrice] = useState('');
   const [cost, setCost] = useState('');
   const [stock, setStock] = useState('');
-  const [category, setCategory] = useState('Banarasi');
+
+  // Category state
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [category, setCategory] = useState('');
+  const [categoryId, setCategoryId] = useState(null);
+  const [isCreatingNewCategory, setIsCreatingNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   const [images, setImages] = useState(['', '', '']);
   const [uploadingIndex, setUploadingIndex] = useState(null);
+
+  // Load existing categories from DB/persistent store
+  const loadCategories = async () => {
+    try {
+      const data = await categoryService.getCategories();
+      if (Array.isArray(data)) {
+        setCategoriesList(data);
+        if (!isEdit && data.length > 0 && !category) {
+          setCategory(data[0].name);
+          setCategoryId(data[0].id);
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load categories:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     if (isEdit) {
@@ -39,7 +66,8 @@ export default function AddEditProduct() {
             setDiscountPrice(data.discount_price || '');
             setCost(data.cost || '');
             setStock(data.stock || 0);
-            setCategory(data.category || 'Banarasi');
+            setCategory(data.category || '');
+            setCategoryId(data.category_id || null);
             const dbImages = data.images || [];
             setImages([dbImages[0] || '', dbImages[1] || '', dbImages[2] || '']);
           }
@@ -54,6 +82,20 @@ export default function AddEditProduct() {
       loadProduct();
     }
   }, [id, isEdit]);
+
+  const handleCategorySelectChange = (e) => {
+    const val = e.target.value;
+    if (val === '__NEW_CATEGORY__') {
+      setIsCreatingNewCategory(true);
+      setCategory('');
+      setCategoryId(null);
+    } else {
+      setIsCreatingNewCategory(false);
+      setCategory(val);
+      const matched = categoriesList.find((c) => c.name.toLowerCase() === val.toLowerCase());
+      setCategoryId(matched ? matched.id : null);
+    }
+  };
 
   const handleImageChange = (index, value) => {
     const updated = [...images];
@@ -81,6 +123,47 @@ export default function AddEditProduct() {
     setLoading(true);
     setError(null);
 
+    // Determine target category name and id
+    let targetCategory = category.trim();
+    let targetCategoryId = categoryId;
+
+    if (isCreatingNewCategory) {
+      targetCategory = newCategoryName.trim();
+      if (!targetCategory) {
+        setError('Please enter a name for the new category');
+        setLoading(false);
+        return;
+      }
+
+      // Check if already in list
+      const existing = categoriesList.find(
+        (c) => c.name.toLowerCase() === targetCategory.toLowerCase()
+      );
+
+      if (existing) {
+        targetCategoryId = existing.id;
+        targetCategory = existing.name;
+      } else {
+        try {
+          const newCat = await categoryService.createCategory({
+            name: targetCategory,
+          });
+          if (newCat) {
+            targetCategoryId = newCat.id;
+            targetCategory = newCat.name;
+          }
+        } catch (catErr) {
+          console.warn('Notice saving new category record:', catErr);
+        }
+      }
+    }
+
+    if (!targetCategory) {
+      setError('Please select or specify a category');
+      setLoading(false);
+      return;
+    }
+
     const cleanedImages = images.map((img) => img.trim()).filter(Boolean);
     const productPayload = {
       name: name.trim(),
@@ -89,7 +172,8 @@ export default function AddEditProduct() {
       discount_price: discountPrice ? parseFloat(discountPrice) : null,
       cost: cost ? parseFloat(cost) : 0,
       stock: parseInt(stock) || 0,
-      category,
+      category: targetCategory,
+      category_id: targetCategoryId || null,
       images: cleanedImages.length > 0 ? cleanedImages : null,
     };
 
@@ -140,6 +224,7 @@ export default function AddEditProduct() {
         className="bg-[#0C2317] border border-[#D4AF37]/35 p-6 sm:p-8 rounded-2xl space-y-6 shadow-2xl text-[#F3E5AB]"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-sans">
+          {/* Product Name */}
           <div className="sm:col-span-2 space-y-1.5">
             <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">
               Product Name *
@@ -149,25 +234,76 @@ export default function AddEditProduct() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
-              placeholder="Product Title"
+              placeholder="e.g. Royal Varanasi Katan Silk Saree"
               required
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">
-              Category *
-            </label>
-            <input
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] focus:outline-none focus:border-[#D4AF37]"
-              placeholder="e.g. Banarasi"
-              required
-            />
+          {/* Category Selector + Add New Option */}
+          <div className="space-y-1.5 sm:col-span-2">
+            <div className="flex items-center justify-between">
+              <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">
+                Category *
+              </label>
+              {!isCreatingNewCategory && (
+                <button
+                  type="button"
+                  onClick={() => setIsCreatingNewCategory(true)}
+                  className="inline-flex items-center gap-1 text-[11px] text-[#D4AF37] hover:text-[#FFD54F] font-bold uppercase cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" /> New Category
+                </button>
+              )}
+            </div>
+
+            {!isCreatingNewCategory ? (
+              <select
+                value={category}
+                onChange={handleCategorySelectChange}
+                className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] focus:outline-none focus:border-[#D4AF37] cursor-pointer"
+                required
+              >
+                {category && !categoriesList.some((c) => c.name === category) && (
+                  <option value={category}>{category}</option>
+                )}
+                <option value="" disabled>Select a category</option>
+                {categoriesList.map((cat) => (
+                  <option key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))}
+                <option value="__NEW_CATEGORY__">+ Add New Category...</option>
+              </select>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    className="flex-1 bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
+                    placeholder="Enter new category name (e.g. Kanchipuram, Banarasi, Linen)"
+                    autoFocus
+                    required
+                  />
+                  {categoriesList.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsCreatingNewCategory(false)}
+                      className="px-3 py-2 bg-[#1A3C2B] border border-[#D4AF37]/35 text-[#D4AF37] hover:text-[#FFD54F] rounded-lg text-xs font-bold uppercase"
+                    >
+                      Choose Existing
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-[#EADFC9]/70 italic">
+                  This new category will be saved to the database and made available across the store.
+                </p>
+              </div>
+            )}
           </div>
 
+          {/* Stock Units */}
           <div className="space-y-1.5">
             <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">
               Stock Units *
@@ -178,10 +314,12 @@ export default function AddEditProduct() {
               onChange={(e) => setStock(e.target.value)}
               className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
               placeholder="e.g. 10"
+              min="0"
               required
             />
           </div>
 
+          {/* Regular Price */}
           <div className="space-y-1.5">
             <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">
               Regular Price (₹) *
@@ -192,13 +330,15 @@ export default function AddEditProduct() {
               onChange={(e) => setPrice(e.target.value)}
               className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
               placeholder="e.g. 15400"
+              min="0"
               required
             />
           </div>
 
+          {/* Discount / Offer Price */}
           <div className="space-y-1.5">
             <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">
-              Discount / Offer Price (₹)
+              Discount / Offer Price (₹) [Optional]
             </label>
             <input
               type="number"
@@ -206,10 +346,12 @@ export default function AddEditProduct() {
               onChange={(e) => setDiscountPrice(e.target.value)}
               className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
               placeholder="e.g. 12900"
+              min="0"
             />
           </div>
 
-          <div className="space-y-1.5 sm:col-span-2">
+          {/* Cost Price */}
+          <div className="space-y-1.5">
             <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">
               Cost Price (₹) [Internal]
             </label>
@@ -219,9 +361,11 @@ export default function AddEditProduct() {
               onChange={(e) => setCost(e.target.value)}
               className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
               placeholder="e.g. 8000"
+              min="0"
             />
           </div>
 
+          {/* Description */}
           <div className="sm:col-span-2 space-y-1.5">
             <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">
               Description
@@ -231,10 +375,11 @@ export default function AddEditProduct() {
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
-              placeholder="Product overview and material details..."
+              placeholder="Product overview, fabric specifications, weave details, and blouse piece information..."
             />
           </div>
 
+          {/* Product Images */}
           <div className="sm:col-span-2 space-y-4 pt-4 border-t border-[#D4AF37]/25">
             <h4 className="font-serif text-sm font-bold text-[#F3E5AB] uppercase tracking-wider">
               Product Images (3 slots)
@@ -243,7 +388,7 @@ export default function AddEditProduct() {
             <div className="space-y-4">
               {images.map((img, index) => (
                 <div key={index} className="flex flex-col sm:flex-row gap-4 items-center">
-                  <div className="w-full sm:w-1/3 text-xs text-[#D4AF37] font-bold uppercase tracking-wider">
+                  <div className="w-full sm:w-1/4 text-xs text-[#D4AF37] font-bold uppercase tracking-wider">
                     Slot {index + 1}
                   </div>
                   <label className="relative cursor-pointer bg-[#1A3C2B] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#0C2317] px-4 py-2 rounded-lg text-xs font-bold uppercase text-[#F3E5AB] flex items-center gap-1.5 flex-shrink-0 transition-colors">
@@ -262,7 +407,7 @@ export default function AddEditProduct() {
                     value={img}
                     onChange={(e) => handleImageChange(index, e.target.value)}
                     className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2 text-xs text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
-                    placeholder="Or paste URL..."
+                    placeholder="Or paste image URL (e.g. https://...)..."
                   />
                   {img && (
                     <div className="w-10 h-10 overflow-hidden rounded bg-[#081A11] border border-[#D4AF37]/35 flex-shrink-0">

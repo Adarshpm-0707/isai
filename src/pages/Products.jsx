@@ -13,12 +13,13 @@ export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get('category') || 'All';
   const searchParamQuery = searchParams.get('search') || '';
-  const { products, fetchProducts, getCategories } = useProducts();
+  const sortParam = searchParams.get('sort') || 'newest';
+  const { products, loading, fetchProducts, getCategories } = useProducts();
 
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
   const [searchQuery, setSearchQuery] = useState(searchParamQuery);
   const [priceRange, setPriceRange] = useState(100000);
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState(sortParam);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -30,6 +31,13 @@ export default function Products() {
     setSelectedCategory(categoryParam);
     setCurrentPage(1);
   }, [categoryParam]);
+
+  useEffect(() => {
+    if (sortParam) {
+      setSortBy(sortParam);
+      setCurrentPage(1);
+    }
+  }, [sortParam]);
 
   useEffect(() => {
     if (searchParamQuery) {
@@ -243,23 +251,32 @@ export default function Products() {
 
       {/* ── PRODUCTS GRID ── */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-10">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-          {paginatedProducts.map((product) => (
-            <div key={product.id} className="h-full">
-              <ProductCard product={product} />
+        {loading && products.length === 0 ? (
+          <div className="py-24 flex flex-col items-center justify-center space-y-4">
+            <RefreshCw className="w-8 h-8 text-[#DFC18A] animate-spin" />
+            <p className="font-serif text-sm text-[#DFC18A]">Curating Handloom Catalog...</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+              {paginatedProducts.map((product) => (
+                <div key={product.id} className="h-full">
+                  <ProductCard product={product} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {paginatedProducts.length === 0 && (
-          <EmptyState
-            title="No Sarees Found"
-            message="Try refining your filter criteria or search keyword."
-            onAction={() => {
-              setSearchQuery('');
-              setSelectedCategory('All');
-            }}
-          />
+            {paginatedProducts.length === 0 && (
+              <EmptyState
+                title="No Sarees Found"
+                message="Try refining your filter criteria or search keyword."
+                onAction={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('All');
+                }}
+              />
+            )}
+          </>
         )}
 
         {/* Pagination Bar */}

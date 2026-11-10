@@ -20,7 +20,7 @@ const loadScript = (src) => {
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const { cartItems, subtotal, discount, shippingFee, totalAmount, appliedCoupon, clearCart } = useCart();
 
   const [formData, setFormData] = useState({
@@ -125,9 +125,20 @@ export default function Checkout() {
           shippingFee,
           codFee,
           totalAmount: finalTotal,
+          userId: user?.id || profile?.id || null,
         });
         clearCart();
-        navigate('/order-success', { state: { order, orderId: order.id } });
+        navigate('/order-success', {
+          state: {
+            order,
+            orderId: order.id || order.order_id,
+            totalAmount: finalTotal,
+            items: cartItems,
+            shippingAddress: formData,
+            paymentMethod: 'Cash on Delivery (COD)',
+            date: new Date().toLocaleDateString('en-IN'),
+          },
+        });
       } else {
         const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
         if (!res) {
@@ -161,9 +172,20 @@ export default function Checkout() {
                 discount,
                 shippingFee,
                 totalAmount: finalTotal,
+                userId: user?.id || profile?.id || null,
               });
               clearCart();
-              navigate('/order-success', { state: { order: verifiedOrder, orderId: verifiedOrder.id } });
+              navigate('/order-success', {
+                state: {
+                  order: verifiedOrder,
+                  orderId: verifiedOrder.id || verifiedOrder.order_id,
+                  totalAmount: finalTotal,
+                  items: cartItems,
+                  shippingAddress: formData,
+                  paymentMethod: 'Online Payment (Prepaid)',
+                  date: new Date().toLocaleDateString('en-IN'),
+                },
+              });
             } catch (vErr) {
               alert('Payment verification failed: ' + vErr.message);
             }

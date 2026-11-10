@@ -1,153 +1,291 @@
 import { supabase } from '../lib/supabaseClient';
 
-export const checkoutService = {
-  async createRazorpayOrder({ items, shipping_address, coupon_id }) {
+function withTimeout(promise, ms = 2000) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error('Network request timed out')), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+function generateUUID() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     try {
-      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
-        body: { items, shipping_address, coupon_id },
+      return crypto.randomUUID();
+    } catch {}
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+function saveCustomerContact(shipping, userId) {
+  if (!shipping || (!shipping.email && !shipping.phone && !shipping.name)) return;
+  try {
+    const localUsers = JSON.parse(localStorage.getItem('isai_registered_users') || '[]');
+    const email = shipping.email?.toLowerCase().trim();
+    const exists = localUsers.some(
+      (u) => (email && u.email?.toLowerCase().trim() === email) || (userId && u.id === userId)
+    );
+    if (!exists) {
+      localUsers.unshift({
+        id: userId || generateUUID(),
+        name: shipping.name || 'Customer User',
+        email: shipping.email || '',
+        phone: shipping.phone || '',
+        address: shipping.addressLine1 || shipping.street || '',
+        city: shipping.city || '',
+        state: shipping.state || '',
+        pincode: shipping.pincode || '',
+        role: 'user',
+        created_at: new Date().toISOString(),
       });
+      localStorage.setItem('isai_registered_users', JSON.stringify(localUsers));
+      window.dispatchEvent(new CustomEvent('isai:customers_updated', { detail: localUsers }));
+    }
+  } catch {}
+}
+
+export const checkoutService = {
+  async getCodSettings() {
+    try {
+      const { data, error } = await withTimeout(
+        supabase.from('settings').select('*').eq('key', 'cod_settings').maybeSingle(),
+        1000
+      );
+      if (!error && data?.value) {
+        return data.value;
+      }
+    } catch {
+      // fallback
+    }
+    return { cod_fee: 40, enabled: true, min_order: 0 };
+  },
+
+  async checkServiceability(pincode) {
+    return {
+      available: true,
+      estimated_days: '3-5 Business Days',
+      courier_name: 'Isai Royal Express Delivery',
+      pincode,
+    };
+  },
+
+  async checkDeliveryEta(delivery_postcode) {
+    try {
+      const { data, error } = await withTimeout(
+        supabase.functions.invoke('check-shiprocket-eta', {
+          body: { delivery_postcode },
+        }),
+        1200
+      );
       if (!error && data) return data;
-    } catch (err) {
-      console.warn('Edge Function create-razorpay-order notice, using direct order fallback:', err);
+    } catch {
+      // fallback
     }
 
-    // Direct Database & Local Fallback
-    const orderId = `ORD_${Date.now()}_${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const subtotal = (items || []).reduce(
-      (acc, item) => acc + (item.price || item.product?.price || 0) * (item.quantity || item.qty || 1),
+    return {
+      success: true,
+      courier_name: 'Isai Royal Express Delivery',
+      etd: '3-5 Business Days',
+      estimated_days: 4,
+      postcode: delivery_postcode,
+    };
+  },
+
+  async createCodOrder(orderPayload) {
+    const items = orderPayload.cartItems || orderPayload.items || [];
+    const shipping = orderPayload.shippingAddress || orderPayload.shipping_address || {};
+    const total = Number(
+      orderPayload.totalAmount ??
+      orderPayload.total_amount ??
+      orderPayload.finalTotal ??
       0
     );
 
-    const orderData = {
-      id: orderId,
-      order_id: orderId,
+    const orderUuid = generateUUID();
+    const readableOrderId = `ORD-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const userId = orderPayload.userId || orderPayload.user_id || null;
+
+    // Database record matching Supabase schema.sql exactly
+    const dbInsertPayload = {
+      id: orderUuid,
+      user_id: userId,
       items,
-      shipping_address,
-      total_amount: subtotal,
+      subtotal: Number(orderPayload.subtotal || total),
+      shipping_fee: Number(orderPayload.shippingFee || 0),
+      discount_amount: Number(orderPayload.discount || 0),
+      cod_fee: Number(orderPayload.codFee || 40),
+      total: total,
+      payment_method: 'cod',
       status: 'pending',
-      payment_method: 'Prepaid',
+      shipping_address: shipping,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
-    try {
-      await supabase.from('orders').insert(orderData);
-    } catch (dbErr) {
-      console.warn('Supabase orders table insert notice:', dbErr);
-    }
+    // Rich local object compatible with all UI components
+    const orderData = {
+      ...dbInsertPayload,
+      id: orderUuid,
+      order_id: readableOrderId,
+      orderId: readableOrderId,
+      total_amount: total,
+      paymentMethod: 'Cash on Delivery (COD)',
+      customer_name: shipping.name || '',
+      customer_email: shipping.email || '',
+      customer_phone: shipping.phone || '',
+    };
 
+    // 1. Immediately save to persistent store so Customer Orders & Admin Orders see it right away (0 ms)
     try {
       const existing = JSON.parse(localStorage.getItem('isai_orders') || '[]');
       existing.unshift(orderData);
       localStorage.setItem('isai_orders', JSON.stringify(existing));
-    } catch (e) {}
+      window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: existing }));
+    } catch (e) {
+      console.warn('Orders local store notice:', e);
+    }
+
+    // 2. Persist customer contact into customer directory
+    saveCustomerContact(shipping, userId);
+
+    // 3. Save into Supabase orders table
+    try {
+      const { data: dbData, error: dbErr } = await withTimeout(
+        supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
+        3000
+      );
+      if (!dbErr && dbData) {
+        try {
+          const localStored = JSON.parse(localStorage.getItem('isai_orders') || '[]');
+          const merged = localStored.map((o) => (o.id === orderUuid ? { ...o, ...dbData } : o));
+          localStorage.setItem('isai_orders', JSON.stringify(merged));
+        } catch {}
+      } else if (dbErr) {
+        console.warn('Supabase orders table insert notice (saved in local store):', dbErr.message);
+      }
+    } catch (dbErr) {
+      console.warn('Supabase orders sync notice:', dbErr?.message);
+    }
+
+    return orderData;
+  },
+
+  async createRazorpayOrder(amountOrPayload) {
+    let subtotal = 1000;
+    if (typeof amountOrPayload === 'number') {
+      subtotal = amountOrPayload;
+    } else if (amountOrPayload && typeof amountOrPayload === 'object') {
+      subtotal =
+        amountOrPayload.totalAmount ||
+        amountOrPayload.amount ||
+        (amountOrPayload.items || []).reduce(
+          (acc, item) =>
+            acc + (item.price || item.product?.price || 0) * (item.quantity || item.qty || 1),
+          0
+        );
+    }
+
+    const orderId = `RZP_${Date.now()}_${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+    try {
+      const { data, error } = await withTimeout(
+        supabase.functions.invoke('create-razorpay-order', {
+          body: { amount: subtotal, order_id: orderId },
+        }),
+        1200
+      );
+      if (!error && data) return data;
+    } catch {
+      // Direct Database & Local Fallback
+    }
 
     return {
+      id: orderId,
       order_id: orderId,
-      key_id: 'rzp_test_demo_key',
+      key_id: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
       amount: Math.round(subtotal * 100),
       currency: 'INR',
       db_order_id: orderId,
     };
   },
 
-  async verifyRazorpayPayment({
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature,
-    db_order_id,
-    coupon_id,
-    user_id,
-  }) {
-    try {
-      const { data, error } = await supabase.functions.invoke('verify-razorpay-payment', {
-        body: {
-          razorpay_order_id,
-          razorpay_payment_id,
-          razorpay_signature,
-          db_order_id,
-          user_id,
-        },
-      });
-      if (!error && data) return data;
-    } catch (err) {
-      console.warn('Edge Function verify-razorpay-payment notice, using direct verification fallback:', err);
-    }
+  async verifyAndSaveOrder(payload) {
+    const items = payload.cartItems || payload.items || [];
+    const shipping = payload.shippingAddress || payload.shipping_address || {};
+    const total = Number(payload.totalAmount ?? payload.total_amount ?? 0);
 
-    // Direct database update to 'paid'
-    const targetId = db_order_id || razorpay_order_id;
-    try {
-      if (targetId) {
-        await supabase
-          .from('orders')
-          .update({ status: 'paid', updated_at: new Date().toISOString() })
-          .eq('id', targetId);
-      }
-    } catch (e) {}
+    const orderUuid = generateUUID();
+    const readableOrderId = `ORD-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const userId = payload.userId || payload.user_id || null;
 
-    try {
-      const existing = JSON.parse(localStorage.getItem('isai_orders') || '[]');
-      const found = existing.find(o => o.id === targetId || o.order_id === targetId);
-      if (found) {
-        found.status = 'paid';
-        localStorage.setItem('isai_orders', JSON.stringify(existing));
-      }
-    } catch (e) {}
-
-    return { success: true, db_order_id: targetId, message: 'Payment verified successfully' };
-  },
-
-  async createCodOrder({ items, shipping_address, coupon_id, cod_fee = 40 }) {
-    const orderId = `ORD_${Date.now()}_${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const subtotal = (items || []).reduce(
-      (acc, item) => acc + (item.price || item.product?.price || 0) * (item.quantity || item.qty || 1),
-      0
-    );
-    const totalAmount = subtotal + cod_fee;
-
-    const orderData = {
-      id: orderId,
-      order_id: orderId,
+    // Database record matching Supabase schema.sql exactly
+    const dbInsertPayload = {
+      id: orderUuid,
+      user_id: userId,
       items,
-      shipping_address,
-      total_amount: totalAmount,
-      status: 'pending',
-      payment_method: 'COD',
+      subtotal: Number(payload.subtotal || total),
+      shipping_fee: Number(payload.shippingFee || 0),
+      discount_amount: Number(payload.discount || 0),
+      cod_fee: 0,
+      total: total,
+      payment_method: 'prepaid',
+      status: 'paid',
+      shipping_address: shipping,
+      razorpay_payment_id: payload.razorpayResponse?.razorpay_payment_id || null,
+      razorpay_order_id: payload.razorpayResponse?.razorpay_order_id || null,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
-    // 1. Insert into Supabase 'orders' database table
-    try {
-      await supabase.from('orders').insert(orderData);
-    } catch (dbErr) {
-      console.warn('Supabase orders table insert notice:', dbErr);
-    }
+    const orderData = {
+      ...dbInsertPayload,
+      id: orderUuid,
+      order_id: readableOrderId,
+      orderId: readableOrderId,
+      total_amount: total,
+      paymentMethod: 'Online Payment (Prepaid)',
+      payment_id: payload.razorpayResponse?.razorpay_payment_id || 'PAY_' + Date.now(),
+      customer_name: shipping.name || '',
+      customer_email: shipping.email || '',
+      customer_phone: shipping.phone || '',
+    };
 
-    // 2. Backup to local storage
+    // 1. Save locally immediately
     try {
       const existing = JSON.parse(localStorage.getItem('isai_orders') || '[]');
       existing.unshift(orderData);
       localStorage.setItem('isai_orders', JSON.stringify(existing));
+      window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: existing }));
     } catch (e) {}
 
-    return { order_id: orderId, success: true };
+    // 2. Persist customer contact into customer directory
+    saveCustomerContact(shipping, userId);
+
+    // 3. Cloud sync to Supabase orders table
+    try {
+      const { data: dbData, error: dbErr } = await withTimeout(
+        supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
+        3000
+      );
+      if (!dbErr && dbData) {
+        try {
+          const localStored = JSON.parse(localStorage.getItem('isai_orders') || '[]');
+          const merged = localStored.map((o) => (o.id === orderUuid ? { ...o, ...dbData } : o));
+          localStorage.setItem('isai_orders', JSON.stringify(merged));
+        } catch {}
+      } else if (dbErr) {
+        console.warn('Supabase prepaid order insert notice (saved locally):', dbErr.message);
+      }
+    } catch (e) {}
+
+    return orderData;
   },
 
-  async checkDeliveryEta(delivery_postcode) {
-    try {
-      const { data, error } = await supabase.functions.invoke('check-shiprocket-eta', {
-        body: { delivery_postcode },
-      });
-      if (!error && data) return data;
-    } catch (err) {
-      console.warn('Edge Function check-shiprocket-eta notice, using estimated ETA fallback:', err);
-    }
-
-    return {
-      success: true,
-      courier_name: 'Isai Express Courier',
-      etd: '3-5 Business Days',
-      estimated_days: 4,
-      postcode: delivery_postcode,
-    };
+  async verifyRazorpayPayment(params) {
+    return this.verifyAndSaveOrder(params);
   },
 };

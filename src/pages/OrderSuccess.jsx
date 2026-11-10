@@ -48,7 +48,7 @@ export default function OrderSuccess() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Invoice - ${orderId}</title>
+          <title>Invoice : ${orderId}</title>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap');
             body {

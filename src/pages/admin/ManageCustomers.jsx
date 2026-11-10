@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import SectionHeading from '../../components/reusable/SectionHeading';
 import Badge from '../../components/reusable/Badge';
 import Modal from '../../components/reusable/Modal';
-import { Search, Eye, Trash2, User, Mail, Phone, MapPin, ShoppingBag, Calendar } from 'lucide-react';
+import { Search, Eye, Trash2, User, Mail, Phone, MapPin, ShoppingBag, Calendar, Package } from 'lucide-react';
 
 export default function ManageCustomers() {
   const [customers, setCustomers] = useState([]);
@@ -14,20 +14,57 @@ export default function ManageCustomers() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
+  const getItemDetails = (item) => {
+    if (!item) return { name: 'Handcrafted Heritage Saree', price: 0, qty: 1, image: '', size: 'Free Size', lineTotal: 0 };
+    const name =
+      item.name ||
+      item.title ||
+      item.product?.name ||
+      item.product?.title ||
+      'Handcrafted Heritage Saree';
+    const price = Number(
+      item.price ||
+      item.unit_price ||
+      item.product?.price ||
+      item.product?.regular_price ||
+      0
+    );
+    const qty = Number(item.qty || item.quantity || 1);
+    const image =
+      item.image ||
+      item.product?.images?.[0] ||
+      item.product?.image ||
+      (Array.isArray(item.images) ? item.images[0] : null) ||
+      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600';
+    const size = item.size || item.selected_size || item.variant || 'Free Size';
+    return { name, price, qty, image, size, lineTotal: price * qty };
+  };
+
   const fetchCustomersAndOrders = async () => {
-    setLoading(true);
     try {
-      // 1. Fetch profiles & orders from Supabase PostgreSQL
+      const fastTimeout = (promise, ms = 1000) => {
+        let t;
+        const timer = new Promise((_, reject) => {
+          t = setTimeout(() => reject(new Error('timeout')), ms);
+        });
+        return Promise.race([promise, timer]).finally(() => clearTimeout(t));
+      };
+
+      // 1. Fetch profiles & orders with fast timeout race
       let dbProfiles = [];
       let dbOrders = [];
 
       try {
-        const { data: pData } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+        const { data: pData } = await fastTimeout(
+          supabase.from('profiles').select('*').order('created_at', { ascending: false })
+        );
         if (pData) dbProfiles = pData;
       } catch (e) {}
 
       try {
-        const { data: oData } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+        const { data: oData } = await fastTimeout(
+          supabase.from('orders').select('*').order('created_at', { ascending: false })
+        );
         if (oData) dbOrders = oData;
       } catch (e) {}
 
@@ -39,7 +76,8 @@ export default function ManageCustomers() {
 
       let localOrders = [];
       try {
-        localOrders = JSON.parse(localStorage.getItem('isai_orders') || '[]');
+        const raw = localStorage.getItem('isai_orders');
+        localOrders = raw ? JSON.parse(raw) : [];
       } catch (e) {}
 
       let currentUser = null;
@@ -139,6 +177,17 @@ export default function ManageCustomers() {
 
   useEffect(() => {
     fetchCustomersAndOrders();
+
+    const handleUpdate = () => {
+      fetchCustomersAndOrders();
+    };
+
+    window.addEventListener('isai:orders_updated', handleUpdate);
+    window.addEventListener('isai:customers_updated', handleUpdate);
+    return () => {
+      window.removeEventListener('isai:orders_updated', handleUpdate);
+      window.removeEventListener('isai:customers_updated', handleUpdate);
+    };
   }, []);
 
   const handleDeleteCustomer = async (customer) => {
@@ -356,39 +405,98 @@ export default function ManageCustomers() {
                 </h4>
                 <p className="text-[#EADFC9]">{selectedCustomer.address}</p>
                 <p className="text-[#EADFC9]">
-                  {selectedCustomer.city} - <span className="font-bold text-[#D4AF37]">{selectedCustomer.pincode}</span>
+                  {selectedCustomer.city}, <span className="font-bold text-[#D4AF37]">{selectedCustomer.pincode}</span>
                 </p>
               </div>
             </div>
 
-            {/* Purchase History */}
+            {/* Purchase History with Detailed Products */}
             <div className="bg-[#081A11] border border-[#D4AF37]/30 p-4 rounded-xl space-y-3">
-              <h4 className="font-serif text-xs font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-1.5">
-                <ShoppingBag className="w-3.5 h-3.5" /> Order History
+              <h4 className="font-serif text-xs font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
+                <ShoppingBag className="w-3.5 h-3.5" /> Order History & Purchased Products
               </h4>
 
               {(() => {
                 const stats = getCustomerOrderStats(selectedCustomer.email, selectedCustomer.id);
                 if (stats.history.length === 0) {
-                  return <p className="italic text-[#EADFC9]/60">No orders placed by this customer yet.</p>;
+                  return <p className="italic text-[#EADFC9]/60 py-2">No orders placed by this customer yet.</p>;
                 }
 
                 return (
-                  <div className="space-y-2">
-                    {stats.history.map((o) => (
-                      <div key={o.id} className="flex items-center justify-between p-2.5 bg-[#1A3C2B]/60 border border-[#D4AF37]/20 rounded-lg">
-                        <div>
-                          <p className="font-mono font-bold text-[#F3E5AB]">#{o.id?.slice(0, 12) || o.order_id}</p>
-                          <p className="text-[10px] text-[#EADFC9]">
-                            {new Date(o.created_at || Date.now()).toLocaleDateString('en-IN')} &bull; {o.payment_method || 'COD'}
-                          </p>
+                  <div className="space-y-3">
+                    {stats.history.map((o) => {
+                      const items = Array.isArray(o.items) ? o.items : [];
+
+                      return (
+                        <div
+                          key={o.id}
+                          className="bg-[#1A3C2B]/50 border border-[#D4AF37]/25 rounded-xl p-3 space-y-2.5"
+                        >
+                          {/* Order Header */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#D4AF37]/20 pb-2">
+                            <div>
+                              <span className="font-mono font-bold text-[#F3E5AB]">
+                                #{o.id?.slice(0, 12) || o.order_id}
+                              </span>
+                              <span className="text-[10px] text-[#EADFC9]/70 ml-2">
+                                {new Date(o.created_at || Date.now()).toLocaleDateString('en-IN')} &bull;{' '}
+                                <span className="uppercase font-semibold text-[#DFC18A]">
+                                  {o.payment_method === 'cod' || o.payment_method === 'COD' ? 'Cash on Delivery' : 'Prepaid Online'}
+                                </span>
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge text={o.status || 'pending'} variant="gold" />
+                              <span className="font-bold text-sm text-[#DFC18A]">
+                                ₹{Number(o.total || o.total_amount || 0).toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Purchased Products List */}
+                          <div className="space-y-1.5">
+                            {items.length === 0 ? (
+                              <p className="text-[11px] text-[#EADFC9]/70 italic">
+                                1x Handcrafted Heritage Saree
+                              </p>
+                            ) : (
+                              items.map((rawItem, idx) => {
+                                const item = getItemDetails(rawItem);
+                                return (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center justify-between p-2 rounded-lg bg-[#0C2317]/60 border border-[#D4AF37]/15"
+                                  >
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="w-9 h-9 rounded object-cover border border-[#D4AF37]/25 shrink-0"
+                                        onError={(e) => {
+                                          e.currentTarget.src =
+                                            'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600';
+                                        }}
+                                      />
+                                      <div className="min-w-0">
+                                        <p className="font-medium text-[#F3E5AB] text-xs truncate max-w-[200px]" title={item.name}>
+                                          {item.name}
+                                        </p>
+                                        <p className="text-[10px] text-[#EADFC9]/70">
+                                          Qty: {item.qty} &bull; ₹{item.price.toLocaleString('en-IN')} each
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="font-bold text-xs text-[#DFC18A] shrink-0">
+                                      ₹{item.lineTotal.toLocaleString('en-IN')}
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold text-[#D4AF37]">₹{Number(o.total || o.total_amount || 0).toLocaleString('en-IN')}</p>
-                          <Badge text={o.status || 'pending'} variant="gold" />
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 );
               })()}

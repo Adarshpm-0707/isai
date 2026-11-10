@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import {
@@ -18,6 +18,8 @@ import {
   Shield,
   User,
   UserCheck,
+  Boxes,
+  TrendingUp,
 } from "lucide-react";
 import logoImg from "../../assets/isai_logo.png";
 
@@ -26,6 +28,13 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const { user, profile, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mainRef = useRef(null);
+
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0;
+    }
+  }, [location.pathname]);
 
   const navigationItems = [
     { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
@@ -33,6 +42,8 @@ export default function AdminLayout() {
     { name: "Customers", path: "/admin/customers", icon: Users },
     { name: "Products", path: "/admin/products", icon: ShoppingBag },
     { name: "Orders Management", path: "/admin/orders", icon: Package },
+    { name: "Inventory & Stock", path: "/admin/inventory", icon: Boxes },
+    { name: "Profit & Loss", path: "/admin/profit-loss", icon: TrendingUp },
     { name: "Categories", path: "/admin/categories", icon: FolderTree },
     { name: "Coupons & Offers", path: "/admin/coupons", icon: Tag },
     { name: "Admin Team", path: "/admin/admins", icon: UserCheck },
@@ -211,7 +222,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Render Page Children */}
-        <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-[#120B09]">
+        <main ref={mainRef} className="flex-1 p-4 sm:p-8 overflow-y-auto bg-[#120B09]">
           <Outlet />
         </main>
       </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Heart, Star, Check } from 'lucide-react';
+import { ShoppingBag, Heart, Star, Check, Zap } from 'lucide-react';
 import useCart from '../../hooks/useCart';
 import { getProductImage } from '../../utils/productHelpers';
 
@@ -22,16 +22,18 @@ export default function ProductCard({
     'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600';
   const imageUrl = imgError ? fallbackImage : getProductImage(product);
 
-  // Compute calculated or passed original price
-  const displayPrice = product?.price || 4999;
-  const displayOriginalPrice =
-    originalPrice || product?.originalPrice || Math.round(displayPrice * 1.35);
+  // Handle discount_price vs regular price
+  const hasDiscount = Boolean(product?.discount_price && Number(product.discount_price) < Number(product.price));
+  const displayPrice = hasDiscount ? Number(product.discount_price) : (Number(product?.price) || 0);
+  const displayOriginalPrice = hasDiscount
+    ? Number(product.price)
+    : (originalPrice || product?.originalPrice || (displayPrice > 0 ? Math.round(displayPrice * 1.25) : null));
 
   // Derive badge if not passed explicitly
-  const displayBadge =
-    badge ||
-    product?.badge ||
-    (displayPrice > 5000 ? 'Bestseller' : displayPrice < 2500 ? '20% OFF' : null);
+  const calcDiscountPercent = hasDiscount
+    ? `${Math.round(((Number(product.price) - Number(product.discount_price)) / Number(product.price)) * 100)}% OFF`
+    : null;
+  const displayBadge = badge || product?.badge || calcDiscountPercent;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -42,6 +44,14 @@ export default function ProductCard({
     setTimeout(() => setAdded(false), 1800);
   };
 
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (product.stock <= 0) return;
+    addToCart(product, 1);
+    navigate('/cart');
+  };
+
   const handleToggleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -50,10 +60,9 @@ export default function ProductCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-20px' }}
-      transition={{ duration: 0.4 }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.22 }}
       className="group relative flex flex-col h-full bg-[#1E130F] border border-[#35221B] rounded-xl sm:rounded-2xl overflow-hidden hover:border-[#DFC18A]/40 transition-all duration-300 hover:shadow-[0_12px_32px_rgba(0,0,0,0.5)]"
     >
       {/* ── IMAGE WRAPPER ── */}
@@ -62,8 +71,10 @@ export default function ProductCard({
           <img
             src={imageUrl}
             alt={product.name || 'Saree'}
+            loading="lazy"
+            decoding="async"
             onError={() => setImgError(true)}
-            className="w-full h-full object-cover object-center rounded-lg sm:rounded-xl transition-transform duration-700 group-hover:scale-108"
+            className="w-full h-full object-cover object-center rounded-lg sm:rounded-xl transition-transform duration-500 group-hover:scale-105"
           />
         </Link>
 
@@ -85,7 +96,7 @@ export default function ProductCard({
           onClick={handleToggleWishlist}
           type="button"
           aria-label="Save to Wishlist"
-          className="absolute top-3 right-3 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#160E0B]/70 backdrop-blur-md flex items-center justify-center text-[#C7B5A7] hover:text-[#C86A27] transition-colors shadow"
+          className="absolute top-3 right-3 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#160E0B]/70 backdrop-blur-md flex items-center justify-center text-[#C7B5A7] hover:text-[#C86A27] transition-colors shadow cursor-pointer"
         >
           <Heart
             className={`w-4 h-4 transition-transform active:scale-125 ${
@@ -105,7 +116,7 @@ export default function ProductCard({
       </div>
 
       {/* ── PRODUCT DETAILS ── */}
-      <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between gap-2">
+      <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between gap-2.5">
         <div>
           {/* Title */}
           <Link
@@ -117,7 +128,7 @@ export default function ProductCard({
 
           {/* Pricing Row */}
           <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-sm sm:text-base font-bold text-[#FDF8F4]">
+            <span className="text-sm sm:text-base font-bold text-[#DFC18A]">
               ₹{displayPrice.toLocaleString('en-IN')}
             </span>
             {displayOriginalPrice > displayPrice && (
@@ -126,12 +137,9 @@ export default function ProductCard({
               </span>
             )}
           </div>
-        </div>
 
-        {/* Rating and Cart Button Row */}
-        <div className="flex items-center justify-between pt-1 border-t border-[#2D1B15] mt-auto">
           {/* Star Rating */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 mt-1.5">
             <div className="flex text-[#DFC18A]">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-3 h-3 fill-current text-[#DFC18A]" />
@@ -141,21 +149,43 @@ export default function ProductCard({
               ({reviewsCount || 89})
             </span>
           </div>
+        </div>
 
-          {/* Amber Add to Cart Button */}
+        {/* Action Buttons: Add to Cart & Buy Now */}
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2 pt-2 border-t border-[#2D1B15] mt-auto">
+          {/* Add to Cart button */}
           <button
             onClick={handleAddToCart}
             disabled={product.stock <= 0}
             type="button"
             aria-label="Add to cart"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-[#C86A27] hover:bg-[#DB7B32] text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+            className="flex items-center justify-center gap-1 py-2 px-1 sm:px-2 rounded-lg border border-[#DFC18A]/40 bg-transparent hover:bg-[#DFC18A]/10 text-[#DFC18A] text-[10px] sm:text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             title="Add to Cart"
           >
             {added ? (
-              <Check className="w-4 h-4 text-white" />
+              <>
+                <Check className="w-3.5 h-3.5 text-[#DFC18A]" />
+                <span className="truncate">Added</span>
+              </>
             ) : (
-              <ShoppingBag className="w-4 h-4 stroke-[2]" />
+              <>
+                <ShoppingBag className="w-3.5 h-3.5 stroke-[2]" />
+                <span className="truncate">Add</span>
+              </>
             )}
+          </button>
+
+          {/* Buy Now button */}
+          <button
+            onClick={handleBuyNow}
+            disabled={product.stock <= 0}
+            type="button"
+            aria-label="Buy now"
+            className="flex items-center justify-center gap-1 py-2 px-1 sm:px-2 rounded-lg bg-[#C86A27] hover:bg-[#DB7B32] text-white text-[10px] sm:text-xs font-semibold uppercase tracking-wider transition-all duration-200 shadow cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed group"
+            title="Buy Now"
+          >
+            <Zap className="w-3.5 h-3.5 fill-current group-hover:scale-110 transition-transform" />
+            <span className="truncate">Buy Now</span>
           </button>
         </div>
       </div>

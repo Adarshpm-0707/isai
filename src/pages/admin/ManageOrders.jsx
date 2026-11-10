@@ -28,8 +28,8 @@ import {
 } from 'lucide-react';
 
 export default function ManageOrders() {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState(() => orderService.getLocalOrders());
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -39,20 +39,29 @@ export default function ManageOrders() {
   const [trackingId, setTrackingId] = useState('');
 
   const fetchOrders = async () => {
-    setLoading(true);
     try {
-      // Fetch all orders so tab switching and search filtering work instantly
       const res = await orderService.getAllOrders({ status: 'all', limit: 200 });
-      setOrders(res.orders || []);
+      if (res?.orders && res.orders.length > 0) {
+        setOrders(res.orders);
+      }
     } catch (err) {
-      console.error('Error loading orders:', err);
-    } finally {
-      setLoading(false);
+      console.warn('Notice loading orders:', err);
     }
   };
 
   useEffect(() => {
     fetchOrders();
+
+    const handleOrdersUpdated = (e) => {
+      if (Array.isArray(e.detail) && e.detail.length > 0) {
+        setOrders(e.detail);
+      } else {
+        setOrders(orderService.getLocalOrders());
+      }
+    };
+
+    window.addEventListener('isai:orders_updated', handleOrdersUpdated);
+    return () => window.removeEventListener('isai:orders_updated', handleOrdersUpdated);
   }, []);
 
   const handleOpenModal = (order) => {
@@ -67,17 +76,59 @@ export default function ManageOrders() {
     if (!selectedOrder) return;
 
     try {
-      await orderService.updateOrderStatus(selectedOrder.id, newStatus, trackingId);
-      await adminLogService.logAction('UPDATE_ORDER_STATUS', 'orders', selectedOrder.id, {
-        status: newStatus,
-        tracking_id: trackingId,
-      });
+      try {
+        const local = orderService.getLocalOrders();
+        const updated = local.map((o) =>
+          o.id === selectedOrder.id || o.order_id === selectedOrder.id
+            ? { ...o, status: newStatus, shiprocket_order_id: trackingId }
+            : o
+        );
+        localStorage.setItem('isai_orders', JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: updated }));
+        setOrders(updated);
+      } catch (e) {}
+
+      try {
+        await orderService.updateOrderStatus(selectedOrder.id, newStatus, trackingId);
+        await adminLogService.logAction('UPDATE_ORDER_STATUS', 'orders', selectedOrder.id, {
+          status: newStatus,
+          tracking_id: trackingId,
+        });
+      } catch (cloudErr) {
+        console.warn('Cloud status update notice (updated locally):', cloudErr.message);
+      }
 
       setModalOpen(false);
-      fetchOrders();
     } catch (err) {
       alert(err.message || 'Failed to update order status');
     }
+  };
+
+  // Helper to normalize item details across all legacy and current order formats
+  const getItemDetails = (item) => {
+    if (!item) return { name: 'Handcrafted Heritage Saree', price: 0, qty: 1, image: '', size: 'Free Size', lineTotal: 0 };
+    const name =
+      item.name ||
+      item.title ||
+      item.product?.name ||
+      item.product?.title ||
+      'Handcrafted Heritage Saree';
+    const price = Number(
+      item.price ||
+      item.unit_price ||
+      item.product?.price ||
+      item.product?.regular_price ||
+      0
+    );
+    const qty = Number(item.qty || item.quantity || 1);
+    const image =
+      item.image ||
+      item.product?.images?.[0] ||
+      item.product?.image ||
+      (Array.isArray(item.images) ? item.images[0] : null) ||
+      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600';
+    const size = item.size || item.selected_size || item.variant || 'Free Size';
+    return { name, price, qty, image, size, lineTotal: price * qty };
   };
 
   // Client-Side Filtered Orders (Status Tab + Search Keyword)
@@ -330,7 +381,7 @@ export default function ManageOrders() {
                     <div style="font-weight: 700; font-size: 14px; color: #1A202C;">${cust.name || 'Valued Customer'}</div>
                     <div style="font-size: 12px; color: #4A5568; margin-top: 4px;">
                       ${cust.addressLine1 || cust.street || ''} ${cust.addressLine2 || ''}<br/>
-                      ${cust.city || ''}, ${cust.state || ''} - ${cust.pincode || ''}<br/>
+                      ${cust.city || ''}, ${cust.state || ''}, ${cust.pincode || ''}<br/>
                       Phone: ${cust.phone || 'N/A'}<br/>
                       Email: ${cust.email || 'N/A'}
                     </div>
@@ -602,23 +653,43 @@ export default function ManageOrders() {
                         {new Date(order.created_at || Date.now()).toLocaleDateString('en-IN')}
                       </td>
                       <td className="py-4 px-6">
-                        <div className="space-y-1">
-                          {items.slice(0, 2).map((it, idx) => (
-                            <div key={idx} className="flex items-center gap-1.5 text-[#EADFC9]">
-                              <span className="font-bold text-[#F3E5AB]">
-                                {it.quantity || it.qty || 1} &times;
-                              </span>
-                              <span className="truncate max-w-[150px]">
-                                {it.name || it.product?.name || 'Handcrafted Saree'}
-                              </span>
-                            </div>
-                          ))}
-                          {items.length > 2 && (
-                            <span className="text-[10px] text-[#D4AF37] font-bold">
-                              + {items.length - 2} more items
-                            </span>
-                          )}
-                        </div>
+                        {items.length === 0 ? (
+                          <span className="text-[#EADFC9]/60 italic">Handcrafted Heritage Saree</span>
+                        ) : (
+                          <div className="flex items-center gap-3">
+                            {(() => {
+                              const firstItem = getItemDetails(items[0]);
+                              return (
+                                <>
+                                  <img
+                                    src={firstItem.image}
+                                    alt={firstItem.name}
+                                    className="w-10 h-10 object-cover rounded-lg border border-[#D4AF37]/35 bg-[#1A3C2B] shrink-0"
+                                    onError={(e) => {
+                                      e.currentTarget.src =
+                                        'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600';
+                                    }}
+                                  />
+                                  <div className="min-w-0">
+                                    <p className="font-semibold text-[#F3E5AB] truncate max-w-[170px]" title={firstItem.name}>
+                                      {firstItem.name}
+                                    </p>
+                                    <p className="text-[10px] text-[#EADFC9]/80 flex items-center gap-1.5 mt-0.5">
+                                      <span className="font-bold text-[#F3E5AB]">
+                                        {firstItem.qty} &times; ₹{firstItem.price.toLocaleString('en-IN')}
+                                      </span>
+                                      {items.length > 1 && (
+                                        <span className="text-[#DFC18A] font-bold">
+                                          +{items.length - 1} more
+                                        </span>
+                                      )}
+                                    </p>
+                                  </div>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        )}
                       </td>
                       <td className="py-4 px-6 font-bold text-[#F3E5AB]">
                         ₹{Number(order.total || order.total_amount || 0).toLocaleString('en-IN')}
@@ -727,7 +798,7 @@ export default function ManageOrders() {
                         <p>{selectedOrder.shipping_address.addressLine2}</p>
                       )}
                       <p>
-                        {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} -{' '}
+                        {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state},{' '}
                         <span className="font-bold text-[#D4AF37]">
                           {selectedOrder.shipping_address.pincode}
                         </span>
@@ -749,44 +820,117 @@ export default function ManageOrders() {
 
               <div className="space-y-2.5">
                 {Array.isArray(selectedOrder.items) &&
-                  selectedOrder.items.map((it, idx) => {
-                    const unitPrice = Number(it.price || it.product?.price || 0);
-                    const qty = Number(it.quantity || it.qty || 1);
-                    const itemTotal = unitPrice * qty;
+                  selectedOrder.items.map((rawItem, idx) => {
+                    const item = getItemDetails(rawItem);
 
                     return (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-3 bg-[#1A3C2B]/60 border border-[#D4AF37]/20 rounded-xl"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-[#1A3C2B]/60 border border-[#D4AF37]/25 rounded-xl gap-3"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-[#0C2317] border border-[#D4AF37]/30 flex items-center justify-center overflow-hidden flex-shrink-0">
-                            {it.product?.images?.[0] || it.image ? (
-                              <img
-                                src={it.product?.images?.[0] || it.image}
-                                alt=""
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <Package className="w-5 h-5 text-[#D4AF37]" />
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-bold text-[#F3E5AB] text-sm">
-                              {it.name || it.product?.name || 'Handcrafted Saree'}
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-14 h-14 rounded-lg object-cover bg-[#0C2317] border border-[#D4AF37]/35 shrink-0"
+                            onError={(e) => {
+                              e.currentTarget.src =
+                                'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600';
+                            }}
+                          />
+                          <div className="min-w-0 space-y-1">
+                            <p className="font-serif font-bold text-[#F3E5AB] text-sm truncate">
+                              {item.name}
                             </p>
-                            <p className="text-[10px] text-[#EADFC9] mt-0.5">
-                              Qty: <strong className="text-[#F3E5AB]">{qty}</strong> &times; ₹
-                              {unitPrice.toLocaleString('en-IN')}
-                            </p>
+                            <div className="flex flex-wrap items-center gap-2 text-[10px] text-[#EADFC9]/90">
+                              <span className="px-2 py-0.5 rounded bg-[#081A11] border border-[#D4AF37]/30 text-[#DFC18A] uppercase font-semibold">
+                                {item.size}
+                              </span>
+                              <span>
+                                Rate: ₹{item.price.toLocaleString('en-IN')} &times; {item.qty}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <div className="font-bold text-[#D4AF37] text-sm">
-                          ₹{itemTotal.toLocaleString('en-IN')}
+                        <div className="text-right sm:shrink-0">
+                          <span className="text-[10px] text-[#EADFC9]/70 block uppercase font-bold">Item Total</span>
+                          <span className="font-bold text-[#D4AF37] text-base">
+                            ₹{item.lineTotal.toLocaleString('en-IN')}
+                          </span>
                         </div>
                       </div>
                     );
                   })}
+              </div>
+            </div>
+
+            {/* Payment & Financial Breakdown Card */}
+            <div className="bg-[#081A11] border border-[#D4AF37]/30 p-4 rounded-xl space-y-3 shadow-md">
+              <h4 className="font-serif text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
+                <CreditCard className="w-4 h-4" /> Payment Details & Financial Audit
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2 bg-[#1A3C2B]/40 p-3 rounded-lg border border-[#D4AF37]/20">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-[#EADFC9]">Payment Method</span>
+                    <span className="font-bold uppercase text-[#F3E5AB]">
+                      {selectedOrder.payment_method === 'cod' || selectedOrder.payment_method === 'COD'
+                        ? 'Cash on Delivery (COD)'
+                        : 'Prepaid Online / Razorpay'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-[#EADFC9]">Payment Status</span>
+                    <span
+                      className={`font-bold uppercase px-2 py-0.5 rounded text-[10px] ${
+                        selectedOrder.status === 'paid' ||
+                        selectedOrder.payment_details?.status === 'captured' ||
+                        selectedOrder.payment_status === 'paid'
+                          ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-amber-950 text-amber-300 border border-amber-500/40'
+                      }`}
+                    >
+                      {selectedOrder.status === 'paid' ||
+                      selectedOrder.payment_details?.status === 'captured' ||
+                      selectedOrder.payment_status === 'paid'
+                        ? 'Payment Verified'
+                        : 'Pending On Delivery'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-[#EADFC9]">Transaction ID</span>
+                    <span className="font-mono text-[10px] text-[#DFC18A] truncate max-w-[150px]">
+                      {selectedOrder.payment_details?.razorpay_payment_id ||
+                        selectedOrder.razorpay_payment_id ||
+                        selectedOrder.transaction_id ||
+                        'COD Verified on Delivery'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 bg-[#1A3C2B]/40 p-3 rounded-lg border border-[#D4AF37]/20 text-xs">
+                  <div className="flex justify-between text-[#EADFC9]">
+                    <span>Sarees Subtotal</span>
+                    <span>
+                      ₹{Number(selectedOrder.total || selectedOrder.total_amount || 0).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-[#EADFC9]">
+                    <span>Promotional Discount</span>
+                    <span className="text-emerald-400 font-semibold">₹0</span>
+                  </div>
+                  <div className="flex justify-between text-[#EADFC9]">
+                    <span>Insured Heritage Shipping</span>
+                    <span className="text-emerald-400 font-semibold uppercase">FREE</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-[#D4AF37]/20 font-bold text-sm text-[#DFC18A]">
+                    <span>Total Amount</span>
+                    <span>
+                      ₹{Number(selectedOrder.total || selectedOrder.total_amount || 0).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 

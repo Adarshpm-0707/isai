@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import useCart from '../hooks/useCart';
 import useAuth from '../hooks/useAuth';
 import { supabase } from '../lib/supabaseClient';
+import { checkoutService } from '../services/checkoutService';
 import PriceTag from '../components/reusable/PriceTag';
 import BrandLogo from '../components/reusable/BrandLogo';
 import { CreditCard, Landmark, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
@@ -40,43 +41,27 @@ export default function Payment() {
       setLoading(true);
       setError(null);
 
-      // 1. Create order row
-      const { data: orderData, error: orderErr } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user?.id,
-          total_amount: totalAmount,
-          status: 'pending',
-          payment_id: paymentId,
-        })
-        .select()
-        .single();
-
-      if (orderErr) throw orderErr;
-
-      // 2. Create order items rows
-      const itemsToInsert = cartItems.map((item) => {
-        const prod = item.product || item;
-        return {
-          order_id: orderData.id,
-          product_id: item.product_id || prod.id,
-          qty: item.quantity || item.qty || 1,
-          price: prod.discount_price ?? prod.price ?? item.price ?? 0,
-        };
+      const order = await checkoutService.verifyAndSaveOrder({
+        cartItems,
+        shippingAddress,
+        totalAmount,
+        userId: user?.id || null,
+        razorpayResponse: { razorpay_payment_id: paymentId },
       });
 
-      const { error: itemsErr } = await supabase
-        .from('order_items')
-        .insert(itemsToInsert);
-
-      if (itemsErr) throw itemsErr;
-
-      // 3. Clear cart
       await clearCart();
-
-      // 4. Success redirect
       setLoading(false);
-      navigate('/order-success', { state: { orderId: orderData.id, totalAmount } });
+      navigate('/order-success', {
+        state: {
+          order,
+          orderId: order.id || order.order_id,
+          totalAmount,
+          items: cartItems,
+          shippingAddress,
+          paymentMethod: 'Online Payment (Prepaid)',
+          date: new Date().toLocaleDateString('en-IN'),
+        },
+      });
     } catch (err) {
       console.error('Order creation error:', err);
       setError(err.message || 'Failed to complete transaction.');

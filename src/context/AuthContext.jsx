@@ -36,12 +36,25 @@ export default function AuthProvider({ children }) {
           setUser(prof);
           setProfile(prof);
         } else {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user && isMounted) {
-            setUser(session.user);
-            const p = await authService.getCurrentProfile();
-            setProfile(p);
-          }
+        let session = null;
+        try {
+          const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Auth session timeout')), 1000)
+          );
+          const res = await Promise.race([
+            supabase.auth.getSession(),
+            timeout,
+          ]);
+          session = res?.data?.session || null;
+        } catch {
+          session = null;
+        }
+
+        if (session?.user && isMounted) {
+          setUser(session.user);
+          const p = await authService.getCurrentProfile();
+          setProfile(p);
+        }
         }
       } catch (err) {
         console.error('Auth initialization error:', err);

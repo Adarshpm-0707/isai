@@ -2,16 +2,21 @@ import { supabase } from '../lib/supabaseClient';
 
 export const adminLogService = {
   async logAction(action, targetTable, targetId, details = {}) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
+      const user = data?.user;
+      if (!user) return;
 
-    await supabase.from('admin_logs').insert({
-      actor_id: user.id,
-      action,
-      target_table: targetTable,
-      target_id: String(targetId),
-      details,
-    }).catch((err) => console.error('Failed to log admin action:', err));
+      await supabase.from('admin_logs').insert({
+        actor_id: user.id,
+        action,
+        target_table: targetTable,
+        target_id: String(targetId),
+        details,
+      }).catch((err) => console.warn('Failed to log admin action:', err.message));
+    } catch (err) {
+      console.warn('adminLogService notice:', err.message);
+    }
   },
 
   async getAdminLogs() {

@@ -37,6 +37,8 @@ import ManageCategories from '../pages/admin/ManageCategories';
 import ManageCoupons from '../pages/admin/ManageCoupons';
 import ManageAdmins from '../pages/admin/ManageAdmins';
 import ManageCustomers from '../pages/admin/ManageCustomers';
+import ManageInventory from '../pages/admin/ManageInventory';
+import ProfitLoss from '../pages/admin/ProfitLoss';
 import PaymentSettings from '../pages/admin/PaymentSettings';
 import ActivityLogs from '../pages/admin/ActivityLogs';
 
@@ -62,6 +64,8 @@ export default function AppRoutes() {
         <Route path="admin/products/new" element={<AddEditProduct />} />
         <Route path="admin/products/edit/:id" element={<AddEditProduct />} />
         <Route path="admin/orders" element={<ManageOrders />} />
+        <Route path="admin/inventory" element={<ManageInventory />} />
+        <Route path="admin/profit-loss" element={<ProfitLoss />} />
         <Route path="admin/categories" element={<ManageCategories />} />
         <Route path="admin/coupons" element={<ManageCoupons />} />
         <Route path="admin/admins" element={<ManageAdmins />} />
@@ -87,39 +91,13 @@ export default function AppRoutes() {
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
 
+        {/* Customer Routes */}
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="payment" element={<Payment />} />
+        <Route path="order-success" element={<OrderSuccess />} />
+        <Route path="orders" element={<OrderHistory />} />
+
         {/* Protected Customer Routes */}
-        <Route
-          path="checkout"
-          element={
-            <ProtectedRoute>
-              <Checkout />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="payment"
-          element={
-            <ProtectedRoute>
-              <Payment />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="order-success"
-          element={
-            <ProtectedRoute>
-              <OrderSuccess />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="orders"
-          element={
-            <ProtectedRoute>
-              <OrderHistory />
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="profile"
           element={

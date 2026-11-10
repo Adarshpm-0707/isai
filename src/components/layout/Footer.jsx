@@ -1,85 +1,122 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Clock, 
-  ArrowUp, 
-  MessageCircle, 
-  Sparkles, 
-  ShieldCheck, 
-  Truck, 
-  ArrowRight 
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  ArrowUp,
+  MessageCircle,
+  Sparkles,
+  ShieldCheck,
+  Truck,
+  ArrowRight,
 } from 'lucide-react';
 import BrandLogo, { LotusEmblem } from '../reusable/BrandLogo';
-import { BotanicalBranch, FloralOrnament } from '../reusable/FloralOrnament';
 
 export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-gradient-to-b from-[#120B09] via-[#0E0705] to-[#0A0503] text-[#C7B5A7] border-t border-[#2C1B14] font-sans relative overflow-hidden">
-      
-      {/* ── 1. TOP POETIC FLOURISH & BRAND MOTTO ── */}
-      <div className="pt-10 sm:pt-14 pb-8 px-4 text-center border-b border-[#241510] relative">
-        <div className="max-w-4xl mx-auto flex flex-col items-center">
-          <div className="flex items-center justify-center gap-3 sm:gap-6 mb-3">
-            <BotanicalBranch className="hidden sm:block w-8 h-8 sm:w-12 sm:h-12" />
-            <div className="flex flex-col items-center">
-              <LotusEmblem className="w-8 h-8 sm:w-9 sm:h-9 mb-2 object-contain" />
-              <p
-                className="font-serif italic text-lg sm:text-2xl text-[#DFC18A] tracking-wide leading-snug"
-                style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
-              >
-                Sarees for life&apos;s beautiful moments
-              </p>
+    <footer className="bg-gradient-to-b from-[#140C0A] via-[#0E0705] to-[#080403] text-[#C7B5A7] border-t border-[#2C1B14] font-sans relative overflow-hidden">
+      {/* ── TRUST PILLARS (RESPONSIVE 3-GRID) ── */}
+      <div className="border-b border-[#241510] bg-[#0E0705]/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            
+            {/* Pillar 1 */}
+            <div className="flex items-center sm:justify-center gap-3.5 p-3.5 rounded-2xl bg-[#160E0B]/70 border border-[#281812]">
+              <div className="w-10 h-10 rounded-xl bg-[#221410] border border-[#DFC18A]/30 flex items-center justify-center shrink-0 text-[#DFC18A]">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-xs sm:text-sm font-semibold text-[#FDF8F4] truncate">
+                  100% Tested Pure Silk
+                </h4>
+                <p className="text-[11px] text-[#8E7B6F] font-light truncate">
+                  Certified handloom silk and authentic zari
+                </p>
+              </div>
             </div>
-            <BotanicalBranch flip={true} className="hidden sm:block w-8 h-8 sm:w-12 sm:h-12" />
-          </div>
 
-          <p className="text-xs sm:text-sm text-[#8E7B6F] font-light max-w-lg leading-relaxed mt-1">
-            Bringing the authentic soul of Kuthampully, Kanchipuram, and Varanasi to graceful wardrobes across the world.
-          </p>
+            {/* Pillar 2 */}
+            <div className="flex items-center sm:justify-center gap-3.5 p-3.5 rounded-2xl bg-[#160E0B]/70 border border-[#281812]">
+              <div className="w-10 h-10 rounded-xl bg-[#221410] border border-[#DFC18A]/30 flex items-center justify-center shrink-0 text-[#DFC18A]">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-xs sm:text-sm font-semibold text-[#FDF8F4] truncate">
+                  Direct Weaver Alliance
+                </h4>
+                <p className="text-[11px] text-[#8E7B6F] font-light truncate">
+                  Preserving generational weaver dignity
+                </p>
+              </div>
+            </div>
 
-          {/* 3 Value Highlights Strip */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-[11px] sm:text-xs text-[#DFC18A]/90">
-            <span className="flex items-center gap-1.5 bg-[#180E0B] px-3.5 py-1.5 rounded-full border border-[#2F1C15]">
-              <Sparkles className="w-3.5 h-3.5 text-[#DFC18A]" /> 100% Tested Handloom Purity
-            </span>
-            <span className="flex items-center gap-1.5 bg-[#180E0B] px-3.5 py-1.5 rounded-full border border-[#2F1C15]">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#DFC18A]" /> Direct Weaver Alliance
-            </span>
-            <span className="flex items-center gap-1.5 bg-[#180E0B] px-3.5 py-1.5 rounded-full border border-[#2F1C15]">
-              <Truck className="w-3.5 h-3.5 text-[#DFC18A]" /> Insured Pan-India Delivery
-            </span>
+            {/* Pillar 3 */}
+            <div className="flex items-center sm:justify-center gap-3.5 p-3.5 rounded-2xl bg-[#160E0B]/70 border border-[#281812]">
+              <div className="w-10 h-10 rounded-xl bg-[#221410] border border-[#DFC18A]/30 flex items-center justify-center shrink-0 text-[#DFC18A]">
+                <Truck className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-xs sm:text-sm font-semibold text-[#FDF8F4] truncate">
+                  Pan India Safe Delivery
+                </h4>
+                <p className="text-[11px] text-[#8E7B6F] font-light truncate">
+                  Insured express transit to your doorstep
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
 
-      {/* ── 2. MAIN 4-COLUMN RESPONSIVE GRID ── */}
-      <div id="footer-contact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 text-left">
+      {/* ── 3. MAIN FOOTER CONTENT ── */}
+      <div id="footer-contact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
+        
+        {/* Mobile Brand Top Strip (< lg only) */}
+        <div className="lg:hidden mb-8 text-center sm:text-left space-y-4 pb-8 border-b border-[#251711]">
+          <div className="inline-flex items-center justify-center sm:justify-start">
+            <BrandLogo size="lg" />
+          </div>
+          <p className="text-xs sm:text-sm text-[#A89689] font-light leading-relaxed max-w-lg mx-auto sm:mx-0">
+            Every warp and weft at Isai Tarang carries the heritage of master weavers from Kuthampully, Kanchipuram, and Varanasi.
+          </p>
+          <div className="pt-1">
+            <a
+              href="https://wa.me/919048868444"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-[#163326] active:bg-[#204634] border border-[#2A563E] text-[#FDF8F4] text-xs font-semibold tracking-wide transition-all shadow-md active:scale-95"
+            >
+              <MessageCircle className="w-4 h-4 text-[#25D366] shrink-0" />
+              <span>Need Styling Advice? Chat on WhatsApp</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#DFC18A]" />
+            </a>
+          </div>
+        </div>
 
-          {/* COLUMN 1: BRAND STORY & QUICK WHATSAPP (lg:col-span-4) */}
-          <div className="lg:col-span-4 space-y-4">
-            <div className="inline-block">
-              <BrandLogo size="md" />
-            </div>
+        {/* Responsive Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
 
-            <p className="text-xs sm:text-sm text-[#9E8B7F] leading-relaxed font-light max-w-sm">
-              At Isai Tarang, every warp and weft is chosen with reverence. We preserve centuries-old handloom heritages, honoring generational weavers while crowning your special occasions.
+          {/* Desktop Column 1: Brand & Narrative (hidden on mobile, block on lg) */}
+          <div className="hidden lg:block lg:col-span-4 space-y-5">
+            <BrandLogo size="lg" />
+            <p className="text-xs sm:text-sm text-[#9E8B7F] leading-relaxed font-light pr-4">
+              At Isai Tarang, every warp and weft is chosen with reverence. We preserve centuries-old handloom heritages, honoring generational master weavers while crowning your sacred occasions.
             </p>
-
-            {/* Direct WhatsApp Callout */}
-            <div className="pt-2">
+            <div className="pt-1">
               <a
                 href="https://wa.me/919048868444"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#163326] hover:bg-[#1E4535] border border-[#2A563E] text-[#FDF8F4] text-xs font-medium tracking-wide transition-all shadow-md group"
+                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#163326] hover:bg-[#1E4535] border border-[#2A563E] text-[#FDF8F4] text-xs font-medium tracking-wide transition-all shadow-md group cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4 text-[#25D366]" />
                 <span>Need Styling Advice? Chat on WhatsApp</span>
@@ -88,97 +125,97 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* COLUMN 2: COLLECTIONS (lg:col-span-2) */}
+          {/* Column 2: Collections Links (2 cols on desktop, half width on mobile) */}
           <div className="lg:col-span-2 space-y-3.5">
-            <h5 className="font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#DFC18A]">
+            <h5 className="font-serif text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-[#DFC18A]">
               Collections
             </h5>
             <ul className="space-y-2.5 text-xs text-[#C7B5A7]">
               <li>
-                <Link to="/products?category=Kanchipuram" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
+                <Link to="/products?category=Kanchipuram" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
                   Kanchipuram Silks
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=Banarasi" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
+                <Link to="/products?category=Banarasi" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
                   Banarasi Brocades
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=Silk" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
+                <Link to="/products?category=Silk" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
                   Pure Silk Sarees
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=Cotton" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
+                <Link to="/products?category=Cotton" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
                   Kerala Cotton Weaves
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=Georgette" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
-                  Georgette &amp; Chiffon
+                <Link to="/products?category=Georgette" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
+                  Georgette and Chiffon
                 </Link>
               </li>
               <li>
-                <Link to="/products?category=Festive" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
+                <Link to="/products?category=Festive" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
                   Festive Edit
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* COLUMN 3: INFORMATION & CUSTOMER CARE (lg:col-span-3) */}
-          <div className="lg:col-span-3 space-y-3.5">
-            <h5 className="font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#DFC18A]">
+          {/* Column 3: Customer Care & Lineage (2 cols on desktop, half width on mobile) */}
+          <div className="lg:col-span-2 space-y-3.5">
+            <h5 className="font-serif text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-[#DFC18A]">
               Customer Care
             </h5>
             <ul className="space-y-2.5 text-xs text-[#C7B5A7]">
               <li>
-                <Link to="/about" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
-                  Our Story &amp; Lineage
+                <Link to="/about" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
+                  Our Story and Lineage
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
-                  Contact Saree Concierge
+                <Link to="/contact" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
+                  Saree Concierge
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
-                  Frequently Asked Questions (FAQ)
+                <Link to="/faq" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
+                  Frequently Asked Questions
                 </Link>
               </li>
               <li>
-                <Link to="/orders" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
+                <Link to="/orders" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
                   Track Your Order
                 </Link>
               </li>
               <li>
-                <Link to="/terms-conditions" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
-                  Terms of Service &amp; Shipping
+                <Link to="/terms-conditions" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
+                  Terms and Shipping
                 </Link>
               </li>
               <li>
-                <Link to="/privacy-policy" className="hover:text-[#DFC18A] hover:translate-x-1 inline-block transition-all">
+                <Link to="/privacy-policy" className="hover:text-[#DFC18A] transition-colors inline-block py-0.5">
                   Privacy Policy
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* COLUMN 4: DESIGN STUDIO & CONTACT (lg:col-span-3) */}
-          <div className="lg:col-span-3 space-y-3.5">
-            <h5 className="font-serif text-xs font-bold uppercase tracking-[0.2em] text-[#DFC18A]">
-              Design Studio
+          {/* Column 4: Design Studio & Atelier Contact Card (4 cols on desktop, full width on mobile) */}
+          <div className="sm:col-span-2 lg:col-span-4 space-y-3.5">
+            <h5 className="font-serif text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-[#DFC18A]">
+              Design Studio and Atelier
             </h5>
 
-            <div className="p-4 rounded-2xl bg-[#160E0B] border border-[#2C1B14] space-y-3 text-xs">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#160E0B] border border-[#2C1B14] space-y-3.5 text-xs shadow-lg">
               {/* Address */}
-              <div className="flex items-start gap-2.5">
+              <div className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#DFC18A] shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-[#FDF8F4] font-medium leading-snug">
-                    Divyadeepam, P.O. Pallikkunnu,
+                <div className="leading-relaxed">
+                  <p className="text-[#FDF8F4] font-medium">
+                    Divyadeepam, P.O. Pallikkunnu
                   </p>
                   <p className="text-[#A89689] font-light">
                     Kannur 670004, Kerala, India
@@ -186,67 +223,65 @@ export default function Footer() {
                 </div>
               </div>
 
-              {/* Phone */}
-              <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-[#DFC18A] shrink-0" />
+              {/* Quick Contact Buttons on Mobile / Standard links on Desktop */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-[#251711]">
                 <a
                   href="tel:+919048868444"
-                  className="text-[#EADFC9] hover:text-[#DFC18A] font-medium transition-colors"
+                  className="flex items-center gap-2 p-2 rounded-xl bg-[#1C120E] border border-[#301F18] text-[#EADFC9] hover:text-[#DFC18A] hover:border-[#DFC18A]/40 transition-all"
                 >
-                  +91 9048868444
+                  <Phone className="w-3.5 h-3.5 text-[#DFC18A] shrink-0" />
+                  <span className="font-medium truncate">+91 9048868444</span>
                 </a>
-              </div>
 
-              {/* Email */}
-              <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-[#DFC18A] shrink-0" />
                 <a
                   href="mailto:isaitarang9@gmail.com"
-                  className="text-[#EADFC9] hover:text-[#DFC18A] font-medium transition-colors break-all"
+                  className="flex items-center gap-2 p-2 rounded-xl bg-[#1C120E] border border-[#301F18] text-[#EADFC9] hover:text-[#DFC18A] hover:border-[#DFC18A]/40 transition-all"
                 >
-                  isaitarang9@gmail.com
+                  <Mail className="w-3.5 h-3.5 text-[#DFC18A] shrink-0" />
+                  <span className="font-medium truncate">Email Studio</span>
                 </a>
               </div>
 
-              {/* Hours */}
-              <div className="flex items-start gap-2.5 pt-1 border-t border-[#251711]">
+              {/* Operating Hours */}
+              <div className="flex items-start gap-2.5 pt-2 border-t border-[#251711]">
                 <Clock className="w-4 h-4 text-[#DFC18A] shrink-0 mt-0.5" />
                 <div className="text-[11px] leading-tight text-[#8E7B6F]">
-                  <p className="text-[#C7B5A7] font-medium">Mon - Sat: 10:00 AM - 5:00 PM</p>
+                  <p className="text-[#C7B5A7] font-medium">Monday to Saturday: 10:00 AM to 5:00 PM</p>
                   <p className="text-[#C86A27] mt-0.5">Sunday: Closed</p>
                 </div>
               </div>
             </div>
 
-            {/* Accepted Payments Info */}
-            <div className="pt-1 flex items-center justify-between text-[11px] text-[#8E7B6F] px-1">
+            {/* Accepted Payments Note */}
+            <div className="flex items-center justify-between text-[11px] text-[#8E7B6F] px-1 pt-1">
               <span>Accepted Modes:</span>
-              <span className="text-[#DFC18A] font-medium">GPay &amp; Bank Transfer</span>
+              <span className="text-[#DFC18A] font-medium">GPay, UPI and Bank Transfer</span>
             </div>
           </div>
 
         </div>
       </div>
 
-      {/* ── 3. BOTTOM COPYRIGHT & BACK TO TOP STRIP ── */}
+      {/* ── 4. BOTTOM COPYRIGHT & BACK TO TOP STRIP ── */}
       <div className="border-t border-[#20130E] py-5 px-4 text-xs text-[#8E7B6F] bg-[#0A0503]">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3.5 text-center sm:text-left">
           
           <p className="text-[11px]">
-            © {new Date().getFullYear()} Isaitarang Private Limited. All rights reserved.
+            © {currentYear} Isai Tarang Private Limited. All rights reserved.
           </p>
 
-          {/* Center Royal Crest */}
+          {/* Center Heritage Tag */}
           <div className="flex items-center gap-2 text-[#DFC18A]/90 text-[11px] font-serif">
             <LotusEmblem className="w-4 h-4 opacity-80" />
-            <span>Crafted with Devotion • Woven in India</span>
+            <span>Crafted with Devotion, Woven in India</span>
           </div>
 
           {/* Smooth Back to Top Button */}
           <button
             onClick={scrollToTop}
             type="button"
-            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#C7B5A7] hover:text-[#DFC18A] transition-colors cursor-pointer group"
+            className="inline-flex items-center gap-2 text-[11px] font-medium text-[#C7B5A7] hover:text-[#DFC18A] transition-colors cursor-pointer group active:scale-95"
+            aria-label="Scroll back to top"
           >
             <span>Back to Top</span>
             <div className="w-6 h-6 rounded-full bg-[#1C120E] border border-[#2D1B15] flex items-center justify-center group-hover:border-[#DFC18A]/50 transition-colors">
