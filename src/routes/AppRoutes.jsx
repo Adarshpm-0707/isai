@@ -46,8 +46,8 @@ export default function AppRoutes() {
   return (
     <Routes>
       {/* Admin Login & Signup outside Layout */}
-      <Route path="admin/login" element={<AdminLogin />} />
-      <Route path="admin/signup" element={<AdminSignup />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/signup" element={<AdminSignup />} />
 
       {/* Admin Protected Sidebar Layout */}
       <Route
@@ -57,20 +57,20 @@ export default function AppRoutes() {
           </AdminRoute>
         }
       >
-        <Route path="admin" element={<AdminDashboard />} />
-        <Route path="admin/profile" element={<AdminProfile />} />
-        <Route path="admin/customers" element={<ManageCustomers />} />
-        <Route path="admin/products" element={<ManageProducts />} />
-        <Route path="admin/products/new" element={<AddEditProduct />} />
-        <Route path="admin/products/edit/:id" element={<AddEditProduct />} />
-        <Route path="admin/orders" element={<ManageOrders />} />
-        <Route path="admin/inventory" element={<ManageInventory />} />
-        <Route path="admin/profit-loss" element={<ProfitLoss />} />
-        <Route path="admin/categories" element={<ManageCategories />} />
-        <Route path="admin/coupons" element={<ManageCoupons />} />
-        <Route path="admin/admins" element={<ManageAdmins />} />
-        <Route path="admin/payment-settings" element={<PaymentSettings />} />
-        <Route path="admin/activity-logs" element={<ActivityLogs />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/profile" element={<AdminProfile />} />
+        <Route path="/admin/customers" element={<ManageCustomers />} />
+        <Route path="/admin/products" element={<ManageProducts />} />
+        <Route path="/admin/products/new" element={<AddEditProduct />} />
+        <Route path="/admin/products/edit/:id" element={<AddEditProduct />} />
+        <Route path="/admin/orders" element={<ManageOrders />} />
+        <Route path="/admin/inventory" element={<ManageInventory />} />
+        <Route path="/admin/profit-loss" element={<ProfitLoss />} />
+        <Route path="/admin/categories" element={<ManageCategories />} />
+        <Route path="/admin/coupons" element={<ManageCoupons />} />
+        <Route path="/admin/admins" element={<ManageAdmins />} />
+        <Route path="/admin/payment-settings" element={<PaymentSettings />} />
+        <Route path="/admin/activity-logs" element={<ActivityLogs />} />
       </Route>
 
       {/* Public & Customer Layout */}

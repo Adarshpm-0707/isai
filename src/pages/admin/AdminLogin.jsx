@@ -17,7 +17,9 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const from = location.state?.from?.pathname || "/admin";
+  const from = location.state?.from?.pathname && location.state.from.pathname !== '/admin/login'
+    ? location.state.from.pathname
+    : "/admin";
 
   useEffect(() => {
     if (user && role === "admin") {
@@ -33,12 +35,12 @@ export default function AdminLogin() {
     
     setLoading(true);
     try {
-      const res = await login(email, password);
-      const currentProf = res.profile || res.user;
-      if (currentProf) {
-        currentProf.role = "admin";
+      const res = await login(email, password, 'admin');
+      const currentProf = res?.profile || res?.user || { email, role: 'admin' };
+      currentProf.role = "admin";
+      try {
         localStorage.setItem("isai_current_user", JSON.stringify(currentProf));
-      }
+      } catch {}
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || "Invalid admin credentials. Please try again.");

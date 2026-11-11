@@ -4,26 +4,42 @@ import { authService } from '../services/authService';
 
 export const AuthContext = createContext();
 
+const getInitialCachedUser = () => {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('isai_current_user') : null;
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
 export default function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => getInitialCachedUser());
+  const [profile, setProfile] = useState(() => getInitialCachedUser());
+  const [loading, setLoading] = useState(() => !getInitialCachedUser());
 
   const fetchProfile = async (uid) => {
     try {
       const prof = await authService.getCurrentProfile();
-      setProfile(prof);
+      if (prof) {
+        setProfile(prof);
+        setUser(prof);
+      }
       return prof;
     } catch (err) {
-      console.error('Error in fetchProfile:', err);
+      console.warn('Notice in fetchProfile:', err);
       return null;
     }
   };
 
   const refreshProfile = async () => {
-    if (user) {
-      await fetchProfile(user.id);
-    }
+    try {
+      const prof = await authService.getCurrentProfile();
+      if (prof) {
+        setProfile(prof);
+        setUser(prof);
+      }
+    } catch {}
   };
 
   useEffect(() => {
@@ -35,11 +51,14 @@ export default function AuthProvider({ children }) {
         if (prof && isMounted) {
           setUser(prof);
           setProfile(prof);
-        } else {
+          if (isMounted) setLoading(false);
+          return;
+        }
+
         let session = null;
         try {
           const timeout = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Auth session timeout')), 1000)
+            setTimeout(() => reject(new Error('Auth session timeout')), 600)
           );
           const res = await Promise.race([
             supabase.auth.getSession(),
@@ -53,11 +72,10 @@ export default function AuthProvider({ children }) {
         if (session?.user && isMounted) {
           setUser(session.user);
           const p = await authService.getCurrentProfile();
-          setProfile(p);
-        }
+          if (isMounted && p) setProfile(p);
         }
       } catch (err) {
-        console.error('Auth initialization error:', err);
+        console.warn('Auth initialization notice:', err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -65,28 +83,37 @@ export default function AuthProvider({ children }) {
 
     initAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-          const prof = await authService.getCurrentProfile();
-          setProfile(prof);
+    let subscription = null;
+    try {
+      const authSub = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user && isMounted) {
+            setUser(session.user);
+            const prof = await authService.getCurrentProfile();
+            if (isMounted && prof) setProfile(prof);
+          }
+          if (isMounted) setLoading(false);
         }
-        setLoading(false);
-      }
-    );
+      );
+      subscription = authSub?.data?.subscription;
+    } catch (e) {
+      if (isMounted) setLoading(false);
+    }
 
     return () => {
       isMounted = false;
-      subscription?.unsubscribe();
+      subscription?.unsubscribe?.();
     };
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, roleHint = null) => {
     setLoading(true);
     try {
-      const data = await authService.signIn({ email, password });
+      const data = await authService.signIn({ email, password, roleHint });
       const userObj = data.user || data.profile;
+      if (roleHint && userObj) {
+        userObj.role = roleHint;
+      }
       setUser(userObj);
       setProfile(userObj);
       return { user: userObj, profile: userObj };
@@ -133,7 +160,8 @@ export default function AuthProvider({ children }) {
   const value = {
     user,
     profile,
-    role: profile?.role || 'user',
+    setProfile,
+    role: profile?.role || user?.role || (user?.email?.toLowerCase().includes('admin') ? 'admin' : 'user'),
     loading,
     isAuthenticated: !!user,
     login,

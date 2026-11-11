@@ -71,8 +71,7 @@ export default function ManageCoupons() {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete coupon?')) return;
     try {
-      const { error } = await supabase.from('coupons').delete().eq('id', id);
-      if (error) throw error;
+      await couponService.deleteCoupon(id);
       await adminLogService.logAction('DELETE_COUPON', 'coupons', id, {});
       fetchCoupons();
     } catch (err) {

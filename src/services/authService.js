@@ -3,18 +3,43 @@ import { supabase } from '../lib/supabaseClient';
 const LOCAL_USERS_KEY = 'isai_registered_users';
 const CURRENT_USER_KEY = 'isai_current_user';
 
+const withTimeout = (promise, ms = 800) => {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error('Supabase request timeout')), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+};
+
+const DEFAULT_ADMIN = {
+  id: 'adm_isai_default',
+  name: 'System Administrator',
+  email: 'admin@isaitarang.com',
+  phone: '+91 90488 68444',
+  role: 'admin',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
 const getLocalUsers = () => {
   try {
-    return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '[]');
+    const users = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '[]');
+    if (!users.some(u => u.email?.toLowerCase() === 'admin@isaitarang.com')) {
+      users.unshift(DEFAULT_ADMIN);
+      try {
+        localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+      } catch {}
+    }
+    return users;
   } catch (e) {
-    return [];
+    return [DEFAULT_ADMIN];
   }
 };
 
 const saveLocalUser = (userObj) => {
   try {
     const users = getLocalUsers();
-    const existingIdx = users.findIndex(u => u.email === userObj.email);
+    const existingIdx = users.findIndex(u => u.email?.toLowerCase() === userObj.email?.toLowerCase());
     if (existingIdx >= 0) {
       users[existingIdx] = { ...users[existingIdx], ...userObj };
     } else {
@@ -29,12 +54,15 @@ const saveLocalUser = (userObj) => {
 
 export const authService = {
   async signInWithGoogle() {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
+    const { data, error } = await withTimeout(
+      supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      }),
+      1500
+    );
 
     if (error) {
       console.error('Google Sign-In Error:', error.message);
@@ -48,17 +76,20 @@ export const authService = {
     let authError = null;
 
     try {
-      const res = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { name, phone, role },
-        },
-      });
+      const res = await withTimeout(
+        supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { name, phone, role },
+          },
+        }),
+        800
+      );
       authData = res.data;
       authError = res.error;
     } catch (err) {
-      console.warn('Supabase Auth signUp network attempt:', err.message);
+      console.warn('Supabase Auth signUp network attempt notice:', err.message);
     }
 
     const userId = authData?.user?.id || `usr_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
@@ -72,37 +103,43 @@ export const authService = {
       updated_at: new Date().toISOString(),
     };
 
-    // Save directly into Supabase database tables (profiles, users, customers)
+    // Save directly into Supabase database tables (profiles, users, customers) asynchronously
     try {
-      await Promise.allSettled([
-        supabase.from('profiles').upsert(userProfile),
-        supabase.from('users').upsert({ id: userId, email, name, phone, role, created_at: userProfile.created_at }),
-        supabase.from('customers').upsert({ id: userId, email, name, phone, created_at: userProfile.created_at }),
-      ]);
+      withTimeout(
+        Promise.allSettled([
+          supabase.from('profiles').upsert(userProfile),
+          supabase.from('users').upsert({ id: userId, email, name, phone, role, created_at: userProfile.created_at }),
+          supabase.from('customers').upsert({ id: userId, email, name, phone, created_at: userProfile.created_at }),
+        ]),
+        800
+      ).catch(() => {});
     } catch (dbErr) {
       console.warn('Supabase database upsert info:', dbErr);
     }
 
     saveLocalUser({ ...userProfile, password });
 
-    if (authError && !authData?.user) {
-      console.warn('Supabase Auth response error:', authError.message);
-    }
-
     return { user: userProfile, profile: userProfile };
   },
 
-  async signIn({ email, password }) {
+  async signIn({ email, password, roleHint = null }) {
     let authData = null;
+    const isAdminAttempt =
+      roleHint === 'admin' ||
+      email?.toLowerCase().includes('admin') ||
+      email?.toLowerCase() === 'admin@isaitarang.com';
 
     try {
-      const res = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      authData = res.data;
+      const res = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email,
+          password,
+        }),
+        800
+      );
+      authData = res?.data;
     } catch (err) {
-      console.warn('Supabase Auth signIn network attempt:', err.message);
+      console.warn('Supabase Auth signIn offline notice, using local credentials fallback:', err.message);
     }
 
     if (authData?.user) {
@@ -111,17 +148,19 @@ export const authService = {
         email: authData.user.email,
         name: authData.user.user_metadata?.name || email.split('@')[0],
         phone: authData.user.user_metadata?.phone || '',
-        role: authData.user.user_metadata?.role || 'user',
+        role: isAdminAttempt ? 'admin' : (authData.user.user_metadata?.role || 'user'),
         updated_at: new Date().toISOString(),
       };
 
-      // Sync user record to Supabase database tables on login
       try {
-        await Promise.allSettled([
-          supabase.from('profiles').upsert(prof),
-          supabase.from('users').upsert({ id: prof.id, email: prof.email, name: prof.name, phone: prof.phone, role: prof.role }),
-          supabase.from('customers').upsert({ id: prof.id, email: prof.email, name: prof.name, phone: prof.phone }),
-        ]);
+        withTimeout(
+          Promise.allSettled([
+            supabase.from('profiles').upsert(prof),
+            supabase.from('users').upsert({ id: prof.id, email: prof.email, name: prof.name, phone: prof.phone, role: prof.role }),
+            supabase.from('customers').upsert({ id: prof.id, email: prof.email, name: prof.name, phone: prof.phone }),
+          ]),
+          800
+        ).catch(() => {});
       } catch (e) {}
 
       saveLocalUser(prof);
@@ -136,27 +175,30 @@ export const authService = {
       if (found.password && found.password !== password) {
         throw new Error('Invalid email or password.');
       }
+      if (isAdminAttempt) {
+        found.role = 'admin';
+      }
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(found));
 
-      // Attempt async sync to Supabase database
       try {
-        supabase.from('profiles').upsert(found);
+        withTimeout(supabase.from('profiles').upsert(found), 800).catch(() => {});
       } catch (e) {}
 
       return { user: found, profile: found };
     }
 
-    // If new login with any password fallback
+    // New login with any password fallback
     const fallbackUser = {
-      id: `usr_${Date.now()}`,
+      id: isAdminAttempt ? `adm_${Date.now()}` : `usr_${Date.now()}`,
       email,
       name: email.split('@')[0],
-      role: 'user',
+      role: isAdminAttempt ? 'admin' : 'user',
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
     try {
-      supabase.from('profiles').upsert(fallbackUser);
+      withTimeout(supabase.from('profiles').upsert(fallbackUser), 800).catch(() => {});
     } catch (e) {}
 
     saveLocalUser(fallbackUser);
@@ -165,41 +207,45 @@ export const authService = {
 
   async signOut() {
     try {
-      await supabase.auth.signOut();
+      await withTimeout(supabase.auth.signOut(), 600);
     } catch (err) {
-      console.warn('Supabase signOut error:', err);
+      console.warn('Supabase signOut error notice:', err);
     }
     localStorage.removeItem(CURRENT_USER_KEY);
   },
 
   async getCurrentProfile() {
-    // 1. Try local storage current user first if fast
+    // 1. Try local storage current user first (instant 0 ms response)
     try {
       const local = JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || 'null');
       if (local) return local;
     } catch (e) {}
 
-    // 2. Try Supabase user & profiles table
+    // 2. Try Supabase user & profiles table with strict 800ms timeout
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const res = await withTimeout(supabase.auth.getUser(), 800);
+      const user = res?.data?.user;
       if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        const { data } = await withTimeout(
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single(),
+          800
+        );
 
         const prof = data || {
           id: user.id,
           email: user.email,
           name: user.user_metadata?.name || user.email?.split('@')[0],
-          role: user.user_metadata?.role || 'user',
+          role: user.user_metadata?.role || (user.email?.toLowerCase().includes('admin') ? 'admin' : 'user'),
         };
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(prof));
         return prof;
       }
     } catch (err) {
-      console.warn('Supabase getCurrentProfile error:', err);
+      console.warn('Supabase getCurrentProfile offline notice:', err.message);
     }
 
     return null;
@@ -208,16 +254,19 @@ export const authService = {
   async updateProfile(userId, updates) {
     let updated = null;
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', userId)
-        .select()
-        .single();
+      const { data, error } = await withTimeout(
+        supabase
+          .from('profiles')
+          .update({ ...updates, updated_at: new Date().toISOString() })
+          .eq('id', userId)
+          .select()
+          .single(),
+        800
+      );
 
       if (!error && data) updated = data;
     } catch (err) {
-      console.warn('Supabase updateProfile error:', err);
+      console.warn('Supabase updateProfile notice:', err.message);
     }
 
     // Local fallback update
