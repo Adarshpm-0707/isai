@@ -139,6 +139,11 @@ export default function Cart() {
                         />
 
                         <div className="text-right">
+                          {Number(prod.price || item.regular_price || 0) > unitPrice && (
+                            <span className="text-xs text-[#8E7B6F] line-through block font-normal">
+                              ₹{(Number(prod.price || item.regular_price) * qty).toLocaleString('en-IN')}
+                            </span>
+                          )}
                           <span className="text-sm sm:text-base font-bold text-[#FDF8F4]">
                             ₹{(unitPrice * qty).toLocaleString('en-IN')}
                           </span>

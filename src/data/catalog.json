@@ -6,7 +6,7 @@
       "price": 1500,
       "discount_price": 1000,
       "cost": 500,
-      "stock": 98,
+      "stock": 99,
       "category": "Bandhani Saree",
       "category_id": "9e834251-6972-42da-a5e6-be25ae412744",
       "images": [
@@ -17,7 +17,7 @@
       "id": "421ef72b-9586-4d95-896b-4e9c4a12f6cd",
       "slug": "bbivpweprrl-j5juq",
       "created_at": "2026-11-10T06:35:10.950Z",
-      "updated_at": "2026-11-11T12:16:27.368Z"
+      "updated_at": "2026-11-11T13:02:03.065Z"
     }
   ],
   "categories": [

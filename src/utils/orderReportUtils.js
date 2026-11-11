@@ -157,7 +157,12 @@ export function printOrderInvoice(order) {
   const total = Number(order.total || order.total_amount || 0);
   const subtotal = Number(
     order.subtotal ??
-    (items.reduce((sum, it) => sum + (Number(it.price || it.product?.price || 0) * (it.qty || it.quantity || 1)), 0) || total)
+    (items.reduce((sum, it) => {
+      const prod = it.product || it;
+      const unit = Number(it.price ?? it.selling_price ?? prod.discount_price ?? it.discount_price ?? prod.price ?? 0);
+      const qty = it.qty || it.quantity || 1;
+      return sum + (unit * qty);
+    }, 0) || total)
   );
   const discount = Number(order.discount || order.discount_amount || 0);
   const couponCode = order.coupon_code || order.coupon?.code || '';
@@ -168,15 +173,47 @@ export function printOrderInvoice(order) {
       : [{ name: 'Handcrafted Heritage Saree', qty: 1, price: total }]
   )
     .map(
-      (it, idx) => `
+      (it, idx) => {
+        const prod = it.product || it;
+        const qty = it.qty || it.quantity || 1;
+        const sellingPrice = Number(
+          it.price ??
+          it.selling_price ??
+          prod.discount_price ??
+          it.discount_price ??
+          it.unit_price ??
+          prod.price ??
+          (items.length === 1 ? subtotal : total)
+        );
+        const regularPrice = Number(
+          it.regular_price ??
+          prod.price ??
+          it.original_price ??
+          it.mrp ??
+          sellingPrice
+        );
+        const hasItemDiscount = regularPrice > sellingPrice && sellingPrice > 0;
+        const lineTotal = sellingPrice * qty;
+
+        return `
       <tr style="border-bottom: 1px solid #E2E8F0;">
         <td style="padding: 12px; text-align: center; color: #4A5568;">${idx + 1}</td>
-        <td style="padding: 12px; color: #1A202C; font-weight: 600;">${it.name || it.product?.name || 'Handcrafted Saree'}</td>
-        <td style="padding: 12px; text-align: center; color: #4A5568;">${it.qty || it.quantity || 1}</td>
-        <td style="padding: 12px; text-align: right; color: #4A5568;">₹${Number(it.price || it.product?.price || total).toLocaleString('en-IN')}</td>
-        <td style="padding: 12px; text-align: right; color: #1A202C; font-weight: 700;">₹${Number((it.price || it.product?.price || total) * (it.qty || it.quantity || 1)).toLocaleString('en-IN')}</td>
+        <td style="padding: 12px; color: #1A202C; font-weight: 600;">
+          ${it.name || prod.name || 'Handcrafted Saree'}
+          ${hasItemDiscount ? `<span style="background: #FEF3C7; color: #92400E; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 6px; text-transform: uppercase;">Discount Applied</span>` : ''}
+        </td>
+        <td style="padding: 12px; text-align: center; color: #4A5568;">${qty}</td>
+        <td style="padding: 12px; text-align: right; color: #4A5568;">
+          ${hasItemDiscount ? `<span style="text-decoration: line-through; color: #A0AEC0; font-size: 11px; margin-right: 4px;">₹${regularPrice.toLocaleString('en-IN')}</span>` : ''}
+          <span style="font-weight: 700; color: #0C2317;">₹${sellingPrice.toLocaleString('en-IN')}</span>
+        </td>
+        <td style="padding: 12px; text-align: right; color: #1A202C; font-weight: 700;">
+          ${hasItemDiscount ? `<span style="text-decoration: line-through; color: #A0AEC0; font-size: 11px; margin-right: 4px; font-weight: normal;">₹${(regularPrice * qty).toLocaleString('en-IN')}</span>` : ''}
+          <span>₹${lineTotal.toLocaleString('en-IN')}</span>
+        </td>
       </tr>
-    `
+    `;
+      }
     )
     .join('');
 

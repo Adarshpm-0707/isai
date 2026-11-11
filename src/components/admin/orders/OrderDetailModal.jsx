@@ -192,9 +192,24 @@ export default function OrderDetailModal({
                         <p className="font-sans font-bold text-[#FFFFFF] text-sm truncate" title={item.name}>
                           {item.name}
                         </p>
-                        <p className="text-[11px] text-[#A1A1AA]">
-                          Unit Price: ₹{item.price.toLocaleString('en-IN')} &bull; Quantity: {item.qty}
-                        </p>
+                        <div className="text-[11px] text-[#A1A1AA] flex items-center gap-1.5 flex-wrap">
+                          <span>Unit Price:</span>
+                          {item.hasDiscount ? (
+                            <span className="flex items-center gap-1 font-mono">
+                              <span className="line-through text-[#71717A]">
+                                ₹{item.regularPrice.toLocaleString('en-IN')}
+                              </span>
+                              <span className="text-[#DFC18A] font-bold">
+                                ₹{item.price.toLocaleString('en-IN')}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="text-[#DFC18A] font-mono font-bold">
+                              ₹{item.price.toLocaleString('en-IN')}
+                            </span>
+                          )}
+                          <span>&bull; Quantity: {item.qty}</span>
+                        </div>
                         {item.category && (
                           <span className="inline-block mt-0.5 px-2 py-0.2 rounded-full text-[9px] font-bold uppercase bg-[#090B10] text-[#D4AF37] border border-[#D4AF37]/30">
                             {item.category}
@@ -204,7 +219,12 @@ export default function OrderDetailModal({
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="font-bold text-sm text-[#DFC18A]">
+                      {item.hasDiscount && (
+                        <p className="line-through text-[10px] text-[#71717A] font-mono">
+                          ₹{item.regularLineTotal.toLocaleString('en-IN')}
+                        </p>
+                      )}
+                      <span className="font-bold text-sm text-[#DFC18A] font-mono">
                         ₹{item.lineTotal.toLocaleString('en-IN')}
                       </span>
                     </div>

@@ -19,7 +19,12 @@ export default function OrderSuccess() {
   const subtotal = Number(
     orderState.subtotal ??
     order.subtotal ??
-    (items.reduce((sum, it) => sum + (Number(it.price || it.product?.price || 0) * (it.qty || it.quantity || 1)), 0) || totalAmount)
+    (items.reduce((sum, it) => {
+      const prod = it.product || it;
+      const unit = Number(it.price ?? it.selling_price ?? prod.discount_price ?? it.discount_price ?? prod.price ?? 0);
+      const qty = it.qty || it.quantity || 1;
+      return sum + (unit * qty);
+    }, 0) || totalAmount)
   );
   const discount = Number(orderState.discount ?? order.discount ?? order.discount_amount ?? 0);
   const couponCode = orderState.couponCode || order.coupon_code || order.coupon?.code || null;
@@ -236,19 +241,61 @@ export default function OrderSuccess() {
                 </div>
 
                 {(items.length > 0 ? items : [{ name: 'Handcrafted Heritage Saree', qty: 1, price: totalAmount }]).map(
-                  (it, index) => (
-                    <div key={index} className="flex justify-between items-start gap-2">
-                      <div className="leading-tight">
-                        <p className="font-bold text-[#140E0C]">{it.name || it.product?.name || 'Heritage Saree'}</p>
-                        <p className="text-[10px] text-[#6E5F55]">
-                          Qty: {it.qty || it.quantity || 1} &times; ₹{Number(it.price || it.product?.price || totalAmount).toLocaleString('en-IN')}
-                        </p>
+                  (it, index) => {
+                    const prod = it.product || it;
+                    const qty = it.qty || it.quantity || 1;
+                    const sellingPrice = Number(
+                      it.price ??
+                      it.selling_price ??
+                      prod.discount_price ??
+                      it.discount_price ??
+                      it.unit_price ??
+                      prod.price ??
+                      (items.length === 1 ? subtotal : totalAmount)
+                    );
+                    const regularPrice = Number(
+                      it.regular_price ??
+                      prod.price ??
+                      it.original_price ??
+                      it.mrp ??
+                      sellingPrice
+                    );
+                    const hasItemDiscount = regularPrice > sellingPrice && sellingPrice > 0;
+                    const lineTotal = sellingPrice * qty;
+
+                    return (
+                      <div key={index} className="flex justify-between items-start gap-2">
+                        <div className="leading-tight">
+                          <p className="font-bold text-[#140E0C]">{it.name || prod.name || 'Heritage Saree'}</p>
+                          <div className="text-[10px] text-[#6E5F55] flex items-center gap-1.5 flex-wrap">
+                            <span>Qty: {qty} &times;</span>
+                            {hasItemDiscount ? (
+                              <span className="inline-flex items-center gap-1">
+                                <span className="line-through text-[#9C8E84]">
+                                  ₹{regularPrice.toLocaleString('en-IN')}
+                                </span>
+                                <span className="font-bold text-[#140E0C]">
+                                  ₹{sellingPrice.toLocaleString('en-IN')}
+                                </span>
+                              </span>
+                            ) : (
+                              <span>₹{sellingPrice.toLocaleString('en-IN')}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0 whitespace-nowrap">
+                          {hasItemDiscount && (
+                            <p className="line-through text-[9px] text-[#9C8E84]">
+                              ₹{(regularPrice * qty).toLocaleString('en-IN')}
+                            </p>
+                          )}
+                          <span className="font-bold text-[#140E0C]">
+                            ₹{lineTotal.toLocaleString('en-IN')}
+                          </span>
+                        </div>
                       </div>
-                      <span className="font-bold text-[#140E0C] whitespace-nowrap">
-                        ₹{Number((it.price || it.product?.price || totalAmount) * (it.qty || it.quantity || 1)).toLocaleString('en-IN')}
-                      </span>
-                    </div>
-                  )
+                    );
+                  }
                 )}
               </div>
 

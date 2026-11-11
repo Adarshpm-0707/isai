@@ -103,11 +103,46 @@ export const checkoutService = {
   },
 
   async createCodOrder(orderPayload) {
-    const items = orderPayload.cartItems || orderPayload.items || [];
+    const rawItems = orderPayload.cartItems || orderPayload.items || [];
+    const items = rawItems.map((it) => {
+      const prod = it.product || it;
+      const sellingPrice = Number(
+        prod.discount_price ??
+        it.discount_price ??
+        it.selling_price ??
+        it.unit_price ??
+        it.price ??
+        prod.price ??
+        0
+      );
+      const regularPrice = Number(
+        prod.price ??
+        it.regular_price ??
+        it.original_price ??
+        it.mrp ??
+        it.price ??
+        sellingPrice
+      );
+      const qty = Number(it.quantity || it.qty || 1);
+
+      return {
+        ...it,
+        name: it.name || prod.name || 'Handcrafted Saree',
+        price: sellingPrice,
+        unit_price: sellingPrice,
+        selling_price: sellingPrice,
+        regular_price: regularPrice,
+        discount_price: (regularPrice > sellingPrice && sellingPrice > 0) ? sellingPrice : null,
+        qty: qty,
+        quantity: qty,
+        product: prod,
+      };
+    });
+
     const shipping = orderPayload.shippingAddress || orderPayload.shipping_address || {};
     const subtotal = Number(
       orderPayload.subtotal ??
-      items.reduce((acc, it) => acc + (Number(it.price || it.product?.price || 0) * (it.quantity || it.qty || 1)), 0)
+      items.reduce((acc, it) => acc + (it.price * it.quantity), 0)
     );
     const discount = Number(orderPayload.discount ?? orderPayload.discount_amount ?? 0);
     const couponCode = orderPayload.coupon_code || orderPayload.coupon?.code || (typeof orderPayload.coupon === 'string' ? orderPayload.coupon : null);
@@ -247,11 +282,46 @@ export const checkoutService = {
   },
 
   async verifyAndSaveOrder(payload) {
-    const items = payload.cartItems || payload.items || [];
+    const rawItems = payload.cartItems || payload.items || [];
+    const items = rawItems.map((it) => {
+      const prod = it.product || it;
+      const sellingPrice = Number(
+        prod.discount_price ??
+        it.discount_price ??
+        it.selling_price ??
+        it.unit_price ??
+        it.price ??
+        prod.price ??
+        0
+      );
+      const regularPrice = Number(
+        prod.price ??
+        it.regular_price ??
+        it.original_price ??
+        it.mrp ??
+        it.price ??
+        sellingPrice
+      );
+      const qty = Number(it.quantity || it.qty || 1);
+
+      return {
+        ...it,
+        name: it.name || prod.name || 'Handcrafted Saree',
+        price: sellingPrice,
+        unit_price: sellingPrice,
+        selling_price: sellingPrice,
+        regular_price: regularPrice,
+        discount_price: (regularPrice > sellingPrice && sellingPrice > 0) ? sellingPrice : null,
+        qty: qty,
+        quantity: qty,
+        product: prod,
+      };
+    });
+
     const shipping = payload.shippingAddress || payload.shipping_address || {};
     const subtotal = Number(
       payload.subtotal ??
-      items.reduce((acc, it) => acc + (Number(it.price || it.product?.price || 0) * (it.quantity || it.qty || 1)), 0)
+      items.reduce((acc, it) => acc + (it.price * it.quantity), 0)
     );
     const discount = Number(payload.discount ?? payload.discount_amount ?? 0);
     const couponCode = payload.coupon_code || payload.coupon?.code || (typeof payload.coupon === 'string' ? payload.coupon : null);

@@ -13,46 +13,70 @@ export function getItemDetails(item) {
     return {
       name: 'Handcrafted Heritage Saree',
       price: 0,
+      regularPrice: 0,
+      sellingPrice: 0,
+      hasDiscount: false,
       qty: 1,
       image: DEFAULT_ITEM_IMAGE,
       size: 'Free Size',
+      category: '',
       lineTotal: 0,
+      regularLineTotal: 0,
     };
   }
 
+  const prod = item.product || {};
   const name =
     item.name ||
     item.title ||
-    item.product?.name ||
-    item.product?.title ||
+    prod.name ||
+    prod.title ||
     'Handcrafted Heritage Saree';
 
-  const price = Number(
-    item.price ||
-    item.unit_price ||
-    item.product?.price ||
-    item.product?.regular_price ||
+  const sellingPrice = Number(
+    item.discount_price ??
+    prod.discount_price ??
+    item.selling_price ??
+    item.unit_price ??
+    item.price ??
+    prod.price ??
     0
   );
 
+  const regularPrice = Number(
+    item.regular_price ??
+    prod.price ??
+    item.original_price ??
+    item.mrp ??
+    item.price ??
+    sellingPrice
+  );
+
+  const hasDiscount = regularPrice > sellingPrice && sellingPrice > 0;
   const qty = Number(item.qty || item.quantity || 1);
 
   const image =
     item.image ||
-    item.product?.images?.[0] ||
-    item.product?.image ||
+    prod.images?.[0] ||
+    prod.image ||
     (Array.isArray(item.images) ? item.images[0] : null) ||
     DEFAULT_ITEM_IMAGE;
 
   const size = item.size || item.selected_size || item.variant || 'Free Size';
+  const category = item.category || prod.category || '';
 
   return {
     name,
-    price,
+    price: sellingPrice,
+    sellingPrice,
+    regularPrice,
+    hasDiscount,
     qty,
     image,
     size,
-    lineTotal: price * qty,
+    category,
+    lineTotal: sellingPrice * qty,
+    regularLineTotal: regularPrice * qty,
   };
 }
 

@@ -165,9 +165,20 @@ export default function OrderHistoryCard({
                       </span>
                       {' · '}
                       Price:{' '}
-                      <span className="text-[#DFC18A] font-semibold">
-                        ₹{item.price.toLocaleString('en-IN')}
-                      </span>
+                      {item.hasDiscount ? (
+                        <>
+                          <span className="line-through text-[#8E7B6F] mr-1">
+                            ₹{item.regularPrice.toLocaleString('en-IN')}
+                          </span>
+                          <span className="text-[#DFC18A] font-semibold">
+                            ₹{item.price.toLocaleString('en-IN')}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-[#DFC18A] font-semibold">
+                          ₹{item.price.toLocaleString('en-IN')}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -179,6 +190,11 @@ export default function OrderHistoryCard({
                       Unit Price × Qty
                     </span>
                     <span className="text-[#C7B5A7]">
+                      {item.hasDiscount && (
+                        <span className="line-through text-[#8E7B6F] mr-1.5">
+                          ₹{item.regularPrice.toLocaleString('en-IN')}
+                        </span>
+                      )}
                       ₹{item.price.toLocaleString('en-IN')} × {item.qty}
                     </span>
                   </div>
@@ -187,6 +203,11 @@ export default function OrderHistoryCard({
                     <span className="text-[#8E7B6F] block text-[10px] uppercase">
                       Item Total
                     </span>
+                    {item.hasDiscount && (
+                      <span className="line-through text-xs text-[#8E7B6F] block">
+                        ₹{item.regularLineTotal.toLocaleString('en-IN')}
+                      </span>
+                    )}
                     <span className="text-base sm:text-lg font-bold text-[#DFC18A]">
                       ₹{item.lineTotal.toLocaleString('en-IN')}
                     </span>

@@ -68,9 +68,21 @@ export default function CheckoutOrderSummary({
                 <h4 className="text-xs font-semibold text-[#FDF8F4] truncate">
                   {prod.name || item.name}
                 </h4>
-                <p className="text-[11px] text-[#8E7B6F]">
-                  Qty: {qty} × ₹{unitPrice.toLocaleString('en-IN')}
-                </p>
+                <div className="text-[11px] text-[#8E7B6F] flex items-center gap-1.5 flex-wrap">
+                  <span>Qty: {qty} ×</span>
+                  {Number(prod.price || item.regular_price || 0) > unitPrice ? (
+                    <span className="flex items-center gap-1">
+                      <span className="line-through text-[#6E5F55]">
+                        ₹{Number(prod.price || item.regular_price).toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-[#DFC18A] font-semibold">
+                        ₹{unitPrice.toLocaleString('en-IN')}
+                      </span>
+                    </span>
+                  ) : (
+                    <span>₹{unitPrice.toLocaleString('en-IN')}</span>
+                  )}
+                </div>
               </div>
             </div>
           );
