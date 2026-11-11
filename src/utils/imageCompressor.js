@@ -57,3 +57,4 @@ export async function compressImage(file, { maxWidth = 1000, maxHeight = 1000, q
     reader.readAsDataURL(file);
   });
 }
+

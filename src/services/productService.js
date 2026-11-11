@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 import { compressImage } from '../utils/imageCompressor';
+import bundledCatalog from '../data/catalog.json';
 
 const PRODUCTS_STORAGE_KEY = 'isai_tarang_products';
 
@@ -46,19 +47,34 @@ function cleanDemoProducts(list) {
 function getLocalProducts() {
   try {
     const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(PRODUCTS_STORAGE_KEY) : null;
+    let list = [];
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        const cleaned = cleanDemoProducts(parsed);
-        if (cleaned.length !== parsed.length && typeof localStorage !== 'undefined') {
-          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(cleaned));
-        }
-        return cleaned;
+        list = parsed;
       }
     }
-    return [];
+
+    // Merge bundled catalog from codebase so localhost additions deploy to Vercel and Netlify
+    const bundled = Array.isArray(bundledCatalog?.products) ? bundledCatalog.products : [];
+    if (bundled.length > 0) {
+      const map = new Map();
+      bundled.forEach((p) => {
+        if (p && p.id) map.set(p.id, p);
+      });
+      list.forEach((p) => {
+        if (p && p.id) {
+          const existing = map.get(p.id);
+          map.set(p.id, { ...existing, ...p });
+        }
+      });
+      list = Array.from(map.values());
+    }
+
+    const cleaned = cleanDemoProducts(list);
+    return cleaned;
   } catch {
-    return [];
+    return cleanDemoProducts(bundledCatalog?.products || []);
   }
 }
 

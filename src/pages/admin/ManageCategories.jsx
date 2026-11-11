@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { categoryService } from '../../services/categoryService';
 import { productService } from '../../services/productService';
 import { adminLogService } from '../../services/adminLogService';
+import { catalogSyncService } from '../../services/catalogSyncService';
 import SectionHeading from '../../components/reusable/SectionHeading';
 import Modal from '../../components/reusable/Modal';
 import {
@@ -14,6 +15,7 @@ import {
   AlertCircle,
   RefreshCw,
   Upload,
+  CloudUpload,
   Image as ImageIcon,
   X,
 } from 'lucide-react';
@@ -33,7 +35,22 @@ export default function ManageCategories() {
   const [imageUrl, setImageUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [feedback, setFeedback] = useState(null);
+
+  const handlePushToCodebase = async () => {
+    setSyncing(true);
+    const res = await catalogSyncService.pushLocalhostToCodebase();
+    setSyncing(false);
+    if (res.success) {
+      showNotification(
+        `Saved to codebase! ${res.productsCount} products and ${res.categoriesCount} categories written to catalog.json. Run git push to deploy to Netlify and Vercel.`,
+        'success'
+      );
+    } else {
+      showNotification(res.error || 'Failed to save to codebase', 'error');
+    }
+  };
 
   const showNotification = (message, type = 'success') => {
     setFeedback({ message, type });
@@ -214,12 +231,25 @@ export default function ManageCategories() {
           subtitle="Catalog category taxonomies, cover imagery, and classification"
           align="left"
         />
-        <button
-          onClick={() => handleOpenModal()}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
-        >
-          <Plus className="w-4 h-4" /> Add Category
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={handlePushToCodebase}
+            disabled={syncing}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#1A3C2B] hover:bg-[#23503a] border border-[#D4AF37]/40 text-[#D4AF37] text-xs font-bold uppercase rounded-lg shadow transition-all cursor-pointer disabled:opacity-50"
+            title="Save current localhost categories directly into src/data/catalog.json for git push to Netlify & Vercel"
+          >
+            <CloudUpload className={`w-3.5 h-3.5 ${syncing ? 'animate-bounce' : ''}`} />
+            <span>{syncing ? 'Saving...' : 'Sync to Codebase'}</span>
+          </button>
+
+          <button
+            onClick={() => handleOpenModal()}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" /> Add Category
+          </button>
+        </div>
       </div>
 
       {/* Floating Notification */}

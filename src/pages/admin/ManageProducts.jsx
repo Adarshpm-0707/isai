@@ -1,11 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { categoryService } from '../../services/categoryService';
 import { productService } from '../../services/productService';
 import { adminLogService } from '../../services/adminLogService';
+import { catalogSyncService } from '../../services/catalogSyncService';
 import SectionHeading from '../../components/reusable/SectionHeading';
 import PriceTag from '../../components/reusable/PriceTag';
-import { Plus, Edit2, Trash2, Search, RefreshCw, PackageOpen } from 'lucide-react';
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
+  RefreshCw,
+  PackageOpen,
+  CloudUpload,
+  Download,
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
 
 export default function ManageProducts() {
   const [products, setProducts] = useState(() => productService.getLocalProducts());
@@ -13,6 +26,9 @@ export default function ManageProducts() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [syncing, setSyncing] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState(null);
+  const fileInputRef = useRef(null);
 
   const fetchCategories = async () => {
     const local = categoryService.getLocalCategories();
@@ -74,20 +90,124 @@ export default function ManageProducts() {
     }
   };
 
+  const handlePushToCodebase = async () => {
+    setSyncing(true);
+    const res = await catalogSyncService.pushLocalhostToCodebase();
+    setSyncing(false);
+    if (res.success) {
+      setSyncFeedback({
+        type: 'success',
+        msg: `Saved to codebase! ${res.productsCount} products and ${res.categoriesCount} categories written to catalog.json. Run git push to deploy to Netlify and Vercel.`,
+      });
+    } else {
+      setSyncFeedback({
+        type: 'error',
+        msg: res.error || 'Failed to save to codebase',
+      });
+    }
+    setTimeout(() => setSyncFeedback(null), 5000);
+  };
+
+  const handleExport = () => {
+    catalogSyncService.exportCatalogAsJsonFile();
+  };
+
+  const handleImportFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const res = await catalogSyncService.importCatalogFromJsonFile(file);
+      setSyncFeedback({
+        type: 'success',
+        msg: `Imported ${res.productsCount} products and ${res.categoriesCount} categories successfully!`,
+      });
+      fetchAllProducts();
+      fetchCategories();
+    } catch (err) {
+      setSyncFeedback({ type: 'error', msg: err.message || 'Import failed' });
+    }
+    setTimeout(() => setSyncFeedback(null), 5000);
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+      {/* Hidden file input for catalog import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImportFile}
+        accept=".json"
+        className="hidden"
+      />
+
+      {/* Sync Feedback Toast */}
+      {syncFeedback && (
+        <div
+          className={`p-4 rounded-xl border flex items-center gap-3 text-xs shadow-lg transition-all ${
+            syncFeedback.type === 'error'
+              ? 'bg-red-950/80 border-red-500/50 text-red-200'
+              : 'bg-[#153424] border-[#D4AF37]/50 text-[#F3E5AB]'
+          }`}
+        >
+          {syncFeedback.type === 'error' ? (
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-[#D4AF37] shrink-0" />
+          )}
+          <span className="font-semibold">{syncFeedback.msg}</span>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
           title="Product Inventory"
           subtitle="Configure, add, edit, or remove catalog items"
           align="left"
         />
-        <Link
-          to="/admin/products/new"
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all"
-        >
-          <Plus className="w-4 h-4" /> Add Product
-        </Link>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Push to Codebase (for localhost to Netlify/Vercel) */}
+          <button
+            type="button"
+            onClick={handlePushToCodebase}
+            disabled={syncing}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#1A3C2B] hover:bg-[#23503a] border border-[#D4AF37]/40 text-[#D4AF37] text-xs font-bold uppercase rounded-lg shadow transition-all cursor-pointer disabled:opacity-50"
+            title="Save current localhost catalog directly into src/data/catalog.json for git push to Netlify & Vercel"
+          >
+            <CloudUpload className={`w-3.5 h-3.5 ${syncing ? 'animate-bounce' : ''}`} />
+            <span>{syncing ? 'Saving...' : 'Sync to Codebase'}</span>
+          </button>
+
+          {/* Export JSON */}
+          <button
+            type="button"
+            onClick={handleExport}
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#1A3C2B]/80 hover:bg-[#1A3C2B] border border-[#D4AF37]/30 text-[#EADFC9] text-xs font-semibold rounded-lg shadow transition-all cursor-pointer"
+            title="Download catalog as JSON backup"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+
+          {/* Import JSON */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#1A3C2B]/80 hover:bg-[#1A3C2B] border border-[#D4AF37]/30 text-[#EADFC9] text-xs font-semibold rounded-lg shadow transition-all cursor-pointer"
+            title="Import catalog from JSON backup"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Import</span>
+          </button>
+
+          {/* Add Product */}
+          <Link
+            to="/admin/products/new"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all"
+          >
+            <Plus className="w-4 h-4" /> Add Product
+          </Link>
+        </div>
       </div>
 
       {/* Filter & Search Controls */}
