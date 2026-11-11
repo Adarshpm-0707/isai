@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CheckCircle2, Download, ShoppingBag, ClipboardList, Printer, Sparkles } from 'lucide-react';
+import { CheckCircle2, Download, ShoppingBag, ClipboardList } from 'lucide-react';
 import { motion } from 'framer-motion';
+import isaiLogo from '../assets/isai_logo.png';
 import BrandLogo from '../components/reusable/BrandLogo';
 import { FloralOrnament } from '../components/reusable/FloralOrnament';
 import { printOrderInvoice } from '../utils/orderReportUtils';
@@ -104,7 +105,7 @@ export default function OrderSuccess() {
             <div className="flex items-center justify-between">
               {/* Printer Hardware Badge */}
               <div className="flex items-center gap-2">
-                <Printer className="w-4 h-4 text-[#DFC18A]" />
+                <img src={isaiLogo} alt="Isaitarang Logo" className="h-4 w-auto object-contain" />
                 <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-[#DFC18A]">
                   ISAITARANG POS-90
                 </span>
@@ -175,17 +176,18 @@ export default function OrderSuccess() {
               </div>
 
               {/* RECEIPT HEADER */}
-              <div className="text-center space-y-1 pb-3 border-b-2 border-dashed border-[#B8AA98]">
-                <h3 className="font-serif font-black tracking-wider text-lg text-[#140E0C]">
-                  ISAITARANG
-                </h3>
-                <p className="text-[10px] tracking-widest uppercase text-[#5A4B42]">
-                  Handcrafted Heritage Sarees
-                </p>
+              <div className="text-center space-y-1.5 pb-3 border-b-2 border-dashed border-[#B8AA98]">
+                <div className="flex justify-center items-center py-1">
+                  <img
+                    src={isaiLogo}
+                    alt="Isai Tarang Official Logo"
+                    className="h-10 sm:h-12 w-auto object-contain mx-auto"
+                  />
+                </div>
                 <p className="text-[9px] text-[#786960]">
                   Kannur, Kerala &bull; Ph: +91 9048868444
                 </p>
-                <div className="pt-1">
+                <div className="pt-0.5">
                   <span className="inline-block px-2.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-[#EDE5D5] text-[#3A2D25] border border-[#C5B7A5]">
                     Official Sales Receipt
                   </span>

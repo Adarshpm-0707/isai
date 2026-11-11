@@ -16,7 +16,6 @@ export default function Cart() {
     removeFromCart,
     subtotal,
     discount,
-    shippingFee,
     totalAmount,
     appliedCoupon,
     applyCoupon,
