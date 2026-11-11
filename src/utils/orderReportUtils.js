@@ -2,6 +2,7 @@
  * Utility functions for exporting Orders to Excel (CSV), generating printable PDF Audit Reports,
  * and generating branded Tax Invoices.
  */
+import { BRAND_LOGO_BASE64 } from '../assets/brandLogoBase64';
 
 export function exportOrdersToCSV(filteredOrders = [], activeTab = 'all') {
   if (!filteredOrders || filteredOrders.length === 0) {
@@ -178,13 +179,16 @@ export function printOrderInvoice(order) {
     <html>
       <head>
         <title>Invoice - ${order.id || order.order_id}</title>
+        <base href="${typeof window !== 'undefined' ? window.location.origin : ''}/">
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600;700&display=swap');
           body { font-family: 'Inter', sans-serif; color: #1A202C; background-color: #FFFFFF; margin: 0; padding: 40px; }
           .invoice-container { max-width: 800px; margin: 0 auto; border: 1px solid #E2E8F0; border-radius: 8px; padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
           .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #D4AF37; padding-bottom: 20px; margin-bottom: 24px; }
-          .brand-title { font-family: 'Cinzel', serif; font-size: 26px; font-weight: 700; color: #0C2317; margin: 0; letter-spacing: 1px; }
-          .brand-sub { font-size: 11px; color: #B8860B; text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; font-weight: 700; }
+          .brand-logo-container { margin-bottom: 6px; }
+          .brand-logo-img { height: 50px; width: auto; max-width: 220px; object-fit: contain; display: block; }
+          .brand-sub { font-size: 11px; color: #B8860B; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; font-weight: 700; }
+          .brand-contact-info { font-size: 11px; color: #4A5568; line-height: 1.5; }
           .inv-badge { text-align: right; }
           .inv-title { font-size: 22px; font-weight: 700; color: #0C2317; text-transform: uppercase; letter-spacing: 1px; }
           .meta-table { width: 100%; margin-bottom: 24px; }
@@ -206,11 +210,13 @@ export function printOrderInvoice(order) {
         <div class="invoice-container">
           <div class="header">
             <div>
-              <h1 class="brand-title">ISAI TARANG</h1>
+              <div class="brand-logo-container">
+                <img src="${BRAND_LOGO_BASE64}" alt="Isai Tarang" class="brand-logo-img" />
+              </div>
               <div class="brand-sub">Handcrafted Heritage Sarees</div>
-              <div style="font-size: 11px; color: #4A5568; margin-top: 8px;">
-                GSTIN: 33AAAAA0000A1Z5 | Reg: Kanchipuram, TN<br/>
-                Phone: +91 90488 68444 | Email: support@isaitarang.com
+              <div class="brand-contact-info">
+                Divyadeepam, P.O. Pallikkunnu, Kannur 670004, Kerala, India<br/>
+                Phone: +91 90488 68444 | Email: isaitarang9@gmail.com
               </div>
             </div>
             <div class="inv-badge">
@@ -280,7 +286,11 @@ export function printOrderInvoice(order) {
           </div>
 
           <div class="footer">
-            <p>Thank you for shopping with <strong>Isai Tarang Heritage Sarees</strong>.</p>
+            <p style="margin: 0 0 6px 0; font-weight: 600; color: #1A202C;">Thank you for shopping with <strong>Isai Tarang Heritage Sarees</strong>.</p>
+            <p style="margin: 0 0 12px 0; font-size: 11px; color: #718096; line-height: 1.5;">
+              Design Studio & Atelier: Divyadeepam, P.O. Pallikkunnu, Kannur 670004, Kerala, India<br/>
+              Phone: +91 90488 68444 &bull; Email: isaitarang9@gmail.com
+            </p>
             <div class="stamp">OFFICIAL VERIFIED INVOICE</div>
           </div>
         </div>
