@@ -126,21 +126,24 @@ export const orderService = {
     return getLocalOrders();
   },
 
-  async getUserOrders(userId = null) {
+  async getUserOrders(userId = null, userEmail = null) {
     let dbOrders = [];
-    if (userId) {
+    if (userId || userEmail) {
       try {
         const timer = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('timeout')), 1000)
         );
-        const { data } = await Promise.race([
-          supabase
-            .from('orders')
-            .select('*')
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false }),
-          timer,
-        ]);
+        let query = supabase.from('orders').select('*');
+        if (userId && userEmail) {
+          query = query.or(`user_id.eq.${userId},customer_email.eq.${userEmail}`);
+        } else if (userId) {
+          query = query.eq('user_id', userId);
+        } else if (userEmail) {
+          query = query.eq('customer_email', userEmail);
+        }
+        query = query.order('created_at', { ascending: false });
+
+        const { data } = await Promise.race([query, timer]);
         if (Array.isArray(data)) dbOrders = cleanDemoOrders(data);
       } catch (e) {
         console.warn('Supabase getUserOrders notice:', e?.message);
@@ -150,9 +153,22 @@ export const orderService = {
     const localOrders = getLocalOrders();
     const combined = [...dbOrders];
 
+    const uEmail = userEmail ? userEmail.toLowerCase().trim() : null;
+    const uId = userId ? String(userId).toLowerCase().trim() : null;
+
     localOrders.forEach((lo) => {
-      // Include matching user orders or device guest orders
-      if (!userId || !lo.user_id || lo.user_id === userId) {
+      const loUserId = lo.user_id ? String(lo.user_id).toLowerCase().trim() : null;
+      const loEmail = (lo.customer_email || lo.shipping_address?.email || lo.profiles?.email || '').toLowerCase().trim();
+      const loName = (lo.customer_name || lo.shipping_address?.name || '').toLowerCase().trim();
+
+      const isMatch =
+        (!uId && !uEmail) || // all local orders if guest
+        (!loUserId && !loEmail) || // local device guest order
+        (uId && loUserId && uId === loUserId) ||
+        (uEmail && loEmail && uEmail === loEmail) ||
+        (uEmail && loName && uEmail.split('@')[0] === loName);
+
+      if (isMatch) {
         if (!combined.some((bo) => (bo.id && bo.id === lo.id) || (bo.order_id && bo.order_id === lo.order_id))) {
           combined.push(lo);
         }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { supabase } from '../lib/supabaseClient';
+import { orderService } from '../services/orderService';
 import { User, Mail, Phone, MapPin, ShoppingBag, LogOut, CheckCircle2, ShieldCheck, Save, ArrowRight } from 'lucide-react';
 import BrandLogo from '../components/reusable/BrandLogo';
 import { FloralOrnament } from '../components/reusable/FloralOrnament';
@@ -40,6 +41,34 @@ export default function CustomerProfile() {
 
   const fetchCustomerOrders = async () => {
     if (!user?.email && !user?.id) return;
+
+    // 1. Immediately read local orders (0 ms)
+    try {
+      const local = orderService.getLocalOrders();
+      const uEmail = user.email ? user.email.toLowerCase().trim() : null;
+      const uId = user.id ? String(user.id).toLowerCase().trim() : null;
+
+      const matching = local.filter((o) => {
+        const loUserId = o.user_id ? String(o.user_id).toLowerCase().trim() : null;
+        const loEmail = (o.customer_email || o.shipping_address?.email || o.profiles?.email || '').toLowerCase().trim();
+        const loName = (o.customer_name || o.shipping_address?.name || '').toLowerCase().trim();
+
+        return (
+          (uId && loUserId && uId === loUserId) ||
+          (uEmail && loEmail && uEmail === loEmail) ||
+          (uEmail && loName && uEmail.split('@')[0] === loName) ||
+          (!loUserId && !loEmail)
+        );
+      });
+
+      if (matching.length > 0) {
+        setRecentOrders(matching.slice(0, 5));
+      }
+    } catch {
+      // Fallback
+    }
+
+    // 2. Fetch from Supabase in background
     try {
       const { data } = await supabase
         .from('orders')
@@ -48,9 +77,9 @@ export default function CustomerProfile() {
         .order('created_at', { ascending: false })
         .limit(5);
 
-      if (data) setRecentOrders(data);
+      if (data && data.length > 0) setRecentOrders(data);
     } catch (err) {
-      console.warn('Failed to fetch customer orders:', err);
+      console.warn('Notice loading customer orders:', err);
     }
   };
 

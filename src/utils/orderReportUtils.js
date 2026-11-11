@@ -3,6 +3,7 @@
  * and generating branded Tax Invoices.
  */
 import { BRAND_LOGO_BASE64 } from '../assets/brandLogoBase64';
+import { getItemDetails } from './orderHelpers';
 
 export function exportOrdersToCSV(filteredOrders = [], activeTab = 'all') {
   if (!filteredOrders || filteredOrders.length === 0) {
@@ -182,33 +183,18 @@ export function printOrderInvoice(order) {
   )
     .map(
       (it, idx) => {
-        const prod = it.product || it;
-        const qty = it.qty || it.quantity || 1;
-        const sellingPrice = Number(
-          (it.discount_price && Number(it.discount_price) > 0) ? it.discount_price :
-          (prod.discount_price && Number(prod.discount_price) > 0) ? prod.discount_price :
-          it.selling_price ??
-          it.unit_price ??
-          it.price ??
-          prod.price ??
-          (items.length === 1 ? subtotal : total)
-        );
-        const regularPrice = Number(
-          it.regular_price ??
-          prod.price ??
-          it.original_price ??
-          it.mrp ??
-          it.price ??
-          sellingPrice
-        );
-        const hasItemDiscount = regularPrice > sellingPrice && sellingPrice > 0;
-        const lineTotal = sellingPrice * qty;
+        const item = getItemDetails(it);
+        const qty = item.qty || 1;
+        const sellingPrice = item.price;
+        const regularPrice = item.regularPrice;
+        const hasItemDiscount = item.hasDiscount;
+        const lineTotal = item.lineTotal;
 
         return `
       <tr style="border-bottom: 1px solid #E2E8F0;">
         <td style="padding: 12px; text-align: center; color: #4A5568;">${idx + 1}</td>
         <td style="padding: 12px; color: #1A202C; font-weight: 600;">
-          ${it.name || prod.name || 'Handcrafted Saree'}
+          ${item.name}
           ${hasItemDiscount ? `<span style="background: #FEF3C7; color: #92400E; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 6px; text-transform: uppercase;">Discount Applied</span>` : ''}
         </td>
         <td style="padding: 12px; text-align: center; color: #4A5568;">${qty}</td>
@@ -217,7 +203,7 @@ export function printOrderInvoice(order) {
           <span style="font-weight: 700; color: #0C2317;">₹${sellingPrice.toLocaleString('en-IN')}</span>
         </td>
         <td style="padding: 12px; text-align: right; color: #1A202C; font-weight: 700;">
-          ${hasItemDiscount ? `<span style="text-decoration: line-through; color: #A0AEC0; font-size: 11px; margin-right: 4px; font-weight: normal;">₹${(regularPrice * qty).toLocaleString('en-IN')}</span>` : ''}
+          ${hasItemDiscount ? `<span style="text-decoration: line-through; color: #A0AEC0; font-size: 11px; margin-right: 4px; font-weight: normal;">₹${item.regularLineTotal.toLocaleString('en-IN')}</span>` : ''}
           <span>₹${lineTotal.toLocaleString('en-IN')}</span>
         </td>
       </tr>

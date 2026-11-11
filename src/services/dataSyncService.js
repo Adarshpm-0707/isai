@@ -10,7 +10,13 @@
 export async function syncLocalhostData({ orders = null, catalog = null, replaceAll = false } = {}) {
   if (typeof window === 'undefined') return;
   const hostname = window.location?.hostname || '';
-  const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+  const isLocal =
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '0.0.0.0' ||
+    hostname.startsWith('192.168.') ||
+    hostname.startsWith('10.') ||
+    hostname.endsWith('.local');
   if (!isLocal) return;
 
   try {

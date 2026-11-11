@@ -179,6 +179,8 @@ export const checkoutService = {
     // Rich local object compatible with all UI components
     const orderData = {
       ...dbInsertPayload,
+      user_id: rawUserId || userId || null,
+      customer_id: rawUserId || userId || null,
       id: orderUuid,
       order_id: readableOrderId,
       orderId: readableOrderId,
@@ -205,7 +207,7 @@ export const checkoutService = {
     }
 
     // 2. Persist customer contact into customer directory
-    saveCustomerContact(shipping, userId);
+    saveCustomerContact(shipping, rawUserId || userId);
 
     // 3. Automatically decrease product stock in inventory
     try {
@@ -219,23 +221,14 @@ export const checkoutService = {
       couponService.recordCouponUsage(couponCode).catch(() => {});
     }
 
-    // 5. Save into Supabase orders table
-    try {
-      const { data: dbData, error: dbErr } = await withTimeout(
-        supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
-        3000
-      );
-      if (!dbErr && dbData) {
-        try {
-          const localStored = JSON.parse(localStorage.getItem('isai_orders') || '[]');
-          const merged = localStored.map((o) => (o.id === orderUuid ? { ...o, ...dbData } : o));
-          localStorage.setItem('isai_orders', JSON.stringify(merged));
-        } catch {}
-      } else if (dbErr) {
-        console.warn('Supabase orders table insert notice (saved in local store):', dbErr.message);
-      }
-    } catch (dbErr) {
-      console.warn('Supabase orders sync notice:', dbErr?.message);
+    // 5. Cloud sync to Supabase orders table in background (non-blocking)
+    if (userId) {
+      supabase
+        .from('orders')
+        .insert(dbInsertPayload)
+        .select()
+        .maybeSingle()
+        .catch(() => {});
     }
 
     return orderData;
@@ -356,6 +349,8 @@ export const checkoutService = {
 
     const orderData = {
       ...dbInsertPayload,
+      user_id: rawUserId || userId || null,
+      customer_id: rawUserId || userId || null,
       id: orderUuid,
       order_id: readableOrderId,
       orderId: readableOrderId,
@@ -381,7 +376,7 @@ export const checkoutService = {
     } catch (e) {}
 
     // 2. Persist customer contact into customer directory
-    saveCustomerContact(shipping, userId);
+    saveCustomerContact(shipping, rawUserId || userId);
 
     // 3. Automatically decrease product stock in inventory
     try {
@@ -395,22 +390,15 @@ export const checkoutService = {
       couponService.recordCouponUsage(couponCode).catch(() => {});
     }
 
-    // 5. Cloud sync to Supabase orders table
-    try {
-      const { data: dbData, error: dbErr } = await withTimeout(
-        supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
-        3000
-      );
-      if (!dbErr && dbData) {
-        try {
-          const localStored = JSON.parse(localStorage.getItem('isai_orders') || '[]');
-          const merged = localStored.map((o) => (o.id === orderUuid ? { ...o, ...dbData } : o));
-          localStorage.setItem('isai_orders', JSON.stringify(merged));
-        } catch {}
-      } else if (dbErr) {
-        console.warn('Supabase prepaid order insert notice (saved locally):', dbErr.message);
-      }
-    } catch (e) {}
+    // 5. Cloud sync to Supabase orders table in background (non-blocking)
+    if (userId) {
+      supabase
+        .from('orders')
+        .insert(dbInsertPayload)
+        .select()
+        .maybeSingle()
+        .catch(() => {});
+    }
 
     return orderData;
   },

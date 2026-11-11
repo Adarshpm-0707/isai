@@ -6,6 +6,7 @@ import isaiLogo from '../assets/isai_logo.png';
 import BrandLogo from '../components/reusable/BrandLogo';
 import { FloralOrnament } from '../components/reusable/FloralOrnament';
 import { printOrderInvoice } from '../utils/orderReportUtils';
+import { getItemDetails } from '../utils/orderHelpers';
 
 export default function OrderSuccess() {
   const location = useLocation();
@@ -242,32 +243,17 @@ export default function OrderSuccess() {
 
                 {(items.length > 0 ? items : [{ name: 'Handcrafted Heritage Saree', qty: 1, price: totalAmount }]).map(
                   (it, index) => {
-                    const prod = it.product || it;
-                    const qty = it.qty || it.quantity || 1;
-                    const sellingPrice = Number(
-                      (it.discount_price && Number(it.discount_price) > 0) ? it.discount_price :
-                      (prod.discount_price && Number(prod.discount_price) > 0) ? prod.discount_price :
-                      it.selling_price ??
-                      it.unit_price ??
-                      it.price ??
-                      prod.price ??
-                      (items.length === 1 ? subtotal : totalAmount)
-                    );
-                    const regularPrice = Number(
-                      it.regular_price ??
-                      prod.price ??
-                      it.original_price ??
-                      it.mrp ??
-                      it.price ??
-                      sellingPrice
-                    );
-                    const hasItemDiscount = regularPrice > sellingPrice && sellingPrice > 0;
-                    const lineTotal = sellingPrice * qty;
+                    const item = getItemDetails(it);
+                    const qty = item.qty || 1;
+                    const sellingPrice = item.price;
+                    const regularPrice = item.regularPrice;
+                    const hasItemDiscount = item.hasDiscount;
+                    const lineTotal = item.lineTotal;
 
                     return (
                       <div key={index} className="flex justify-between items-start gap-2">
                         <div className="leading-tight">
-                          <p className="font-bold text-[#140E0C]">{it.name || prod.name || 'Heritage Saree'}</p>
+                          <p className="font-bold text-[#140E0C]">{item.name}</p>
                           <div className="text-[10px] text-[#6E5F55] flex items-center gap-1.5 flex-wrap">
                             <span>Qty: {qty} &times;</span>
                             {hasItemDiscount ? (
@@ -287,7 +273,7 @@ export default function OrderSuccess() {
                         <div className="text-right shrink-0 whitespace-nowrap">
                           {hasItemDiscount && (
                             <p className="line-through text-[9px] text-[#9C8E84]">
-                              ₹{(regularPrice * qty).toLocaleString('en-IN')}
+                              ₹{item.regularLineTotal.toLocaleString('en-IN')}
                             </p>
                           )}
                           <span className="font-bold text-[#140E0C]">

@@ -2,6 +2,8 @@
  * Centralized Order & Item parsing helpers to eliminate duplicate code across admin & customer pages.
  */
 
+import bundledCatalog from '../data/catalog.json';
+
 const DEFAULT_ITEM_IMAGE =
   'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600';
 
@@ -25,13 +27,23 @@ export function getItemDetails(item) {
     };
   }
 
-  const prod = item.product || {};
-  const name =
-    item.name ||
-    item.title ||
-    prod.name ||
-    prod.title ||
-    'Handcrafted Heritage Saree';
+  let prod = item.product || {};
+  const rawName = item.name || item.title || prod.name || prod.title || 'Handcrafted Heritage Saree';
+
+  // If prod is incomplete or missing discount_price, look up product in bundled catalog
+  if (!prod.discount_price) {
+    const catalogProducts = Array.isArray(bundledCatalog?.products) ? bundledCatalog.products : [];
+    const matched = catalogProducts.find(
+      (p) =>
+        (p.id && (p.id === item.product_id || p.id === item.id)) ||
+        (p.name && p.name.toLowerCase() === rawName.toLowerCase())
+    );
+    if (matched) {
+      prod = { ...matched, ...prod };
+    }
+  }
+
+  const name = prod.name || rawName;
 
   const sellingPrice = Number(
     (item.discount_price && Number(item.discount_price) > 0) ? item.discount_price :

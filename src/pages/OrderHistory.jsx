@@ -8,36 +8,77 @@ import OrderHistoryCard from '../components/orders/OrderHistoryCard';
 
 export default function OrderHistory() {
   const { user } = useAuth();
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  const getFilteredLocal = useCallback((list) => {
+    if (!Array.isArray(list)) return [];
+    if (!user) return list;
+
+    const uEmail = user.email ? user.email.toLowerCase().trim() : null;
+    const uId = user.id ? String(user.id).toLowerCase().trim() : null;
+
+    return list.filter((o) => {
+      const loUserId = o.user_id ? String(o.user_id).toLowerCase().trim() : null;
+      const loEmail = (o.customer_email || o.shipping_address?.email || o.profiles?.email || '').toLowerCase().trim();
+      const loName = (o.customer_name || o.shipping_address?.name || '').toLowerCase().trim();
+
+      return (
+        (!loUserId && !loEmail) || // local device guest order
+        (uId && loUserId && uId === loUserId) ||
+        (uEmail && loEmail && uEmail === loEmail) ||
+        (uEmail && loName && uEmail.split('@')[0] === loName)
+      );
+    });
+  }, [user]);
+
+  const [orders, setOrders] = useState(() => {
+    try {
+      const local = orderService.getLocalOrders();
+      if (!Array.isArray(local) || local.length === 0) return [];
+      if (!user) return local;
+      const uEmail = user.email ? user.email.toLowerCase().trim() : null;
+      const uId = user.id ? String(user.id).toLowerCase().trim() : null;
+      return local.filter((o) => {
+        const loUserId = o.user_id ? String(o.user_id).toLowerCase().trim() : null;
+        const loEmail = (o.customer_email || o.shipping_address?.email || o.profiles?.email || '').toLowerCase().trim();
+        const loName = (o.customer_name || o.shipping_address?.name || '').toLowerCase().trim();
+        return (
+          (!loUserId && !loEmail) ||
+          (uId && loUserId && uId === loUserId) ||
+          (uEmail && loEmail && uEmail === loEmail) ||
+          (uEmail && loName && uEmail.split('@')[0] === loName)
+        );
+      });
+    } catch {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [cancellingId, setCancellingId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
 
   const fetchOrders = useCallback(async () => {
     try {
       const local = orderService.getLocalOrders();
-      if (Array.isArray(local) && local.length > 0) {
-        const matching = user?.id
-          ? local.filter((o) => !o.user_id || o.user_id === user.id)
-          : local;
+      if (Array.isArray(local)) {
+        const matching = getFilteredLocal(local);
         setOrders(matching);
       }
     } catch {
       // Fallback
     }
 
-    setLoading(true);
     try {
-      const data = await orderService.getUserOrders(user?.id || null);
-      if (Array.isArray(data) && data.length > 0) {
-        setOrders(data);
+      const data = await orderService.getUserOrders(user?.id || null, user?.email || null);
+      if (Array.isArray(data)) {
+        const filtered = getFilteredLocal(data);
+        if (filtered.length > 0) {
+          setOrders(filtered);
+        }
       }
     } catch (err) {
       console.warn('Notice fetching orders:', err);
-    } finally {
-      setLoading(false);
     }
-  }, [user]);
+  }, [user, getFilteredLocal]);
 
   useEffect(() => {
     fetchOrders();
@@ -46,8 +87,18 @@ export default function OrderHistory() {
       fetchOrders();
     };
 
+    const handleStorageChange = (e) => {
+      if (!e.key || e.key === 'isai_orders' || e.key === 'isai_deleted_order_ids') {
+        fetchOrders();
+      }
+    };
+
     window.addEventListener('isai:orders_updated', handleOrdersUpdated);
-    return () => window.removeEventListener('isai:orders_updated', handleOrdersUpdated);
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('isai:orders_updated', handleOrdersUpdated);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [fetchOrders]);
 
   const handleCancel = async (orderId) => {
