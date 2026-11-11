@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { customerService } from '../../services/customerService';
+import { orderService } from '../../services/orderService';
 import SectionHeading from '../../components/reusable/SectionHeading';
 import Badge from '../../components/reusable/Badge';
 import Modal from '../../components/reusable/Modal';
 import { Search, Eye, Trash2, User, Mail, Phone, MapPin, ShoppingBag, Calendar, Package, CheckCircle2, AlertCircle } from 'lucide-react';
-
-const DEMO_CUSTOMER_EMAILS = new Set([
-  'priya.sharma@example.com',
-  'ananya.ramesh@example.com',
-]);
 
 export default function ManageCustomers() {
   const [customers, setCustomers] = useState([]);
@@ -53,119 +50,12 @@ export default function ManageCustomers() {
 
   const fetchCustomersAndOrders = async () => {
     try {
-      const fastTimeout = (promise, ms = 1000) => {
-        let t;
-        const timer = new Promise((_, reject) => {
-          t = setTimeout(() => reject(new Error('timeout')), ms);
-        });
-        return Promise.race([promise, timer]).finally(() => clearTimeout(t));
-      };
-
-      // 1. Fetch profiles & orders with fast timeout race
-      let dbProfiles = [];
-      let dbOrders = [];
-
-      try {
-        const { data: pData } = await fastTimeout(
-          supabase.from('profiles').select('*').order('created_at', { ascending: false })
-        );
-        if (pData) dbProfiles = pData;
-      } catch (e) {}
-
-      try {
-        const { data: oData } = await fastTimeout(
-          supabase.from('orders').select('*').order('created_at', { ascending: false })
-        );
-        if (oData) dbOrders = oData;
-      } catch (e) {}
-
-      // 2. Local storage sources
-      let localUsers = [];
-      try {
-        localUsers = JSON.parse(localStorage.getItem('isai_registered_users') || '[]');
-      } catch (e) {}
-
-      let localOrders = [];
-      try {
-        const raw = localStorage.getItem('isai_orders');
-        localOrders = raw ? JSON.parse(raw) : [];
-      } catch (e) {}
-
-      let currentUser = null;
-      try {
-        currentUser = JSON.parse(localStorage.getItem('isai_current_user') || 'null');
-      } catch (e) {}
-
-      const allOrders = [...dbOrders, ...localOrders];
-      setOrders(allOrders);
-
-      const customerMap = new Map();
-
-      let deletedEmails = new Set();
-      let deletedIds = new Set();
-      try {
-        deletedEmails = new Set(JSON.parse(localStorage.getItem('isai_deleted_customer_emails') || '[]'));
-        deletedIds = new Set(JSON.parse(localStorage.getItem('isai_deleted_customer_ids') || '[]'));
-      } catch (e) {}
-
-      // Helper to aggregate customer accounts (exclude admins & deleted customers)
-      const addCustomer = (u) => {
-        if (!u || (!u.email && !u.name)) return;
-        if (u.role === 'admin' || u.email?.toLowerCase().includes('admin')) return;
-
-        const emailKey = u.email
-          ? u.email.toLowerCase()
-          : `cust_${String(u.name).toLowerCase().replace(/\s+/g, '')}@isaitarang.com`;
-
-        if (deletedEmails.has(emailKey) || (u.email && deletedEmails.has(u.email.toLowerCase()))) return;
-        if (u.id && deletedIds.has(u.id)) return;
-
-        if (!customerMap.has(emailKey)) {
-          customerMap.set(emailKey, {
-            id: u.id || 'usr_' + Math.random().toString(36).substring(2, 8),
-            name: u.name || (emailKey.includes('@') ? emailKey.split('@')[0] : 'Customer User'),
-            email: emailKey,
-            phone: u.phone || u.shipping_address?.phone || '+91 98765 43210',
-            role: u.role || 'user',
-            address: u.address || u.shipping_address?.addressLine1 || u.shipping_address?.street || 'Tamil Nadu, India',
-            city: u.city || u.shipping_address?.city || 'Chennai',
-            pincode: u.pincode || u.shipping_address?.pincode || '600001',
-            created_at: u.created_at || new Date().toISOString(),
-          });
-        }
-      };
-
-      // Add from Database Profiles
-      if (dbProfiles) dbProfiles.forEach(addCustomer);
-
-      // Add Current Logged-in Customer
-      if (currentUser) addCustomer(currentUser);
-
-      // Add Local Storage Users
-      if (localUsers) localUsers.forEach(addCustomer);
-
-      // Add Customers from Order Contacts
-      allOrders.forEach((ord) => {
-        const addr = ord.shipping_address || ord.profiles || {};
-        if (addr.email || addr.name) {
-          addCustomer({
-            id: ord.user_id || ord.id,
-            name: addr.name,
-            email: addr.email,
-            phone: addr.phone,
-            address: addr.addressLine1 || addr.street,
-            city: addr.city,
-            pincode: addr.pincode,
-            role: 'user',
-            created_at: ord.created_at,
-          });
-        }
-      });
-
-      // Exclude any residual demo accounts
-      DEMO_CUSTOMER_EMAILS.forEach((demoEmail) => customerMap.delete(demoEmail));
-
-      setCustomers(Array.from(customerMap.values()));
+      const [custList, orderRes] = await Promise.all([
+        customerService.getAllCustomers(),
+        orderService.getAllOrders({ limit: 500 }).catch(() => ({ orders: orderService.getLocalOrders() })),
+      ]);
+      setCustomers(custList);
+      setOrders(orderRes?.orders || orderService.getLocalOrders());
     } catch (err) {
       console.error('Error fetching customers:', err);
     } finally {
@@ -190,76 +80,36 @@ export default function ManageCustomers() {
 
   const handleDeleteCustomer = async (customer) => {
     if (!customer) return;
-    const identifier = customer.name || customer.email;
+    const identifier = customer.name || customer.email || 'this customer';
     if (!window.confirm(`Are you sure you want to permanently delete customer "${identifier}"?`)) {
       return;
     }
 
     try {
-      const email = customer.email?.toLowerCase();
-      const id = customer.id;
+      await customerService.deleteCustomer(customer);
 
-      // 1. Permanently track in deleted customer storage so it never reappears
-      try {
-        if (email) {
-          const rawEmails = localStorage.getItem('isai_deleted_customer_emails') || '[]';
-          const listEmails = JSON.parse(rawEmails);
-          if (!listEmails.includes(email)) {
-            listEmails.push(email);
-            localStorage.setItem('isai_deleted_customer_emails', JSON.stringify(listEmails));
-          }
-        }
-        if (id) {
-          const rawIds = localStorage.getItem('isai_deleted_customer_ids') || '[]';
-          const listIds = JSON.parse(rawIds);
-          if (!listIds.includes(id)) {
-            listIds.push(id);
-            localStorage.setItem('isai_deleted_customer_ids', JSON.stringify(listIds));
-          }
-        }
-      } catch (e) {}
-
-      // 2. Remove from local storage registered users
-      try {
-        const localUsers = JSON.parse(localStorage.getItem('isai_registered_users') || '[]');
-        const updatedUsers = localUsers.filter(
-          (u) => (email && u.email?.toLowerCase() !== email) && (id && u.id !== id)
-        );
-        localStorage.setItem('isai_registered_users', JSON.stringify(updatedUsers));
-      } catch (e) {}
-
-      // 3. Update UI state immediately
       setCustomers((prev) =>
-        prev.filter((c) => (id ? c.id !== id : true) && (email ? c.email?.toLowerCase() !== email : true))
+        prev.filter((c) => {
+          if (customer.id && (c.id === customer.id || String(c.id) === String(customer.id))) return false;
+          if (customer.email && c.email?.toLowerCase().trim() === customer.email.toLowerCase().trim()) return false;
+          if (customer.name && c.name?.toLowerCase().trim() === customer.name.toLowerCase().trim()) return false;
+          return true;
+        })
       );
 
-      if (selectedCustomer && (selectedCustomer.id === id || selectedCustomer.email?.toLowerCase() === email)) {
+      if (
+        selectedCustomer &&
+        (selectedCustomer.id === customer.id ||
+          selectedCustomer.email?.toLowerCase() === customer.email?.toLowerCase())
+      ) {
         setModalOpen(false);
         setSelectedCustomer(null);
       }
 
       showNotification(`Customer "${identifier}" deleted successfully`);
-
-      // 4. Background deletion in Supabase
-      (async () => {
-        try {
-          if (id) {
-            await supabase.from('profiles').delete().eq('id', id);
-          }
-          if (email) {
-            await supabase.from('profiles').delete().eq('email', email);
-          }
-        } catch (cloudErr) {
-          console.warn('Cloud customer delete notice:', cloudErr.message);
-        }
-      })();
-
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent('isai:customers_updated'));
-      }
     } catch (err) {
-      console.error('Delete customer error:', err);
-      showNotification(err.message || 'Could not delete customer', 'error');
+      console.error('Failed to delete customer:', err);
+      showNotification(err.message || 'Failed to delete customer', 'error');
     }
   };
 

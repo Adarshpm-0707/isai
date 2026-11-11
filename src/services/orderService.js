@@ -186,17 +186,23 @@ export const orderService = {
     return { success: true, order_id: orderId, status: 'cancelled' };
   },
 
-  async deleteOrder(orderId) {
-    if (!orderId) return false;
+  async deleteOrder(orderOrId) {
+    if (!orderOrId) return false;
+    const id = typeof orderOrId === 'object' ? orderOrId.id : orderOrId;
+    const order_id = typeof orderOrId === 'object' ? orderOrId.order_id : null;
 
     // 1. Mark in deleted order ids
     try {
       const deletedRaw = localStorage.getItem('isai_deleted_order_ids') || '[]';
       const deletedList = JSON.parse(deletedRaw);
-      if (!deletedList.includes(orderId)) {
-        deletedList.push(orderId);
-        localStorage.setItem('isai_deleted_order_ids', JSON.stringify(deletedList));
-      }
+      const addId = (val) => {
+        if (!val) return;
+        const s = String(val);
+        if (!deletedList.includes(s)) deletedList.push(s);
+      };
+      addId(id);
+      addId(order_id);
+      localStorage.setItem('isai_deleted_order_ids', JSON.stringify(deletedList));
     } catch (e) {}
 
     // 2. Remove from local storage orders
@@ -205,9 +211,11 @@ export const orderService = {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          const updated = parsed.filter(
-            (o) => o.id !== orderId && o.order_id !== orderId && String(o.id) !== String(orderId)
-          );
+          const updated = parsed.filter((o) => {
+            if (id && (o.id === id || o.order_id === id || String(o.id) === String(id))) return false;
+            if (order_id && (o.id === order_id || o.order_id === order_id || String(o.order_id) === String(order_id))) return false;
+            return true;
+          });
           localStorage.setItem('isai_orders', JSON.stringify(updated));
           if (typeof window !== 'undefined') {
             window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: updated }));
@@ -218,20 +226,24 @@ export const orderService = {
       console.warn('LocalStorage order delete error:', e);
     }
 
-    // 3. Delete from Supabase in background
-    (async () => {
-      try {
-        const timer = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('timeout')), 1500)
-        );
-        await Promise.race([
-          supabase.from('orders').delete().or(`id.eq.${orderId},order_id.eq.${orderId}`),
-          timer,
-        ]);
-      } catch (err) {
-        console.warn('Supabase deleteOrder cloud notice:', err.message);
-      }
-    })();
+    // 3. Delete from Supabase in background with fast timeout
+    try {
+      const targetQuery = id && order_id
+        ? `id.eq.${id},order_id.eq.${order_id}`
+        : id
+        ? `id.eq.${id}`
+        : `order_id.eq.${order_id}`;
+
+      const timer = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 800)
+      );
+      Promise.race([
+        supabase.from('orders').delete().or(targetQuery),
+        timer,
+      ]).catch(() => {});
+    } catch (err) {
+      console.warn('Supabase deleteOrder notice:', err.message);
+    }
 
     return true;
   },

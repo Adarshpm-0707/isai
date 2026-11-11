@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { productService } from '../../services/productService';
 import { orderService } from '../../services/orderService';
+import { customerService } from '../../services/customerService';
 import SectionHeading from '../../components/reusable/SectionHeading';
 import {
   ShoppingBag,
@@ -72,11 +73,13 @@ const calculateDashboardStats = (orders = [], products = [], users = []) => {
     }
   });
 
-  // Extract customer accounts from registered users or orders
+  // Extract customer accounts from registered users or orders (excluding deleted & admin)
   const customerMap = new Map();
   users.forEach((u) => {
     if (u && (u.email || u.name) && u.role !== 'admin' && !u.email?.toLowerCase().includes('admin')) {
-      customerMap.set(u.email?.toLowerCase() || u.id, u);
+      if (!customerService.isCustomerDeleted(u)) {
+        customerMap.set(u.email?.toLowerCase() || u.id, u);
+      }
     }
   });
 
@@ -84,14 +87,17 @@ const calculateDashboardStats = (orders = [], products = [], users = []) => {
     const addr = o.shipping_address || {};
     const email = addr.email || o.customer_email;
     if (email && !customerMap.has(email.toLowerCase())) {
-      customerMap.set(email.toLowerCase(), {
+      const custObj = {
         id: o.user_id || o.id,
         name: addr.name || o.customer_name || 'Customer User',
         email: email,
         phone: addr.phone || o.customer_phone || '+91 98401 23456',
         role: 'user',
         created_at: o.created_at || new Date().toISOString(),
-      });
+      };
+      if (!customerService.isCustomerDeleted(custObj)) {
+        customerMap.set(email.toLowerCase(), custObj);
+      }
     }
   });
 
@@ -278,37 +284,47 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeleteCustomer = async (customer) => {
-    const customerIdentifier = customer.name || customer.email || 'this customer';
-    if (!window.confirm(`Are you sure you want to permanently delete customer "${customerIdentifier}" from the database?`)) {
+  const handleDeleteOrder = async (order) => {
+    const orderNum = order.order_id || order.id || 'this order';
+    if (!window.confirm(`Are you sure you want to delete order #${orderNum}?`)) {
       return;
     }
 
     try {
-      if (customer.id) {
-        await supabase.from('profiles').delete().eq('id', customer.id);
-        await supabase.from('customers').delete().eq('id', customer.id);
-        await supabase.from('users').delete().eq('id', customer.id);
-      }
-      if (customer.email) {
-        await supabase.from('profiles').delete().eq('email', customer.email);
-        await supabase.from('customers').delete().eq('email', customer.email);
-        await supabase.from('users').delete().eq('email', customer.email);
-      }
+      await orderService.deleteOrder(order);
+      setStats((prev) => ({
+        ...prev,
+        recentOrders: prev.recentOrders.filter(
+          (o) => o.id !== order.id && o.order_id !== order.order_id
+        ),
+      }));
+      fetchStats();
+    } catch (err) {
+      console.error('Failed to delete order:', err);
+      alert(err.message || 'Failed to delete order');
+    }
+  };
 
-      try {
-        const localUsers = JSON.parse(localStorage.getItem('isai_registered_users') || '[]');
-        const updatedLocal = localUsers.filter(
-          (u) => u.email?.toLowerCase() !== customer.email?.toLowerCase() && u.id !== customer.id
-        );
-        localStorage.setItem('isai_registered_users', JSON.stringify(updatedLocal));
-      } catch (e) {}
+  const handleDeleteCustomer = async (customer) => {
+    const customerIdentifier = customer.name || customer.email || 'this customer';
+    if (!window.confirm(`Are you sure you want to permanently delete customer "${customerIdentifier}"?`)) {
+      return;
+    }
 
-      alert(`Customer record for "${customerIdentifier}" deleted successfully.`);
+    try {
+      await customerService.deleteCustomer(customer);
+      setStats((prev) => ({
+        ...prev,
+        customers: prev.customers.filter(
+          (c) =>
+            (!customer.id || c.id !== customer.id) &&
+            (!customer.email || c.email?.toLowerCase() !== customer.email?.toLowerCase())
+        ),
+      }));
       fetchStats();
     } catch (err) {
       console.error('Failed to delete customer:', err);
-      alert(err.message || 'Failed to delete customer record from database');
+      alert(err.message || 'Failed to delete customer record');
     }
   };
 
@@ -672,13 +688,23 @@ export default function AdminDashboard() {
                         </select>
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        <Link
-                          to="/admin/orders"
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/30 hover:bg-[#D4AF37] hover:text-[#0C2317] transition-all text-[10px] font-bold uppercase tracking-wider"
-                        >
-                          <Eye className="w-3 h-3" />
-                          <span>View</span>
-                        </Link>
+                        <div className="inline-flex items-center gap-1.5 justify-end">
+                          <Link
+                            to="/admin/orders"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/30 hover:bg-[#D4AF37] hover:text-[#0C2317] transition-all text-[10px] font-bold uppercase tracking-wider"
+                          >
+                            <Eye className="w-3 h-3" />
+                            <span>View</span>
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteOrder(ord)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-950/60 text-red-300 border border-red-500/40 hover:bg-red-900/80 hover:text-white transition-all text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                            title="Delete Order"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

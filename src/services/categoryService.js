@@ -3,6 +3,7 @@ import { compressImage } from '../utils/imageCompressor';
 import bundledCatalog from '../data/catalog.json';
 
 const CATEGORIES_STORAGE_KEY = 'isai_tarang_categories';
+const DELETED_CATEGORIES_KEY = 'isai_deleted_category_ids';
 
 // Identifiers of previous demo categories to purge from storage
 const DEMO_CATEGORY_IDS = new Set([
@@ -15,6 +16,32 @@ const DEMO_CATEGORY_IDS = new Set([
   'cat-softsilk-07',
   'cat-cotton-08',
 ]);
+
+function getDeletedCategoryIds() {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_CATEGORIES_KEY) : null;
+    return new Set(raw ? JSON.parse(raw).map(id => String(id).toLowerCase().trim()) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveDeletedCategoryId(id, name = null, slug = null) {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_CATEGORIES_KEY) : null;
+    const list = raw ? JSON.parse(raw) : [];
+    const addIfNew = (val) => {
+      if (!val) return;
+      const str = String(val).toLowerCase().trim();
+      if (!list.includes(str)) list.push(str);
+      if (!list.includes(String(val))) list.push(String(val));
+    };
+    addIfNew(id);
+    addIfNew(name);
+    addIfNew(slug);
+    localStorage.setItem(DELETED_CATEGORIES_KEY, JSON.stringify(list));
+  } catch {}
+}
 
 function generateUUID() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -41,7 +68,21 @@ function withTimeout(promise, ms = 1000) {
 
 function cleanDemoCategories(list) {
   if (!Array.isArray(list)) return [];
-  return list.filter((c) => c && c.name && !DEMO_CATEGORY_IDS.has(c.id));
+  const deleted = getDeletedCategoryIds();
+  return list.filter((c) => {
+    if (!c) return false;
+    const id = c.id ? String(c.id).toLowerCase().trim() : '';
+    const rawId = c.id ? String(c.id) : '';
+    const name = c.name ? String(c.name).toLowerCase().trim() : '';
+    const slug = c.slug ? String(c.slug).toLowerCase().trim() : '';
+
+    if (DEMO_CATEGORY_IDS.has(rawId) || DEMO_CATEGORY_IDS.has(id)) return false;
+    if (id && deleted.has(id)) return false;
+    if (rawId && deleted.has(rawId)) return false;
+    if (name && deleted.has(name)) return false;
+    if (slug && deleted.has(slug)) return false;
+    return true;
+  });
 }
 
 function getLocalCategories() {
@@ -280,20 +321,33 @@ export const categoryService = {
     return { id, name: cleanName, slug: cleanSlug, image_url: cleanImg };
   },
 
-  async deleteCategory(id) {
+  async deleteCategory(idOrCategory) {
+    const id = typeof idOrCategory === 'object' ? idOrCategory?.id : idOrCategory;
     const local = getLocalCategories();
-    const updated = local.filter(
-      (c) => c.id !== id && String(c.id) !== String(id)
-    );
+    const target =
+      local.find((c) => c.id === id || String(c.id) === String(id)) ||
+      (typeof idOrCategory === 'object' ? idOrCategory : null);
+
+    saveDeletedCategoryId(id, target?.name, target?.slug);
+
+    const updated = local.filter((c) => {
+      if (c.id === id || String(c.id) === String(id)) return false;
+      if (target?.name && c.name && c.name.toLowerCase().trim() === target.name.toLowerCase().trim()) return false;
+      if (target?.slug && c.slug && c.slug.toLowerCase().trim() === target.slug.toLowerCase().trim()) return false;
+      return true;
+    });
+
     saveLocalCategories(updated);
 
-    (async () => {
-      try {
-        await withTimeout(supabase.from('categories').delete().eq('id', id), 1500);
-      } catch (err) {
-        console.warn('Background category delete cloud notice:', err.message);
-      }
-    })();
+    try {
+      withTimeout(supabase.from('categories').delete().eq('id', id), 800).catch(() => {});
+    } catch (err) {
+      console.warn('Background category delete cloud notice:', err.message);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('isai:categories_updated', { detail: updated }));
+    }
 
     return true;
   },

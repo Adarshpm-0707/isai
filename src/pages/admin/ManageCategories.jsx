@@ -170,9 +170,10 @@ export default function ManageCategories() {
     }
 
     try {
-      await categoryService.deleteCategory(id);
+      await categoryService.deleteCategory({ id, name: catName });
       adminLogService.logAction('DELETE_CATEGORY', 'categories', id, {}).catch(() => {});
       showNotification(`Category "${catName}" deleted successfully`);
+      setCategories((prev) => prev.filter((c) => c.id !== id && c.name !== catName));
       fetchCategoriesAndProducts();
     } catch (err) {
       console.error('Delete category error:', err);

@@ -56,10 +56,24 @@ export default function ManageOrders() {
     }
 
     try {
-      await orderService.deleteOrder(orderId);
+      await orderService.deleteOrder(order);
       adminLogService.logAction('DELETE_ORDER', 'orders', orderId, {}).catch(() => {});
-      setOrders((prev) => prev.filter((o) => o.id !== orderId && o.order_id !== orderId));
-      if (selectedOrder && (selectedOrder.id === orderId || selectedOrder.order_id === orderId)) {
+      setOrders((prev) =>
+        prev.filter(
+          (o) =>
+            o.id !== order.id &&
+            o.order_id !== order.order_id &&
+            o.id !== orderId &&
+            o.order_id !== orderId
+        )
+      );
+      if (
+        selectedOrder &&
+        (selectedOrder.id === order.id ||
+          selectedOrder.order_id === order.order_id ||
+          selectedOrder.id === orderId ||
+          selectedOrder.order_id === orderId)
+      ) {
         setModalOpen(false);
         setSelectedOrder(null);
       }
@@ -85,7 +99,7 @@ export default function ManageOrders() {
     fetchOrders();
 
     const handleOrdersUpdated = (e) => {
-      if (Array.isArray(e.detail) && e.detail.length > 0) {
+      if (Array.isArray(e.detail)) {
         setOrders(e.detail);
       } else {
         setOrders(orderService.getLocalOrders());

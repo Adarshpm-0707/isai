@@ -67,14 +67,31 @@ export default function ManageProducts() {
 
   useEffect(() => {
     fetchAllProducts();
+
+    const handleProductsUpdated = (e) => {
+      if (Array.isArray(e.detail)) {
+        const filtered = productService.filterAndSortProducts(e.detail, {
+          search,
+          category: categoryFilter === 'All' ? null : categoryFilter,
+        });
+        setProducts(filtered);
+      } else {
+        fetchAllProducts();
+      }
+    };
+
+    window.addEventListener('isai:products_updated', handleProductsUpdated);
+    return () => window.removeEventListener('isai:products_updated', handleProductsUpdated);
   }, [search, categoryFilter]);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to permanently delete this product?')) return;
+  const handleDelete = async (product) => {
+    const id = typeof product === 'object' ? product.id : product;
+    const name = typeof product === 'object' ? product.name : 'this product';
+    if (!window.confirm(`Are you sure you want to permanently delete "${name}"?`)) return;
     try {
-      await productService.deleteProduct(id);
+      await productService.deleteProduct(product);
       adminLogService.logAction('DELETE_PRODUCT', 'products', id, {}).catch(() => {});
-      setProducts(products.filter((p) => p.id !== id));
+      setProducts((prev) => prev.filter((p) => p.id !== id && String(p.id) !== String(id)));
     } catch (err) {
       console.error('Delete failed:', err);
       alert('Failed to delete product: ' + err.message);
@@ -211,9 +228,9 @@ export default function ManageProducts() {
                         <Edit2 className="w-3.5 h-3.5" />
                       </Link>
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => handleDelete(product)}
                         type="button"
-                        className="inline-flex p-2 bg-[#1A3C2B]/50 text-[#F3E5AB] hover:bg-[#1A3C2B] border border-[#D4AF37]/35 transition-all rounded cursor-pointer"
+                        className="inline-flex p-2 bg-[#1A3C2B]/50 text-[#F3E5AB] hover:bg-red-900 border border-[#D4AF37]/35 transition-all rounded cursor-pointer"
                         title="Delete Product"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

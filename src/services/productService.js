@@ -3,6 +3,7 @@ import { compressImage } from '../utils/imageCompressor';
 import bundledCatalog from '../data/catalog.json';
 
 const PRODUCTS_STORAGE_KEY = 'isai_tarang_products';
+const DELETED_PRODUCTS_KEY = 'isai_deleted_product_ids';
 
 // Identifiers of previous demo sarees to purge from existing storage
 const DEMO_PRODUCT_IDS = new Set([
@@ -15,6 +16,32 @@ const DEMO_PRODUCT_IDS = new Set([
   'prod-softsilk-07',
   'prod-cotton-08',
 ]);
+
+function getDeletedProductIds() {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_PRODUCTS_KEY) : null;
+    return new Set(raw ? JSON.parse(raw).map(id => String(id).toLowerCase().trim()) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveDeletedProductId(id, slug = null, name = null) {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_PRODUCTS_KEY) : null;
+    const list = raw ? JSON.parse(raw) : [];
+    const addIfNew = (val) => {
+      if (!val) return;
+      const str = String(val).toLowerCase().trim();
+      if (!list.includes(str)) list.push(str);
+      if (!list.includes(String(val))) list.push(String(val));
+    };
+    addIfNew(id);
+    addIfNew(slug);
+    addIfNew(name);
+    localStorage.setItem(DELETED_PRODUCTS_KEY, JSON.stringify(list));
+  } catch {}
+}
 
 function generateUUID() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -41,7 +68,21 @@ function withTimeout(promise, ms = 1000) {
 
 function cleanDemoProducts(list) {
   if (!Array.isArray(list)) return [];
-  return list.filter((p) => p && p.id && !DEMO_PRODUCT_IDS.has(p.id));
+  const deleted = getDeletedProductIds();
+  return list.filter((p) => {
+    if (!p) return false;
+    const id = p.id ? String(p.id).toLowerCase().trim() : '';
+    const rawId = p.id ? String(p.id) : '';
+    const slug = p.slug ? String(p.slug).toLowerCase().trim() : '';
+    const name = p.name ? String(p.name).toLowerCase().trim() : '';
+
+    if (DEMO_PRODUCT_IDS.has(rawId) || DEMO_PRODUCT_IDS.has(id)) return false;
+    if (id && deleted.has(id)) return false;
+    if (rawId && deleted.has(rawId)) return false;
+    if (slug && deleted.has(slug)) return false;
+    if (name && deleted.has(name)) return false;
+    return true;
+  });
 }
 
 function getLocalProducts() {
@@ -371,18 +412,33 @@ export const productService = {
     return { id, ...updates };
   },
 
-  async deleteProduct(id) {
+  async deleteProduct(idOrProduct) {
+    const id = typeof idOrProduct === 'object' ? idOrProduct?.id : idOrProduct;
     const local = getLocalProducts();
-    const updated = local.filter((p) => p.id !== id && String(p.id) !== String(id));
+    const target =
+      local.find((p) => p.id === id || String(p.id) === String(id)) ||
+      (typeof idOrProduct === 'object' ? idOrProduct : null);
+
+    saveDeletedProductId(id, target?.slug, target?.name);
+
+    const updated = local.filter((p) => {
+      if (p.id === id || String(p.id) === String(id)) return false;
+      if (target?.slug && p.slug === target.slug) return false;
+      if (target?.name && p.name && p.name.toLowerCase().trim() === target.name.toLowerCase().trim()) return false;
+      return true;
+    });
+
     saveLocalProducts(updated);
 
-    (async () => {
-      try {
-        await withTimeout(supabase.from('products').delete().eq('id', id), 1500);
-      } catch (err) {
-        console.warn('Background product delete cloud notice:', err.message);
-      }
-    })();
+    try {
+      withTimeout(supabase.from('products').delete().eq('id', id), 800).catch(() => {});
+    } catch (err) {
+      console.warn('Background product delete cloud notice:', err.message);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('isai:products_updated', { detail: updated }));
+    }
 
     return true;
   },
