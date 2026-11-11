@@ -159,7 +159,15 @@ export function printOrderInvoice(order) {
     order.subtotal ??
     (items.reduce((sum, it) => {
       const prod = it.product || it;
-      const unit = Number(it.price ?? it.selling_price ?? prod.discount_price ?? it.discount_price ?? prod.price ?? 0);
+      const unit = Number(
+        (it.discount_price && Number(it.discount_price) > 0) ? it.discount_price :
+        (prod.discount_price && Number(prod.discount_price) > 0) ? prod.discount_price :
+        it.selling_price ??
+        it.unit_price ??
+        it.price ??
+        prod.price ??
+        0
+      );
       const qty = it.qty || it.quantity || 1;
       return sum + (unit * qty);
     }, 0) || total)
@@ -177,11 +185,11 @@ export function printOrderInvoice(order) {
         const prod = it.product || it;
         const qty = it.qty || it.quantity || 1;
         const sellingPrice = Number(
-          it.price ??
+          (it.discount_price && Number(it.discount_price) > 0) ? it.discount_price :
+          (prod.discount_price && Number(prod.discount_price) > 0) ? prod.discount_price :
           it.selling_price ??
-          prod.discount_price ??
-          it.discount_price ??
           it.unit_price ??
+          it.price ??
           prod.price ??
           (items.length === 1 ? subtotal : total)
         );
@@ -190,6 +198,7 @@ export function printOrderInvoice(order) {
           prod.price ??
           it.original_price ??
           it.mrp ??
+          it.price ??
           sellingPrice
         );
         const hasItemDiscount = regularPrice > sellingPrice && sellingPrice > 0;

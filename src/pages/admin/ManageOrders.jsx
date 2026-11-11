@@ -35,6 +35,7 @@ export default function ManageOrders() {
     handleOpenModal,
     handleCloseModal,
     handleUpdateStatus,
+    handleQuickStatusChange,
     handleExportExcel,
     handleExportPDF,
     handlePrintInvoice,
@@ -121,6 +122,8 @@ export default function ManageOrders() {
         searchQuery={searchQuery}
         handleOpenModal={handleOpenModal}
         handleDeleteOrder={handleDeleteOrder}
+        handleQuickStatusChange={handleQuickStatusChange}
+        handlePrintInvoice={handlePrintInvoice}
       />
 
       {/* Redesigned Order Details Modal */}

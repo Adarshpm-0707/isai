@@ -1,6 +1,6 @@
 import React from 'react';
 import Badge from '../../reusable/Badge';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye, Trash2, Printer, RefreshCw } from 'lucide-react';
 import { getItemDetails } from '../../../utils/orderHelpers';
 
 export default function OrdersTable({
@@ -10,6 +10,8 @@ export default function OrdersTable({
   searchQuery = '',
   handleOpenModal,
   handleDeleteOrder,
+  handleQuickStatusChange,
+  handlePrintInvoice,
 }) {
   return (
     <div className="bg-[#0F131C] border border-[#D4AF37]/35 rounded-2xl shadow-2xl overflow-hidden text-[#F5E6BE]">
@@ -28,7 +30,16 @@ export default function OrdersTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-[#D4AF37]/15">
-            {filteredOrders.length === 0 && !loading ? (
+            {loading && filteredOrders.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="py-12 text-center text-[#D4AF37]">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <RefreshCw className="w-6 h-6 animate-spin text-[#D4AF37]" />
+                    <span className="text-xs font-semibold text-[#A1A1AA]">Loading order records...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : filteredOrders.length === 0 ? (
               <tr>
                 <td colSpan={8} className="py-10 text-center text-[#A1A1AA] italic">
                   No orders matching filter: <strong>"{activeTab}"</strong>{' '}
@@ -107,12 +118,43 @@ export default function OrdersTable({
                         : 'Prepaid Online'}
                     </td>
                     <td className="py-4 px-6">
-                      <Badge text={order.status || 'pending'} variant={badgeVariant} />
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={order.status || 'pending'}
+                          onChange={(e) =>
+                            handleQuickStatusChange
+                              ? handleQuickStatusChange(order, e.target.value)
+                              : null
+                          }
+                          className="bg-[#0A0D14] border border-[#D4AF37]/40 rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase cursor-pointer text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
+                          title="Change fulfillment status directly"
+                        >
+                          <option value="pending">PENDING</option>
+                          <option value="paid">PAID</option>
+                          <option value="confirmed">CONFIRMED</option>
+                          <option value="processing">PROCESSING</option>
+                          <option value="shipped">SHIPPED</option>
+                          <option value="delivered">DELIVERED</option>
+                          <option value="cancelled">CANCELLED</option>
+                        </select>
+                        <Badge text={order.status || 'pending'} variant={badgeVariant} />
+                      </div>
                     </td>
-                    <td className="py-4 px-6 text-right space-x-2">
+                    <td className="py-4 px-6 text-right space-x-1.5 whitespace-nowrap">
+                      {handlePrintInvoice && (
+                        <button
+                          onClick={() => handlePrintInvoice(order)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#161B26] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
+                          title="Print / Download Official Invoice PDF"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Invoice</span>
+                        </button>
+                      )}
+
                       <button
                         onClick={() => handleOpenModal(order)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
                         title="View Full Order Details, Items & Edit Status"
                       >
                         <Eye className="w-3.5 h-3.5" />
@@ -121,7 +163,7 @@ export default function OrdersTable({
 
                       <button
                         onClick={() => handleDeleteOrder(order)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-950/60 text-red-300 hover:bg-red-900 border border-red-500/40 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-950/60 text-red-300 hover:bg-red-900 border border-red-500/40 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
                         title="Delete Order Record"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

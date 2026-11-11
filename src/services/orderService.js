@@ -20,7 +20,13 @@ const withTimeout = (promise, ms = 3000) => {
 function getDeletedOrderIds() {
   try {
     const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('isai_deleted_order_ids') : null;
-    return new Set(raw ? JSON.parse(raw) : []);
+    const list = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(list)) return new Set();
+    return new Set(
+      list
+        .filter((id) => id && typeof id === 'string' && id.trim().length > 0)
+        .map((id) => String(id).toLowerCase().trim())
+    );
   } catch {
     return new Set();
   }
@@ -29,19 +35,26 @@ function getDeletedOrderIds() {
 function cleanDemoOrders(list) {
   if (!Array.isArray(list)) return [];
   const deleted = getDeletedOrderIds();
-  return list.filter(
-    (o) =>
-      o &&
-      (o.id || o.order_id || o.orderId) &&
-      !DEMO_ORDER_IDS.has(o.id) &&
-      !DEMO_ORDER_IDS.has(o.order_id) &&
-      !deleted.has(o.id) &&
-      !deleted.has(o.order_id) &&
-      !String(o.customer_name || '').toLowerCase().includes('priya sundaram') &&
-      !String(o.customer_name || '').toLowerCase().includes('meenakshi ramanathan') &&
-      !String(o.customer_name || '').toLowerCase().includes('ananya iyer') &&
-      !String(o.customer_name || '').toLowerCase().includes('deepika natarajan')
-  );
+  return list.filter((o) => {
+    if (!o) return false;
+    const idKey = String(o.id || '').toLowerCase().trim();
+    const orderIdKey = String(o.order_id || o.orderId || '').toLowerCase().trim();
+    if (!idKey && !orderIdKey) return false;
+
+    if (idKey && (DEMO_ORDER_IDS.has(idKey) || deleted.has(idKey))) return false;
+    if (orderIdKey && (DEMO_ORDER_IDS.has(orderIdKey) || deleted.has(orderIdKey))) return false;
+
+    const custName = String(o.customer_name || o.shipping_address?.name || '').toLowerCase();
+    if (
+      custName.includes('priya sundaram') ||
+      custName.includes('meenakshi ramanathan') ||
+      custName.includes('ananya iyer') ||
+      custName.includes('deepika natarajan')
+    ) {
+      return false;
+    }
+    return true;
+  });
 }
 
 export function getLocalOrders() {
@@ -199,6 +212,9 @@ export const orderService = {
   },
 
   async updateOrderStatus(orderId, status, trackingId = null) {
+    if (!orderId) return null;
+    const targetKey = String(orderId).toLowerCase().trim();
+
     const updates = {
       status,
       updated_at: new Date().toISOString(),
@@ -213,7 +229,10 @@ export const orderService = {
     let targetOrder = null;
 
     const updated = local.map((o) => {
-      if (o.id === orderId || o.order_id === orderId || o.orderId === orderId) {
+      const idMatch = o.id && String(o.id).toLowerCase().trim() === targetKey;
+      const orderIdMatch = (o.order_id && String(o.order_id).toLowerCase().trim() === targetKey) ||
+                           (o.orderId && String(o.orderId).toLowerCase().trim() === targetKey);
+      if (idMatch || orderIdMatch) {
         prevStatus = o.status;
         targetOrder = o;
         return { ...o, ...updates };
@@ -231,14 +250,19 @@ export const orderService = {
       }
     }
 
-    // 2. Background update Supabase
+    // 2. Background update Supabase with short timeout (800ms)
     try {
       await withTimeout(
-        supabase.from('orders').update(updates).eq('id', orderId).select().maybeSingle(),
-        3000
+        supabase
+          .from('orders')
+          .update(updates)
+          .or(`id.eq.${orderId},order_id.eq.${orderId}`)
+          .select()
+          .maybeSingle(),
+        800
       );
     } catch (e) {
-      console.warn('Supabase updateOrderStatus notice:', e?.message);
+      // Supabase is not reachable; local order state is already updated
     }
 
     return { id: orderId, ...updates };
@@ -286,8 +310,8 @@ export const orderService = {
       const deletedList = JSON.parse(deletedRaw);
       const addId = (val) => {
         if (!val) return;
-        const s = String(val);
-        if (!deletedList.includes(s)) deletedList.push(s);
+        const s = String(val).toLowerCase().trim();
+        if (s && !deletedList.includes(s)) deletedList.push(s);
       };
       addId(id);
       addId(order_id);

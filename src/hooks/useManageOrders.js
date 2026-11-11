@@ -115,28 +115,62 @@ export function useManageOrders() {
     setSelectedOrder(null);
   };
 
+  const handleQuickStatusChange = async (order, updatedStatus) => {
+    if (!order || !updatedStatus) return;
+    const orderId = order.id || order.order_id || order.orderId;
+    const displayId = order.order_id || String(orderId).slice(0, 10);
+    const targetKey = String(orderId).toLowerCase().trim();
+
+    try {
+      const local = orderService.getLocalOrders();
+      const updated = local.map((o) => {
+        const idMatch = o.id && String(o.id).toLowerCase().trim() === targetKey;
+        const orderIdMatch = (o.order_id && String(o.order_id).toLowerCase().trim() === targetKey) ||
+                             (o.orderId && String(o.orderId).toLowerCase().trim() === targetKey);
+        return idMatch || orderIdMatch
+          ? { ...o, status: updatedStatus, updated_at: new Date().toISOString() }
+          : o;
+      });
+      orderService.saveLocalOrders(updated);
+      setOrders(updated);
+
+      await orderService.updateOrderStatus(orderId, updatedStatus);
+      adminLogService.logAction('UPDATE_ORDER_STATUS', 'orders', orderId, {
+        status: updatedStatus,
+      }).catch(() => {});
+      showNotification(`Order #${displayId} updated to ${updatedStatus.toUpperCase()}`);
+    } catch (err) {
+      console.warn('Quick status update notice:', err);
+    }
+  };
+
   const handleUpdateStatus = async (e) => {
     if (e) e.preventDefault();
     if (!selectedOrder) return;
+    const orderId = selectedOrder.id || selectedOrder.order_id || selectedOrder.orderId;
+    const displayId = selectedOrder.order_id || String(orderId).slice(0, 10);
+    const targetKey = String(orderId).toLowerCase().trim();
 
     try {
       try {
         const local = orderService.getLocalOrders();
-        const updated = local.map((o) =>
-          o.id === selectedOrder.id || o.order_id === selectedOrder.id
-            ? { ...o, status: newStatus, shiprocket_order_id: trackingId }
-            : o
-        );
-        localStorage.setItem('isai_orders', JSON.stringify(updated));
-        window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: updated }));
+        const updated = local.map((o) => {
+          const idMatch = o.id && String(o.id).toLowerCase().trim() === targetKey;
+          const orderIdMatch = (o.order_id && String(o.order_id).toLowerCase().trim() === targetKey) ||
+                               (o.orderId && String(o.orderId).toLowerCase().trim() === targetKey);
+          return idMatch || orderIdMatch
+            ? { ...o, status: newStatus, shiprocket_order_id: trackingId, updated_at: new Date().toISOString() }
+            : o;
+        });
+        orderService.saveLocalOrders(updated);
         setOrders(updated);
       } catch {
         // Fallback silently
       }
 
       try {
-        await orderService.updateOrderStatus(selectedOrder.id, newStatus, trackingId);
-        await adminLogService.logAction('UPDATE_ORDER_STATUS', 'orders', selectedOrder.id, {
+        await orderService.updateOrderStatus(orderId, newStatus, trackingId);
+        await adminLogService.logAction('UPDATE_ORDER_STATUS', 'orders', orderId, {
           status: newStatus,
           tracking_id: trackingId,
         });
@@ -145,7 +179,7 @@ export function useManageOrders() {
       }
 
       setModalOpen(false);
-      showNotification(`Order status updated to ${newStatus.toUpperCase()}`);
+      showNotification(`Order #${displayId} status updated to ${newStatus.toUpperCase()}`);
     } catch (err) {
       alert(err.message || 'Failed to update order status');
     }
@@ -215,6 +249,7 @@ export function useManageOrders() {
     handleOpenModal,
     handleCloseModal,
     handleUpdateStatus,
+    handleQuickStatusChange,
     handleExportExcel,
     handleExportPDF,
     handlePrintInvoice,

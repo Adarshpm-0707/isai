@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabaseClient';
 import { syncLocalhostData } from './dataSyncService';
 import { productService } from './productService';
 import { couponService } from './couponService';
+import { orderService } from './orderService';
 
 function isValidUUID(str) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(str || ''));
@@ -107,8 +108,8 @@ export const checkoutService = {
     const items = rawItems.map((it) => {
       const prod = it.product || it;
       const sellingPrice = Number(
-        prod.discount_price ??
-        it.discount_price ??
+        (it.discount_price && Number(it.discount_price) > 0) ? it.discount_price :
+        (prod.discount_price && Number(prod.discount_price) > 0) ? prod.discount_price :
         it.selling_price ??
         it.unit_price ??
         it.price ??
@@ -116,8 +117,8 @@ export const checkoutService = {
         0
       );
       const regularPrice = Number(
-        prod.price ??
         it.regular_price ??
+        prod.price ??
         it.original_price ??
         it.mrp ??
         it.price ??
@@ -196,11 +197,9 @@ export const checkoutService = {
 
     // 1. Immediately save to persistent store so Customer Orders & Admin Orders see it right away (0 ms)
     try {
-      const existing = JSON.parse(localStorage.getItem('isai_orders') || '[]');
-      existing.unshift(orderData);
-      localStorage.setItem('isai_orders', JSON.stringify(existing));
-      window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: existing }));
-      syncLocalhostData({ orders: existing });
+      const existing = orderService.getLocalOrders();
+      const filtered = existing.filter((o) => o.id !== orderData.id && o.order_id !== orderData.order_id);
+      orderService.saveLocalOrders([orderData, ...filtered]);
     } catch (e) {
       console.warn('Orders local store notice:', e);
     }
@@ -286,8 +285,8 @@ export const checkoutService = {
     const items = rawItems.map((it) => {
       const prod = it.product || it;
       const sellingPrice = Number(
-        prod.discount_price ??
-        it.discount_price ??
+        (it.discount_price && Number(it.discount_price) > 0) ? it.discount_price :
+        (prod.discount_price && Number(prod.discount_price) > 0) ? prod.discount_price :
         it.selling_price ??
         it.unit_price ??
         it.price ??
@@ -295,8 +294,8 @@ export const checkoutService = {
         0
       );
       const regularPrice = Number(
-        prod.price ??
         it.regular_price ??
+        prod.price ??
         it.original_price ??
         it.mrp ??
         it.price ??
@@ -376,11 +375,9 @@ export const checkoutService = {
 
     // 1. Save locally immediately
     try {
-      const existing = JSON.parse(localStorage.getItem('isai_orders') || '[]');
-      existing.unshift(orderData);
-      localStorage.setItem('isai_orders', JSON.stringify(existing));
-      window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: existing }));
-      syncLocalhostData({ orders: existing });
+      const existing = orderService.getLocalOrders();
+      const filtered = existing.filter((o) => o.id !== orderData.id && o.order_id !== orderData.order_id);
+      orderService.saveLocalOrders([orderData, ...filtered]);
     } catch (e) {}
 
     // 2. Persist customer contact into customer directory

@@ -245,11 +245,11 @@ export default function OrderSuccess() {
                     const prod = it.product || it;
                     const qty = it.qty || it.quantity || 1;
                     const sellingPrice = Number(
-                      it.price ??
+                      (it.discount_price && Number(it.discount_price) > 0) ? it.discount_price :
+                      (prod.discount_price && Number(prod.discount_price) > 0) ? prod.discount_price :
                       it.selling_price ??
-                      prod.discount_price ??
-                      it.discount_price ??
                       it.unit_price ??
+                      it.price ??
                       prod.price ??
                       (items.length === 1 ? subtotal : totalAmount)
                     );
@@ -258,6 +258,7 @@ export default function OrderSuccess() {
                       prod.price ??
                       it.original_price ??
                       it.mrp ??
+                      it.price ??
                       sellingPrice
                     );
                     const hasItemDiscount = regularPrice > sellingPrice && sellingPrice > 0;

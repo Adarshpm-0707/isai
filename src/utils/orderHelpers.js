@@ -34,8 +34,8 @@ export function getItemDetails(item) {
     'Handcrafted Heritage Saree';
 
   const sellingPrice = Number(
-    item.discount_price ??
-    prod.discount_price ??
+    (item.discount_price && Number(item.discount_price) > 0) ? item.discount_price :
+    (prod.discount_price && Number(prod.discount_price) > 0) ? prod.discount_price :
     item.selling_price ??
     item.unit_price ??
     item.price ??

@@ -56,7 +56,7 @@ export default function Payment() {
           order,
           orderId: order.id || order.order_id,
           totalAmount,
-          items: cartItems,
+          items: order.items || cartItems,
           shippingAddress,
           paymentMethod: 'Online Payment (Prepaid)',
           date: new Date().toLocaleDateString('en-IN'),
