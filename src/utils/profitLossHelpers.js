@@ -30,7 +30,7 @@ export function calculateProfitLossMetrics(filteredOrders = []) {
   );
 
   const totalDiscounts = filteredOrders.reduce(
-    (acc, o) => acc + Number(o.discount || 0),
+    (acc, o) => acc + Number(o.discount || o.discount_amount || 0),
     0
   );
 

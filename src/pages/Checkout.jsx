@@ -10,6 +10,9 @@ export default function Checkout() {
     cartItems,
     subtotal,
     discount,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
     formData,
     paymentMethod,
     setPaymentMethod,
@@ -78,6 +81,9 @@ export default function Checkout() {
               cartItems={cartItems}
               subtotal={subtotal}
               discount={discount}
+              appliedCoupon={appliedCoupon}
+              applyCoupon={applyCoupon}
+              removeCoupon={removeCoupon}
               paymentMethod={paymentMethod}
               finalTotal={finalTotal}
               submitting={submitting}

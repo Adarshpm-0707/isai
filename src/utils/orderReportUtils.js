@@ -155,6 +155,12 @@ export function printOrderInvoice(order) {
   const items = Array.isArray(order.items) ? order.items : [];
   const cust = order.shipping_address || order.profiles || {};
   const total = Number(order.total || order.total_amount || 0);
+  const subtotal = Number(
+    order.subtotal ??
+    (items.reduce((sum, it) => sum + (Number(it.price || it.product?.price || 0) * (it.qty || it.quantity || 1)), 0) || total)
+  );
+  const discount = Number(order.discount || order.discount_amount || 0);
+  const couponCode = order.coupon_code || order.coupon?.code || '';
 
   const itemsRowsHTML = (
     items.length > 0
@@ -272,10 +278,16 @@ export function printOrderInvoice(order) {
             <div class="totals-box">
               <div class="totals-row">
                 <span>Subtotal:</span>
-                <span>₹${total.toLocaleString('en-IN')}</span>
+                <span>₹${subtotal.toLocaleString('en-IN')}</span>
               </div>
+              ${discount > 0 ? `
+              <div class="totals-row" style="color: #2F855A; font-weight: 600;">
+                <span>Coupon Discount${couponCode ? ` (${couponCode})` : ''}:</span>
+                <span>- ₹${discount.toLocaleString('en-IN')}</span>
+              </div>
+              ` : ''}
               <div class="totals-row grand">
-                <span>Grand Total:</span>
+                <span>Total Amount Paid:</span>
                 <span>₹${total.toLocaleString('en-IN')}</span>
               </div>
             </div>

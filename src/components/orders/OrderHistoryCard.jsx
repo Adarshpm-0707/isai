@@ -53,7 +53,7 @@ export default function OrderHistoryCard({
     order.totalAmount || order.total_amount || order.total || 0
   );
   const subtotal = Number(order.subtotal || totalAmount);
-  const discount = Number(order.discount || 0);
+  const discount = Number(order.discount || order.discount_amount || 0);
 
   return (
     <motion.div
@@ -266,8 +266,15 @@ export default function OrderHistoryCard({
             </div>
 
             {discount > 0 && (
-              <div className="flex justify-between text-green-400">
-                <span>Coupon Discount</span>
+              <div className="flex justify-between text-emerald-400">
+                <span className="flex items-center gap-1.5">
+                  <span>Coupon Discount</span>
+                  {(order.coupon_code || order.coupon?.code) && (
+                    <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono text-[10px] font-bold border border-emerald-500/40">
+                      {order.coupon_code || order.coupon?.code}
+                    </span>
+                  )}
+                </span>
                 <span>-₹{discount.toLocaleString('en-IN')}</span>
               </div>
             )}

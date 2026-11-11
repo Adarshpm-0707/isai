@@ -29,6 +29,8 @@
     "subtotal": 1000,
     "discount": 0,
     "discount_amount": 0,
+    "coupon_code": null,
+    "coupon": null,
     "shipping_fee": 0,
     "cod_fee": 0,
     "total": 1000,

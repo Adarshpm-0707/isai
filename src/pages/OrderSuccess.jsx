@@ -12,12 +12,20 @@ export default function OrderSuccess() {
   const navigate = useNavigate();
 
   const orderState = location.state || {};
-  const orderId = orderState.orderId;
-  const totalAmount = orderState.totalAmount || 0;
-  const items = orderState.items || [];
-  const shippingAddress = orderState.shippingAddress || {};
-  const paymentMethod = orderState.paymentMethod || 'Cash on Delivery / Direct Order';
-  const orderDate = orderState.date || new Date().toLocaleDateString('en-IN');
+  const order = orderState.order || {};
+  const orderId = orderState.orderId || order.id || order.order_id;
+  const totalAmount = Number(orderState.totalAmount ?? order.total_amount ?? order.total ?? 0);
+  const items = orderState.items || order.items || [];
+  const subtotal = Number(
+    orderState.subtotal ??
+    order.subtotal ??
+    (items.reduce((sum, it) => sum + (Number(it.price || it.product?.price || 0) * (it.qty || it.quantity || 1)), 0) || totalAmount)
+  );
+  const discount = Number(orderState.discount ?? order.discount ?? order.discount_amount ?? 0);
+  const couponCode = orderState.couponCode || order.coupon_code || order.coupon?.code || null;
+  const shippingAddress = orderState.shippingAddress || order.shipping_address || {};
+  const paymentMethod = orderState.paymentMethod || order.paymentMethod || 'Cash on Delivery (COD)';
+  const orderDate = orderState.date || order.created_at || new Date().toLocaleDateString('en-IN');
 
   const [isPrinting, setIsPrinting] = useState(true);
 
@@ -41,6 +49,10 @@ export default function OrderSuccess() {
       order_id: orderId,
       items,
       shipping_address: shippingAddress,
+      subtotal,
+      discount,
+      discount_amount: discount,
+      coupon_code: couponCode,
       total: totalAmount,
       total_amount: totalAmount,
       payment_method: paymentMethod,
@@ -241,11 +253,17 @@ export default function OrderSuccess() {
               </div>
 
               {/* RECEIPT TOTALS */}
-              <div className="pt-3 pb-2 space-y-1 text-xs">
+              <div className="pt-3 pb-2 space-y-1.5 text-xs">
                 <div className="flex justify-between text-[#6D5D53]">
                   <span>Subtotal</span>
-                  <span>₹{totalAmount.toLocaleString('en-IN')}</span>
+                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-emerald-800 font-semibold">
+                    <span>Coupon Discount {couponCode ? `(${couponCode})` : ''}</span>
+                    <span>-₹{discount.toLocaleString('en-IN')}</span>
+                  </div>
+                )}
                 <div className="flex justify-between pt-1.5 border-t border-[#C7BBAA] font-bold text-sm text-[#140E0C]">
                   <span>Amount Paid</span>
                   <span className="text-[#8F4412] font-black text-base">

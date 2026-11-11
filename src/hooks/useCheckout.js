@@ -18,7 +18,17 @@ const loadScript = (src) => {
 export default function useCheckout() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  const { cartItems, subtotal, discount, shippingFee, totalAmount, appliedCoupon, clearCart } = useCart();
+  const {
+    cartItems,
+    subtotal,
+    discount,
+    shippingFee,
+    totalAmount,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
+    clearCart,
+  } = useCart();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -120,6 +130,7 @@ export default function useCheckout() {
             cartItems,
             shippingAddress: formData,
             coupon: appliedCoupon,
+            coupon_code: appliedCoupon?.code || null,
             subtotal,
             discount,
             shippingFee,
@@ -133,6 +144,9 @@ export default function useCheckout() {
               order,
               orderId: order.id || order.order_id,
               totalAmount: finalTotal,
+              subtotal,
+              discount,
+              couponCode: appliedCoupon?.code || order.coupon_code || null,
               items: cartItems,
               shippingAddress: formData,
               paymentMethod: 'Cash on Delivery (COD)',
@@ -168,6 +182,7 @@ export default function useCheckout() {
                   cartItems,
                   shippingAddress: formData,
                   coupon: appliedCoupon,
+                  coupon_code: appliedCoupon?.code || null,
                   subtotal,
                   discount,
                   shippingFee,
@@ -180,6 +195,9 @@ export default function useCheckout() {
                     order: verifiedOrder,
                     orderId: verifiedOrder.id || verifiedOrder.order_id,
                     totalAmount: finalTotal,
+                    subtotal,
+                    discount,
+                    couponCode: appliedCoupon?.code || verifiedOrder.coupon_code || null,
                     items: cartItems,
                     shippingAddress: formData,
                     paymentMethod: 'Online Payment (Prepaid)',
@@ -222,6 +240,9 @@ export default function useCheckout() {
     cartItems,
     subtotal,
     discount,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
     shippingFee,
     totalAmount,
     formData,

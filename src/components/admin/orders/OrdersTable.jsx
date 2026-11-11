@@ -86,7 +86,17 @@ export default function OrdersTable({
                       </div>
                     </td>
                     <td className="py-4 px-6 font-bold text-[#DFC18A]">
-                      ₹{Number(order.total || order.total_amount || 0).toLocaleString('en-IN')}
+                      <div>
+                        <span>₹{Number(order.total || order.total_amount || 0).toLocaleString('en-IN')}</span>
+                        {(Number(order.discount || order.discount_amount || 0) > 0 || order.coupon_code) && (
+                          <div className="text-[10px] text-emerald-400 font-normal flex items-center gap-1 mt-0.5">
+                            <span className="font-mono bg-emerald-950/80 px-1 py-0.2 rounded border border-emerald-500/30">
+                              {order.coupon_code || 'COUPON'}
+                            </span>
+                            <span>(-₹{Number(order.discount || order.discount_amount || 0).toLocaleString('en-IN')})</span>
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="py-4 px-6 uppercase font-bold text-[10px] text-[#A1A1AA]">
                       {order.payment_method === 'cod' || order.payment_method === 'COD'

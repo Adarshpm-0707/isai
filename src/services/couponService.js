@@ -16,7 +16,7 @@ const DEFAULT_COUPONS = [
     code: 'WELCOME10',
     type: 'percentage',
     value: 10,
-    min_order_amount: 999,
+    min_order_amount: 0,
     max_uses: 500,
     used_count: 0,
     is_active: true,
@@ -28,7 +28,7 @@ const DEFAULT_COUPONS = [
     code: 'ISAI500',
     type: 'fixed',
     value: 500,
-    min_order_amount: 4999,
+    min_order_amount: 1000,
     max_uses: 100,
     used_count: 0,
     is_active: true,
@@ -174,5 +174,23 @@ export const couponService = {
       discount,
       message: `Coupon '${coupon.code}' applied successfully!`,
     };
+  },
+
+  async recordCouponUsage(code) {
+    if (!code) return;
+    try {
+      const cleanCode = String(code).toUpperCase().trim();
+      const current = getLocalCoupons();
+      const idx = current.findIndex(c => c.code.toUpperCase() === cleanCode);
+      if (idx >= 0) {
+        current[idx].used_count = (current[idx].used_count || 0) + 1;
+        saveLocalCoupons(current);
+
+        withTimeout(
+          supabase.from('coupons').update({ used_count: current[idx].used_count }).eq('id', current[idx].id),
+          1000
+        ).catch(() => {});
+      }
+    } catch {}
   },
 };

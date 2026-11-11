@@ -204,7 +204,17 @@ export default function RecentOrdersSection({
 
                     {/* Total Amount */}
                     <td className="py-3.5 px-4 font-mono font-bold text-[#D4AF37] text-sm align-top whitespace-nowrap">
-                      ₹{Number(ord.total || ord.total_amount || 0).toLocaleString('en-IN')}
+                      <div>
+                        <span>₹{Number(ord.total || ord.total_amount || 0).toLocaleString('en-IN')}</span>
+                        {(Number(ord.discount || ord.discount_amount || 0) > 0 || ord.coupon_code) && (
+                          <p className="text-[10px] text-emerald-400 font-sans font-normal mt-0.5 flex items-center gap-1">
+                            <span className="font-mono bg-emerald-950/80 px-1 py-0.2 rounded border border-emerald-500/30">
+                              {ord.coupon_code || 'COUPON'}
+                            </span>
+                            <span>(-₹{Number(ord.discount || ord.discount_amount || 0).toLocaleString('en-IN')})</span>
+                          </p>
+                        )}
+                      </div>
                     </td>
 
                     {/* Fulfillment Switcher */}

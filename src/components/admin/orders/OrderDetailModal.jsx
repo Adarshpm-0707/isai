@@ -232,36 +232,63 @@ export default function OrderDetailModal({
               </span>
             </div>
 
-            <div className="space-y-1.5 bg-[#161B26] p-3 rounded-lg border border-[#D4AF37]/20 text-xs">
-              <div className="flex justify-between text-[#A1A1AA]">
-                <span>Sarees Subtotal</span>
-                <span className="text-[#FFFFFF]">
-                  ₹
-                  {Number(
-                    selectedOrder.total || selectedOrder.total_amount || 0
-                  ).toLocaleString('en-IN')}
-                </span>
-              </div>
-              <div className="flex justify-between text-[#A1A1AA]">
-                <span>Promotional Discount</span>
-                <span className="text-emerald-400 font-semibold">₹0</span>
-              </div>
-              <div className="flex justify-between text-[#A1A1AA]">
-                <span>Insured Heritage Shipping</span>
-                <span className="text-emerald-400 font-semibold uppercase">
-                  FREE
-                </span>
-              </div>
-              <div className="flex justify-between pt-2 border-t border-[#D4AF37]/20 font-bold text-sm text-[#DFC18A]">
-                <span>Total Amount</span>
-                <span>
-                  ₹
-                  {Number(
-                    selectedOrder.total || selectedOrder.total_amount || 0
-                  ).toLocaleString('en-IN')}
-                </span>
-              </div>
-            </div>
+            {(() => {
+              const subtotalVal = Number(
+                selectedOrder.subtotal ??
+                (Array.isArray(selectedOrder.items) && selectedOrder.items.length > 0
+                  ? selectedOrder.items.reduce((acc, it) => acc + (Number(it.price || it.product?.price || 0) * (it.quantity || it.qty || 1)), 0)
+                  : (selectedOrder.total || selectedOrder.total_amount || 0))
+              );
+              const discountVal = Number(selectedOrder.discount ?? selectedOrder.discount_amount ?? 0);
+              const couponCodeVal = selectedOrder.coupon_code || selectedOrder.coupon?.code || '';
+              const finalTotalVal = Number(selectedOrder.total ?? selectedOrder.total_amount ?? Math.max(0, subtotalVal - discountVal));
+
+              return (
+                <div className="space-y-2 bg-[#161B26] p-3.5 rounded-lg border border-[#D4AF37]/20 text-xs">
+                  <div className="flex justify-between text-[#A1A1AA]">
+                    <span>Sarees Subtotal</span>
+                    <span className="text-[#FFFFFF] font-mono">
+                      ₹{subtotalVal.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+
+                  {discountVal > 0 ? (
+                    <div className="flex justify-between items-center text-[#A1A1AA]">
+                      <span className="flex items-center gap-1.5">
+                        <span>Coupon Discount</span>
+                        {couponCodeVal && (
+                          <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-mono text-[10px] font-bold border border-emerald-500/40">
+                            {couponCodeVal}
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-emerald-400 font-semibold font-mono">
+                        -₹{discountVal.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between text-[#A1A1AA]">
+                      <span>Promotional Discount</span>
+                      <span className="text-[#A1A1AA] italic">None</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-[#A1A1AA]">
+                    <span>Insured Heritage Shipping</span>
+                    <span className="text-emerald-400 font-semibold uppercase">
+                      FREE
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between pt-2 border-t border-[#D4AF37]/20 font-bold text-sm text-[#DFC18A]">
+                    <span>Final Total Paid</span>
+                    <span className="font-mono text-base">
+                      ₹{finalTotalVal.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 

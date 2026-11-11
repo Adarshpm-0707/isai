@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 import { syncLocalhostData } from './dataSyncService';
 import { productService } from './productService';
+import { couponService } from './couponService';
 
 function isValidUUID(str) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(str || ''));
@@ -104,11 +105,17 @@ export const checkoutService = {
   async createCodOrder(orderPayload) {
     const items = orderPayload.cartItems || orderPayload.items || [];
     const shipping = orderPayload.shippingAddress || orderPayload.shipping_address || {};
+    const subtotal = Number(
+      orderPayload.subtotal ??
+      items.reduce((acc, it) => acc + (Number(it.price || it.product?.price || 0) * (it.quantity || it.qty || 1)), 0)
+    );
+    const discount = Number(orderPayload.discount ?? orderPayload.discount_amount ?? 0);
+    const couponCode = orderPayload.coupon_code || orderPayload.coupon?.code || (typeof orderPayload.coupon === 'string' ? orderPayload.coupon : null);
     const total = Number(
       orderPayload.totalAmount ??
       orderPayload.total_amount ??
       orderPayload.finalTotal ??
-      0
+      Math.max(0, subtotal - discount)
     );
 
     const orderUuid = generateUUID();
@@ -121,9 +128,9 @@ export const checkoutService = {
       id: orderUuid,
       user_id: userId,
       items,
-      subtotal: Number(orderPayload.subtotal || total),
+      subtotal: subtotal,
       shipping_fee: 0,
-      discount_amount: Number(orderPayload.discount || 0),
+      discount_amount: discount,
       cod_fee: 0,
       total: total,
       payment_method: 'cod',
@@ -139,6 +146,12 @@ export const checkoutService = {
       id: orderUuid,
       order_id: readableOrderId,
       orderId: readableOrderId,
+      subtotal: subtotal,
+      discount: discount,
+      discount_amount: discount,
+      coupon_code: couponCode,
+      coupon: orderPayload.coupon || (couponCode ? { code: couponCode } : null),
+      total: total,
       total_amount: total,
       paymentMethod: 'Cash on Delivery (COD)',
       customer_name: shipping.name || '',
@@ -167,7 +180,12 @@ export const checkoutService = {
       console.warn('Auto inventory stock deduct notice:', stockErr?.message);
     }
 
-    // 4. Save into Supabase orders table
+    // 4. Record coupon usage count
+    if (couponCode) {
+      couponService.recordCouponUsage(couponCode).catch(() => {});
+    }
+
+    // 5. Save into Supabase orders table
     try {
       const { data: dbData, error: dbErr } = await withTimeout(
         supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
@@ -231,7 +249,17 @@ export const checkoutService = {
   async verifyAndSaveOrder(payload) {
     const items = payload.cartItems || payload.items || [];
     const shipping = payload.shippingAddress || payload.shipping_address || {};
-    const total = Number(payload.totalAmount ?? payload.total_amount ?? 0);
+    const subtotal = Number(
+      payload.subtotal ??
+      items.reduce((acc, it) => acc + (Number(it.price || it.product?.price || 0) * (it.quantity || it.qty || 1)), 0)
+    );
+    const discount = Number(payload.discount ?? payload.discount_amount ?? 0);
+    const couponCode = payload.coupon_code || payload.coupon?.code || (typeof payload.coupon === 'string' ? payload.coupon : null);
+    const total = Number(
+      payload.totalAmount ??
+      payload.total_amount ??
+      Math.max(0, subtotal - discount)
+    );
 
     const orderUuid = generateUUID();
     const readableOrderId = `ORD-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
@@ -243,9 +271,9 @@ export const checkoutService = {
       id: orderUuid,
       user_id: userId,
       items,
-      subtotal: Number(payload.subtotal || total),
+      subtotal: subtotal,
       shipping_fee: Number(payload.shippingFee || 0),
-      discount_amount: Number(payload.discount || 0),
+      discount_amount: discount,
       cod_fee: 0,
       total: total,
       payment_method: 'prepaid',
@@ -262,6 +290,12 @@ export const checkoutService = {
       id: orderUuid,
       order_id: readableOrderId,
       orderId: readableOrderId,
+      subtotal: subtotal,
+      discount: discount,
+      discount_amount: discount,
+      coupon_code: couponCode,
+      coupon: payload.coupon || (couponCode ? { code: couponCode } : null),
+      total: total,
       total_amount: total,
       paymentMethod: 'Online Payment (Prepaid)',
       payment_id: payload.razorpayResponse?.razorpay_payment_id || 'PAY_' + Date.now(),
@@ -289,7 +323,12 @@ export const checkoutService = {
       console.warn('Auto inventory stock deduct notice:', stockErr?.message);
     }
 
-    // 4. Cloud sync to Supabase orders table
+    // 4. Record coupon usage count
+    if (couponCode) {
+      couponService.recordCouponUsage(couponCode).catch(() => {});
+    }
+
+    // 5. Cloud sync to Supabase orders table
     try {
       const { data: dbData, error: dbErr } = await withTimeout(
         supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
