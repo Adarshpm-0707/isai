@@ -9,7 +9,7 @@ export default function ProductFormImages({
 }) {
   return (
     <div className="sm:col-span-2 space-y-4 pt-4 border-t border-[#D4AF37]/25">
-      <h4 className="font-serif text-sm font-bold text-[#F3E5AB] uppercase tracking-wider">
+      <h4 className="font-sans text-sm font-bold text-[#FFFFFF] uppercase tracking-wider">
         Product Images (3 slots)
       </h4>
 
@@ -19,7 +19,7 @@ export default function ProductFormImages({
             <div className="w-full sm:w-1/4 text-xs text-[#D4AF37] font-bold uppercase tracking-wider">
               Slot {index + 1}
             </div>
-            <label className="relative cursor-pointer bg-[#1A3C2B] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#0C2317] px-4 py-2 rounded-lg text-xs font-bold uppercase text-[#F3E5AB] flex items-center gap-1.5 flex-shrink-0 transition-colors">
+            <label className="relative cursor-pointer bg-[#161B26] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] px-4 py-2 rounded-lg text-xs font-bold uppercase text-[#FFFFFF] flex items-center gap-1.5 flex-shrink-0 transition-colors">
               <Upload className="w-3.5 h-3.5" />
               {uploadingIndex === index ? 'Uploading...' : 'Upload File'}
               <input
@@ -34,11 +34,11 @@ export default function ProductFormImages({
               type="url"
               value={img}
               onChange={(e) => onImageChange(index, e.target.value)}
-              className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2 text-xs text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
+              className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg px-4 py-2 text-xs text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none focus:border-[#D4AF37]"
               placeholder="Or paste image URL (e.g. https://...)..."
             />
             {img && (
-              <div className="w-10 h-10 overflow-hidden rounded bg-[#081A11] border border-[#D4AF37]/35 flex-shrink-0">
+              <div className="w-10 h-10 overflow-hidden rounded bg-[#0A0D14] border border-[#D4AF37]/35 flex-shrink-0">
                 <img src={img} alt="Preview" className="w-full h-full object-cover" />
               </div>
             )}
@@ -48,3 +48,4 @@ export default function ProductFormImages({
     </div>
   );
 }
+

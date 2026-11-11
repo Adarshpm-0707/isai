@@ -16,7 +16,7 @@ export default function FeatureHubCards({ stats }) {
               {stats.totalStockUnits} Units In Stock
             </span>
           </div>
-          <h2 className="font-serif text-lg font-bold text-[#FFFFFF]">
+          <h2 className="font-sans text-lg font-bold text-[#FFFFFF]">
             Saree Catalog Stock & Variant Replenishment
           </h2>
           <p className="text-xs text-[#D1D5DB] leading-relaxed">
@@ -48,7 +48,7 @@ export default function FeatureHubCards({ stats }) {
               Healthy Cash Flow
             </span>
           </div>
-          <h2 className="font-serif text-lg font-bold text-[#FFFFFF]">
+          <h2 className="font-sans text-lg font-bold text-[#FFFFFF]">
             Profit & Loss Accounts & Ledger
           </h2>
           <p className="text-xs text-[#D1D5DB] leading-relaxed">
@@ -71,3 +71,4 @@ export default function FeatureHubCards({ stats }) {
     </div>
   );
 }
+

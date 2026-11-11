@@ -70,7 +70,7 @@ export default function ManageAdmins() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       {/* Header & Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
@@ -80,18 +80,18 @@ export default function ManageAdmins() {
         />
         <button
           onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
         >
           <UserPlus className="w-4 h-4" /> Add Admin User
         </button>
       </div>
 
       {/* Admin Users Table */}
-      <div className="bg-[#0C2317] border border-[#D4AF37]/35 rounded-xl shadow-xl overflow-hidden text-[#F3E5AB]">
+      <div className="bg-[#0F131C] border border-[#D4AF37]/30 rounded-xl shadow-xl overflow-hidden text-[#FFFFFF]">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-sans border-collapse">
             <thead>
-              <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] uppercase font-bold bg-[#081A11]">
+              <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] uppercase font-bold bg-[#0A0D14]">
                 <th className="py-4 px-6">Admin Name</th>
                 <th className="py-4 px-6">Email Address</th>
                 <th className="py-4 px-6">Phone</th>
@@ -102,21 +102,21 @@ export default function ManageAdmins() {
             <tbody className="divide-y divide-[#D4AF37]/15">
               {admins.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-6 text-center text-[#EADFC9]/70 italic">
+                  <td colSpan={5} className="py-6 text-center text-[#A1A1AA] italic">
                     No admin users found. Click "Add Admin User" to create one.
                   </td>
                 </tr>
               ) : (
                 admins.map((adm) => (
-                  <tr key={adm.id || adm.email} className="hover:bg-[#153424]/60 transition-colors">
-                    <td className="py-4 px-6 font-bold text-[#F3E5AB] flex items-center gap-2">
-                      <div className="p-1.5 rounded-full bg-[#1A3C2B] border border-[#D4AF37]/40 text-[#FFD54F]">
+                  <tr key={adm.id || adm.email} className="hover:bg-[#161B26]/60 transition-colors">
+                    <td className="py-4 px-6 font-bold text-[#FFFFFF] flex items-center gap-2">
+                      <div className="p-1.5 rounded-full bg-[#161B26] border border-[#D4AF37]/40 text-[#FFD54F]">
                         <Shield className="w-3.5 h-3.5" />
                       </div>
                       <span>{adm.name || "System Admin"}</span>
                     </td>
-                    <td className="py-4 px-6 text-[#EADFC9] font-mono">{adm.email}</td>
-                    <td className="py-4 px-6 text-[#EADFC9]/80">{adm.phone || "N/A"}</td>
+                    <td className="py-4 px-6 text-[#A1A1AA] font-mono">{adm.email}</td>
+                    <td className="py-4 px-6 text-[#A1A1AA]">{adm.phone || "N/A"}</td>
                     <td className="py-4 px-6">
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
@@ -131,7 +131,7 @@ export default function ManageAdmins() {
                     <td className="py-4 px-6 text-right space-x-2">
                       <button
                         onClick={() => handleToggleStatus(adm.id, adm.is_active !== false)}
-                        className="px-2.5 py-1 rounded bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/35 hover:bg-[#D4AF37] hover:text-[#0C2317] transition-colors text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                        className="px-2.5 py-1 rounded bg-[#161B26] text-[#FFFFFF] border border-[#D4AF37]/35 hover:bg-[#D4AF37] hover:text-[#090B10] transition-colors text-[10px] font-bold uppercase tracking-wider cursor-pointer"
                       >
                         {adm.is_active !== false ? "Disable" : "Enable"}
                       </button>
@@ -155,7 +155,7 @@ export default function ManageAdmins() {
 
       {/* Add Admin User Modal */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create New Admin User">
-        <form onSubmit={handleCreateAdmin} className="space-y-4 text-xs font-sans text-[#F3E5AB] p-2">
+        <form onSubmit={handleCreateAdmin} className="space-y-4 text-xs font-sans text-[#F5E6BE] p-2">
           <div className="space-y-1">
             <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">Full Name *</label>
             <div className="relative">
@@ -164,7 +164,7 @@ export default function ManageAdmins() {
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#F3E5AB] bg-[#1A3C2B] border border-[#D4AF37]/35 focus:outline-none focus:border-[#D4AF37]"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#FFFFFF] bg-[#161B26] border border-[#D4AF37]/35 focus:outline-none focus:border-[#D4AF37]"
                 placeholder="Ramesh Kumar"
                 required
               />
@@ -179,7 +179,7 @@ export default function ManageAdmins() {
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#F3E5AB] bg-[#1A3C2B] border border-[#D4AF37]/35 focus:outline-none focus:border-[#D4AF37]"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#FFFFFF] bg-[#161B26] border border-[#D4AF37]/35 focus:outline-none focus:border-[#D4AF37]"
                 placeholder="admin@isaitarang.com"
                 required
               />
@@ -194,7 +194,7 @@ export default function ManageAdmins() {
                 type="tel"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#F3E5AB] bg-[#1A3C2B] border border-[#D4AF37]/35 focus:outline-none focus:border-[#D4AF37]"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#FFFFFF] bg-[#161B26] border border-[#D4AF37]/35 focus:outline-none focus:border-[#D4AF37]"
                 placeholder="+91 90488 68444"
               />
             </div>
@@ -208,7 +208,7 @@ export default function ManageAdmins() {
                 type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#F3E5AB] bg-[#1A3C2B] border border-[#D4AF37]/35 focus:outline-none focus:border-[#D4AF37]"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#FFFFFF] bg-[#161B26] border border-[#D4AF37]/35 focus:outline-none focus:border-[#D4AF37]"
                 placeholder="••••••••"
                 required
               />
@@ -219,13 +219,13 @@ export default function ManageAdmins() {
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 rounded-lg font-bold text-xs uppercase text-[#EADFC9] hover:bg-[#1A3C2B] transition-colors"
+              className="px-4 py-2 rounded-lg font-bold text-xs uppercase text-[#A1A1AA] hover:bg-[#161B26] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 transition-all shadow-lg"
+              className="px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 transition-all shadow-lg"
             >
               Create Admin User
             </button>

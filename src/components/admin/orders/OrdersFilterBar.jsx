@@ -21,7 +21,7 @@ export default function OrdersFilterBar({
   filteredCount = 0,
 }) {
   return (
-    <div className="bg-[#0C2317] border border-[#D4AF37]/35 p-4 rounded-2xl space-y-4 shadow-xl font-sans">
+    <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-4 rounded-2xl space-y-4 shadow-xl font-sans">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Real-time Keyword Search Input Box */}
         <div className="relative flex-1">
@@ -31,12 +31,12 @@ export default function OrdersFilterBar({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by Order ID, Customer Name, Email, or Phone..."
-            className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-xl pl-10 pr-10 py-2.5 text-xs text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
+            className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-xl pl-10 pr-10 py-2.5 text-xs text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none focus:border-[#D4AF37]"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#EADFC9]/60 hover:text-[#F3E5AB]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A1A1AA] hover:text-[#FFFFFF] cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -60,22 +60,22 @@ export default function OrdersFilterBar({
               : (o.status || 'pending').toLowerCase() === t.toLowerCase()
           ).length;
 
+          const isActive = activeTab.toLowerCase() === t.toLowerCase();
+
           return (
             <button
               key={t}
               onClick={() => setActiveTab(t)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === t
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] shadow-lg scale-105'
-                  : 'bg-[#1A3C2B] text-[#F3E5AB] hover:bg-[#D4AF37] hover:text-[#0C2317] border border-[#D4AF37]/35'
+              className={`px-3.5 py-1.5 rounded-lg text-xs uppercase font-bold tracking-wider transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                isActive
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] shadow-md'
+                  : 'bg-[#161B26] text-[#A1A1AA] hover:text-[#FFFFFF] border border-[#D4AF37]/25 hover:border-[#D4AF37]'
               }`}
             >
               <span>{t}</span>
               <span
                 className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                  activeTab === t
-                    ? 'bg-[#0C2317] text-[#D4AF37]'
-                    : 'bg-[#081A11] text-[#EADFC9]'
+                  isActive ? 'bg-[#090B10]/20 text-[#090B10]' : 'bg-[#090B10] text-[#D4AF37]'
                 }`}
               >
                 {count}

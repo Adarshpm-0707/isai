@@ -13,7 +13,7 @@ export default function DashboardHeader({ onRefresh, loading }) {
               Isai Heritage Real-Time Console
             </span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#FFFFFF] tracking-tight">
+          <h1 className="font-sans text-2xl sm:text-3xl font-bold text-[#FFFFFF] tracking-tight">
             Admin Control & Analytics
           </h1>
           <p className="text-xs sm:text-sm text-[#D1D5DB] max-w-2xl font-normal leading-relaxed">
@@ -54,3 +54,4 @@ export default function DashboardHeader({ onRefresh, loading }) {
     </header>
   );
 }
+

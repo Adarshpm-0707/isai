@@ -71,3 +71,4 @@ export function getOrderCustomerInfo(order) {
 
   return { name, phone, email };
 }
+

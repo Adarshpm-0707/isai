@@ -12,11 +12,11 @@ export default function OrdersTable({
   handleDeleteOrder,
 }) {
   return (
-    <div className="bg-[#0C2317] border border-[#D4AF37]/35 rounded-2xl shadow-2xl overflow-hidden text-[#F3E5AB]">
+    <div className="bg-[#0F131C] border border-[#D4AF37]/35 rounded-2xl shadow-2xl overflow-hidden text-[#F5E6BE]">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs font-sans">
           <thead>
-            <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#081A11]">
+            <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#0A0D14]">
               <th className="py-4 px-6">Order ID</th>
               <th className="py-4 px-6">Customer</th>
               <th className="py-4 px-6">Date</th>
@@ -30,7 +30,7 @@ export default function OrdersTable({
           <tbody className="divide-y divide-[#D4AF37]/15">
             {filteredOrders.length === 0 && !loading ? (
               <tr>
-                <td colSpan={8} className="py-10 text-center text-[#EADFC9]/70 italic">
+                <td colSpan={8} className="py-10 text-center text-[#A1A1AA] italic">
                   No orders matching filter: <strong>"{activeTab}"</strong>{' '}
                   {searchQuery && `with search "${searchQuery}"`}
                 </td>
@@ -49,67 +49,49 @@ export default function OrdersTable({
                   order.shipping_address?.name || order.profiles?.name || 'Customer';
 
                 return (
-                  <tr key={order.id} className="hover:bg-[#153424]/60 transition-colors">
-                    <td className="py-4 px-6 font-mono font-bold text-[#F3E5AB]">
+                  <tr key={order.id} className="hover:bg-[#161B26]/60 transition-colors">
+                    <td className="py-4 px-6 font-mono font-bold text-[#FFFFFF]">
                       {order.id?.slice(0, 12) || order.order_id}
                     </td>
-                    <td className="py-4 px-6 font-medium text-[#F3E5AB]">{custName}</td>
-                    <td className="py-4 px-6 text-[#EADFC9]">
+                    <td className="py-4 px-6 font-semibold text-[#FFFFFF]">{custName}</td>
+                    <td className="py-4 px-6 text-[#A1A1AA]">
                       {new Date(order.created_at || Date.now()).toLocaleDateString('en-IN')}
                     </td>
                     <td className="py-4 px-6">
-                      {items.length === 0 ? (
-                        <span className="text-[#EADFC9]/60 italic">
-                          Handcrafted Heritage Saree
-                        </span>
-                      ) : (
-                        <div className="flex items-center gap-3">
-                          {(() => {
-                            const firstItem = getItemDetails(items[0]);
-                            return (
-                              <>
-                                <img
-                                  src={firstItem.image}
-                                  alt={firstItem.name}
-                                  className="w-10 h-10 object-cover rounded-lg border border-[#D4AF37]/35 bg-[#1A3C2B] shrink-0"
-                                  onError={(e) => {
-                                    e.currentTarget.src =
-                                      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600';
-                                  }}
-                                />
-                                <div className="min-w-0">
-                                  <p
-                                    className="font-semibold text-[#F3E5AB] truncate max-w-[170px]"
-                                    title={firstItem.name}
-                                  >
-                                    {firstItem.name}
-                                  </p>
-                                  <p className="text-[10px] text-[#EADFC9]/80 flex items-center gap-1.5 mt-0.5">
-                                    <span className="font-bold text-[#F3E5AB]">
-                                      {firstItem.qty} &times; ₹
-                                      {firstItem.price.toLocaleString('en-IN')}
-                                    </span>
-                                    {items.length > 1 && (
-                                      <span className="text-[#DFC18A] font-bold">
-                                        +{items.length - 1} more
-                                      </span>
-                                    )}
-                                  </p>
-                                </div>
-                              </>
-                            );
-                          })()}
-                        </div>
-                      )}
+                      <div className="space-y-1">
+                        {items.slice(0, 2).map((raw, i) => {
+                          const item = getItemDetails(raw);
+                          return (
+                            <div key={i} className="flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                              <span className="truncate max-w-[170px] text-[#FFFFFF] font-medium" title={item.name}>
+                                {item.name}
+                              </span>
+                              <span className="text-[10px] text-[#A1A1AA] font-bold">
+                                (x{item.qty})
+                              </span>
+                            </div>
+                          );
+                        })}
+                        {items.length > 2 && (
+                          <span className="text-[10px] text-[#D4AF37] font-semibold italic">
+                            +{items.length - 2} more item(s)
+                          </span>
+                        )}
+                        {items.length === 0 && (
+                          <span className="text-[11px] text-[#A1A1AA] italic">
+                            1x Handloom Saree
+                          </span>
+                        )}
+                      </div>
                     </td>
-                    <td className="py-4 px-6 font-bold text-[#F3E5AB]">
-                      ₹
-                      {Number(order.total || order.total_amount || 0).toLocaleString(
-                        'en-IN'
-                      )}
+                    <td className="py-4 px-6 font-bold text-[#DFC18A]">
+                      ₹{Number(order.total || order.total_amount || 0).toLocaleString('en-IN')}
                     </td>
-                    <td className="py-4 px-6 uppercase text-[10px] font-bold text-[#EADFC9]">
-                      {order.payment_method || 'COD'}
+                    <td className="py-4 px-6 uppercase font-bold text-[10px] text-[#A1A1AA]">
+                      {order.payment_method === 'cod' || order.payment_method === 'COD'
+                        ? 'Cash on Delivery'
+                        : 'Prepaid Online'}
                     </td>
                     <td className="py-4 px-6">
                       <Badge text={order.status || 'pending'} variant={badgeVariant} />
@@ -117,17 +99,17 @@ export default function OrdersTable({
                     <td className="py-4 px-6 text-right space-x-2">
                       <button
                         onClick={() => handleOpenModal(order)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/35 hover:bg-[#D4AF37] hover:text-[#0C2317] transition-all cursor-pointer shadow-md"
-                        title="View Order Details"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+                        title="View Full Order Details, Items & Edit Status"
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        <span>View</span>
+                        <span>Manage</span>
                       </button>
+
                       <button
-                        type="button"
-                        onClick={() => handleDeleteOrder(order)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider bg-red-950/60 text-red-300 hover:bg-red-900 hover:text-white border border-red-500/40 transition-all cursor-pointer shadow-md"
-                        title="Delete Order"
+                        onClick={() => handleDeleteOrder(order.id)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-950/60 text-red-300 hover:bg-red-900 border border-red-500/40 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+                        title="Delete Order Record"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>Delete</span>

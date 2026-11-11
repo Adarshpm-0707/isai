@@ -168,3 +168,4 @@ export function exportProfitLossCSV({ timeRange, metrics }) {
   link.click();
   document.body.removeChild(link);
 }
+

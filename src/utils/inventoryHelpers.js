@@ -127,3 +127,4 @@ export function exportInventoryToCSV(products = [], stockEdits = {}, costEdits =
   link.click();
   document.body.removeChild(link);
 }
+

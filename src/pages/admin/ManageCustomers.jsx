@@ -25,14 +25,14 @@ export default function ManageCustomers() {
     : { count: 0, totalSpent: 0, history: [] };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       {/* Floating Notification */}
       {feedback && (
         <div
           className={`p-4 rounded-xl flex items-center gap-3 text-xs font-sans shadow-lg border transition-all ${
             feedback.type === 'error'
               ? 'bg-red-950/80 border-red-500/50 text-red-200'
-              : 'bg-[#153424] border-[#D4AF37]/50 text-[#F3E5AB]'
+              : 'bg-[#0F131C] border-[#D4AF37]/50 text-[#F5E6BE]'
           }`}
         >
           {feedback.type === 'error' ? (
@@ -52,14 +52,14 @@ export default function ManageCustomers() {
       />
 
       {/* Search Input Box */}
-      <div className="bg-[#0C2317] border border-[#D4AF37]/35 p-4 rounded-2xl shadow-xl flex items-center gap-3">
+      <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-4 rounded-2xl shadow-xl flex items-center gap-3">
         <Search className="w-5 h-5 text-[#D4AF37] shrink-0" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search customers by name, email, or phone number..."
-          className="w-full bg-transparent text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none font-sans"
+          className="w-full bg-transparent text-sm text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none font-sans"
         />
         {searchQuery && (
           <button

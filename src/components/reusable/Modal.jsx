@@ -25,7 +25,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 bg-black/75 backdrop-blur-xs"
           />
 
           {/* Modal dialog box */}
@@ -34,24 +34,24 @@ export default function Modal({ isOpen, onClose, title, children }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="relative bg-[#4A0000]/90 border border-[#F6D18A]/50 shadow-2xl max-w-lg w-full p-6 md:p-8 z-10 rounded-sm overflow-hidden text-[#F6D18A]"
+            className="relative bg-[#0F131C] border border-[#D4AF37]/35 shadow-2xl max-w-2xl w-full p-6 md:p-8 z-10 rounded-2xl overflow-hidden text-[#F5E6BE] font-sans"
           >
             {/* Header close */}
             <button
               type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 text-[#F6D18A] hover:text-[#D8A55A] transition-colors"
+              className="absolute top-5 right-5 text-[#DFC18A] hover:text-[#FFFFFF] transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             {title && (
-              <h3 className="font-playfair text-xl font-bold text-[#F6D18A] uppercase tracking-wider border-b border-[#F6D18A]/30 pb-3 mb-5">
+              <h3 className="font-sans text-base sm:text-lg font-bold text-[#FFFFFF] uppercase tracking-wider border-b border-[#D4AF37]/25 pb-3 mb-5">
                 {title}
               </h3>
             )}
 
-            <div className="max-h-[70vh] overflow-y-auto pr-1">
+            <div className="max-h-[75vh] overflow-y-auto pr-1">
               {children}
             </div>
           </motion.div>

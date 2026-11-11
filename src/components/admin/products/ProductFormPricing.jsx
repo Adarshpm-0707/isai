@@ -21,7 +21,7 @@ export default function ProductFormPricing({
           type="number"
           value={stock}
           onChange={(e) => setStock(e.target.value)}
-          className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
+          className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none focus:border-[#D4AF37]"
           placeholder="e.g. 10"
           min="0"
           required
@@ -37,7 +37,7 @@ export default function ProductFormPricing({
           type="number"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
+          className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none focus:border-[#D4AF37]"
           placeholder="e.g. 15400"
           min="0"
           required
@@ -53,7 +53,7 @@ export default function ProductFormPricing({
           type="number"
           value={discountPrice}
           onChange={(e) => setDiscountPrice(e.target.value)}
-          className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
+          className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none focus:border-[#D4AF37]"
           placeholder="e.g. 12900"
           min="0"
         />
@@ -68,7 +68,7 @@ export default function ProductFormPricing({
           type="number"
           value={cost}
           onChange={(e) => setCost(e.target.value)}
-          className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
+          className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none focus:border-[#D4AF37]"
           placeholder="e.g. 8000"
           min="0"
         />
@@ -76,3 +76,4 @@ export default function ProductFormPricing({
     </>
   );
 }
+

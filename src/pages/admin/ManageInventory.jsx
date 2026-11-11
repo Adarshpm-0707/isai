@@ -41,7 +41,7 @@ export default function ManageInventory() {
   } = useInventoryManager();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       {/* Page Header & Global Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
@@ -55,7 +55,7 @@ export default function ManageInventory() {
             type="button"
             onClick={fetchProducts}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#0C2317] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
+            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
             title="Refresh inventory from database"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -65,7 +65,7 @@ export default function ManageInventory() {
           <button
             type="button"
             onClick={handleExportCsv}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#0C2317] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-md"
             title="Export complete inventory valuation report to CSV"
           >
             <Download className="w-3.5 h-3.5" />
@@ -74,7 +74,7 @@ export default function ManageInventory() {
 
           <Link
             to="/admin/products/new"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] font-bold text-xs uppercase tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] font-bold text-xs uppercase tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Saree</span>

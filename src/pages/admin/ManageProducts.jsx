@@ -99,7 +99,7 @@ export default function ManageProducts() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
           title="Product Inventory"
@@ -111,7 +111,7 @@ export default function ManageProducts() {
           {/* Add Product */}
           <Link
             to="/admin/products/new"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all"
           >
             <Plus className="w-4 h-4" /> Add Product
           </Link>
@@ -119,15 +119,15 @@ export default function ManageProducts() {
       </div>
 
       {/* Filter & Search Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#0C2317] border border-[#D4AF37]/35 p-4 rounded-xl text-xs">
-        <div className="flex items-center gap-2 bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-3 py-2 w-full sm:w-72">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#0F131C] border border-[#D4AF37]/30 p-4 rounded-xl text-xs">
+        <div className="flex items-center gap-2 bg-[#161B26] border border-[#D4AF37]/30 rounded-lg px-3 py-2 w-full sm:w-72">
           <Search className="w-4 h-4 text-[#D4AF37]" />
           <input
             type="text"
             placeholder="Search by title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none w-full"
+            className="bg-transparent text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none w-full"
           />
         </div>
 
@@ -136,7 +136,7 @@ export default function ManageProducts() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-[#1A3C2B] border border-[#D4AF37]/35 text-[#F3E5AB] px-3 py-2 rounded-lg focus:outline-none cursor-pointer"
+            className="bg-[#161B26] border border-[#D4AF37]/30 text-[#FFFFFF] px-3 py-2 rounded-lg focus:outline-none cursor-pointer"
           >
             <option value="All">All Categories</option>
             {categories.map((c) => (
@@ -148,17 +148,17 @@ export default function ManageProducts() {
         </div>
       </div>
 
-      <div className="bg-[#0C2317] border border-[#D4AF37]/35 rounded-xl shadow-xl overflow-hidden text-[#F3E5AB]">
+      <div className="bg-[#0F131C] border border-[#D4AF37]/30 rounded-xl shadow-xl overflow-hidden text-[#FFFFFF]">
         {loading ? (
           <div className="py-16 text-center space-y-3">
             <RefreshCw className="w-6 h-6 text-[#D4AF37] animate-spin mx-auto" />
-            <p className="text-xs text-[#EADFC9]">Loading Inventory Records...</p>
+            <p className="text-xs text-[#A1A1AA]">Loading Inventory Records...</p>
           </div>
         ) : products.length === 0 ? (
           <div className="py-16 px-6 text-center space-y-3">
             <PackageOpen className="w-10 h-10 text-[#D4AF37] mx-auto opacity-75" />
-            <h3 className="font-serif text-lg text-[#F3E5AB]">No Products Found</h3>
-            <p className="text-xs text-[#EADFC9]/70 max-w-sm mx-auto font-light">
+            <h3 className="font-sans font-bold text-lg text-[#FFFFFF]">No Products Found</h3>
+            <p className="text-xs text-[#A1A1AA] max-w-sm mx-auto font-light">
               {search || categoryFilter !== 'All'
                 ? 'No products match the chosen filter. Try clearing your search.'
                 : 'No products added yet. Click "Add Product" to create your first saree listing in the database.'}
@@ -166,7 +166,7 @@ export default function ManageProducts() {
             {(!search && categoryFilter === 'All') && (
               <Link
                 to="/admin/products/new"
-                className="inline-flex items-center gap-2 bg-[#D4AF37] text-[#0C2317] font-bold text-xs uppercase tracking-wider px-4 py-2 rounded-lg mt-2"
+                className="inline-flex items-center gap-2 bg-[#D4AF37] text-[#090B10] font-bold text-xs uppercase tracking-wider px-4 py-2 rounded-lg mt-2"
               >
                 <Plus className="w-3.5 h-3.5" /> Add First Product
               </Link>
@@ -176,7 +176,7 @@ export default function ManageProducts() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs font-sans">
               <thead>
-                <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#081A11]">
+                <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#0A0D14]">
                   <th className="py-4 px-6">Preview</th>
                   <th className="py-4 px-6">Name</th>
                   <th className="py-4 px-6">Category</th>
@@ -187,9 +187,9 @@ export default function ManageProducts() {
               </thead>
               <tbody className="divide-y divide-[#D4AF37]/15">
                 {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-[#153424]/60 transition-colors">
+                  <tr key={product.id} className="hover:bg-[#161B26]/60 transition-colors">
                     <td className="py-4 px-6">
-                      <div className="w-10 aspect-[3/4] overflow-hidden bg-[#081A11] border border-[#D4AF37]/30 rounded">
+                      <div className="w-10 aspect-[3/4] overflow-hidden bg-[#0A0D14] border border-[#D4AF37]/30 rounded">
                         <img
                           src={product.images?.[0] || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=300'}
                           alt={product.name}
@@ -197,22 +197,22 @@ export default function ManageProducts() {
                         />
                       </div>
                     </td>
-                    <td className="py-4 px-6 font-semibold text-[#F3E5AB] max-w-xs truncate">
+                    <td className="py-4 px-6 font-semibold text-[#FFFFFF] max-w-xs truncate">
                       {product.name}
                     </td>
-                    <td className="py-4 px-6 uppercase text-[10px] text-[#EADFC9] font-bold">
+                    <td className="py-4 px-6 uppercase text-[10px] text-[#A1A1AA] font-bold">
                       {product.category}
                     </td>
                     <td className="py-4 px-6">
                       <PriceTag price={product.discount_price || product.price} size="sm" />
                     </td>
-                    <td className="py-4 px-6 font-medium text-[#EADFC9]">
+                    <td className="py-4 px-6 font-medium text-[#A1A1AA]">
                       {product.stock <= 0 ? (
-                        <span className="text-[#F3E5AB] bg-[#1A3C2B] px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#D4AF37]/35">
+                        <span className="text-[#F5E6BE] bg-[#161B26] px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#D4AF37]/35">
                           Out of Stock
                         </span>
                       ) : product.stock < 5 ? (
-                        <span className="text-[#FFD54F] bg-[#1A3C2B]/80 px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#D4AF37]/35">
+                        <span className="text-[#FFD54F] bg-[#161B26] px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#D4AF37]/35">
                           Low Stock ({product.stock})
                         </span>
                       ) : (
@@ -222,7 +222,7 @@ export default function ManageProducts() {
                     <td className="py-4 px-6 text-right space-x-2">
                       <Link
                         to={`/admin/products/edit/${product.id}`}
-                        className="inline-flex p-2 bg-[#1A3C2B] text-[#F3E5AB] hover:bg-[#D4AF37] hover:text-[#0C2317] border border-[#D4AF37]/35 transition-all rounded"
+                        className="inline-flex p-2 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded"
                         title="Edit Product"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -230,7 +230,7 @@ export default function ManageProducts() {
                       <button
                         onClick={() => handleDelete(product)}
                         type="button"
-                        className="inline-flex p-2 bg-[#1A3C2B]/50 text-[#F3E5AB] hover:bg-red-900 border border-[#D4AF37]/35 transition-all rounded cursor-pointer"
+                        className="inline-flex p-2 bg-[#161B26] text-[#A1A1AA] hover:text-white hover:bg-red-900/80 border border-[#D4AF37]/35 transition-all rounded cursor-pointer"
                         title="Delete Product"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

@@ -32,16 +32,16 @@ export default function InventoryKpis({
   } = aggregates;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Unsaved Changes Banner */}
       {totalModifiedCount > 0 && (
-        <div className="bg-gradient-to-r from-[#1A3C2B] via-[#0C2317] to-[#1A3C2B] border border-[#D4AF37] p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-2xl">
+        <div className="bg-[#0F131C] border border-[#D4AF37] p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-2xl">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#D4AF37]/20 border border-[#D4AF37] flex items-center justify-center text-[#FFD54F] shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#161B26] border border-[#D4AF37] flex items-center justify-center text-[#FFD54F] shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-bold text-[#F3E5AB]">
+              <p className="text-xs font-bold text-[#FFFFFF]">
                 Unsaved modifications detected across {totalModifiedCount} saree(s)
               </p>
               <p className="text-[11px] text-[#D4AF37]/80">
@@ -54,7 +54,7 @@ export default function InventoryKpis({
             <button
               type="button"
               onClick={onDiscardAll}
-              className="px-3.5 py-1.5 rounded-xl bg-transparent border border-[#D4AF37]/40 text-[#F3E5AB] text-xs font-bold uppercase tracking-wider hover:bg-white/5 cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-xl bg-transparent border border-[#D4AF37]/40 text-[#FFFFFF] text-xs font-bold uppercase tracking-wider hover:bg-white/5 cursor-pointer flex items-center gap-1.5"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Discard All</span>
@@ -63,7 +63,7 @@ export default function InventoryKpis({
               type="button"
               onClick={onSaveAll}
               disabled={savingAll}
-              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] text-xs font-bold uppercase tracking-wider hover:brightness-110 shadow-lg cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] text-xs font-bold uppercase tracking-wider hover:brightness-110 shadow-lg cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{savingAll ? 'Saving All...' : `Save All (${totalModifiedCount})`}</span>
@@ -74,13 +74,13 @@ export default function InventoryKpis({
 
       {/* Critical Stock Warning Banner */}
       {(lowStockCount > 0 || outOfStockCount > 0) && (
-        <div className="bg-gradient-to-r from-amber-950/80 via-[#261508] to-amber-950/80 border border-amber-500/40 p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-xl">
+        <div className="bg-gradient-to-r from-amber-950/80 via-[#1C1408] to-amber-950/80 border border-amber-500/40 p-4 sm:p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-xl">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
               <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="font-serif text-sm font-bold text-amber-200 uppercase tracking-wider">
+              <h4 className="font-sans text-sm font-bold text-amber-200 uppercase tracking-wider">
                 Immediate Inventory Attention Required
               </h4>
               <p className="text-xs text-amber-300/80 mt-0.5 font-light">
@@ -114,27 +114,27 @@ export default function InventoryKpis({
       {/* 6 Executive Financial & Inventory Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {/* Card 1: Total Units */}
-        <div className="bg-gradient-to-b from-[#133323] to-[#0A1F14] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+        <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-[#D4AF37]/80 uppercase font-bold tracking-wider">
               Total Stock Units
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#1A3C2B] border border-[#D4AF37]/30 flex items-center justify-center text-[#FFD54F]">
+            <div className="w-8 h-8 rounded-lg bg-[#161B26] border border-[#D4AF37]/30 flex items-center justify-center text-[#FFD54F]">
               <Boxes className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="font-sans text-2xl font-bold text-[#F3E5AB] block">
+            <span className="font-sans text-2xl font-bold text-[#FFFFFF] block">
               {totalUnits.toLocaleString('en-IN')}
             </span>
-            <span className="text-[11px] text-[#D4AF37]/70 block mt-0.5">
+            <span className="text-[11px] text-[#A1A1AA] block mt-0.5">
               Across {catalogLength} saree catalog designs
             </span>
           </div>
         </div>
 
         {/* Card 2: Total Cost Amount */}
-        <div className="bg-gradient-to-b from-[#133323] to-[#0A1F14] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+        <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-amber-300 uppercase font-bold tracking-wider">
               Total Cost Amount
@@ -154,27 +154,27 @@ export default function InventoryKpis({
         </div>
 
         {/* Card 3: Total Selling Amount */}
-        <div className="bg-gradient-to-b from-[#133323] to-[#0A1F14] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+        <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-[#D4AF37]/80 uppercase font-bold tracking-wider">
               Total Selling Amount
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#1A3C2B] border border-[#D4AF37]/30 flex items-center justify-center text-[#FFD54F]">
+            <div className="w-8 h-8 rounded-lg bg-[#161B26] border border-[#D4AF37]/30 flex items-center justify-center text-[#FFD54F]">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
-            <span className="font-sans text-2xl font-bold text-[#F3E5AB] block">
+            <span className="font-sans text-2xl font-bold text-[#FFFFFF] block">
               ₹{totalSellingAmount.toLocaleString('en-IN')}
             </span>
-            <span className="text-[11px] text-[#D4AF37]/70 block mt-0.5">
+            <span className="text-[11px] text-[#A1A1AA] block mt-0.5">
               Gross inventory retail value
             </span>
           </div>
         </div>
 
         {/* Card 4: Total Discount Amount */}
-        <div className="bg-gradient-to-b from-[#133323] to-[#0A1F14] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+        <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-purple-300 uppercase font-bold tracking-wider">
               Total Discount Amount
@@ -194,7 +194,7 @@ export default function InventoryKpis({
         </div>
 
         {/* Card 5: Total Potential Profit */}
-        <div className="bg-gradient-to-b from-[#0F3822] to-[#082415] border border-emerald-500/50 p-5 rounded-2xl shadow-xl flex flex-col justify-between ring-1 ring-emerald-500/20">
+        <div className="bg-[#0F131C] border border-emerald-500/50 p-5 rounded-2xl shadow-xl flex flex-col justify-between ring-1 ring-emerald-500/20">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-emerald-300 uppercase font-bold tracking-wider">
               Potential Profit
@@ -214,7 +214,7 @@ export default function InventoryKpis({
         </div>
 
         {/* Card 6: Stock Alerts */}
-        <div className="bg-gradient-to-b from-[#133323] to-[#0A1F14] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
+        <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-5 rounded-2xl shadow-xl flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-[#D4AF37]/80 uppercase font-bold tracking-wider">
               Stock Health Status
@@ -247,7 +247,7 @@ export default function InventoryKpis({
                 ? `${lowStockCount} Low`
                 : '100% Healthy'}
             </span>
-            <span className="text-[11px] text-[#D4AF37]/70 block mt-0.5">
+            <span className="text-[11px] text-[#A1A1AA] block mt-0.5">
               {outOfStockCount + lowStockCount === 0
                 ? 'All sarees safely stocked'
                 : 'Restocking suggested'}

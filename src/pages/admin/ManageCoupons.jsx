@@ -5,7 +5,6 @@ import SectionHeading from '../../components/reusable/SectionHeading';
 import Modal from '../../components/reusable/Modal';
 import Badge from '../../components/reusable/Badge';
 import { Plus, Trash2, Tag } from 'lucide-react';
-import { supabase } from '../../lib/supabaseClient';
 
 export default function ManageCoupons() {
   const [coupons, setCoupons] = useState([]);
@@ -80,22 +79,22 @@ export default function ManageCoupons() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading title="Manage Coupons" subtitle="Discount promotional codes and campaign offers" align="left" />
         <button
           onClick={() => setModalOpen(true)}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Create Coupon
         </button>
       </div>
 
-      <div className="bg-[#0C2317] border border-[#D4AF37]/35 rounded-xl shadow-xl overflow-hidden text-[#F3E5AB]">
+      <div className="bg-[#0F131C] border border-[#D4AF37]/30 rounded-xl shadow-xl overflow-hidden text-[#FFFFFF]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs font-sans">
             <thead>
-              <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#081A11]">
+              <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#0A0D14]">
                 <th className="py-4 px-6">Coupon Code</th>
                 <th className="py-4 px-6">Discount Type</th>
                 <th className="py-4 px-6">Value</th>
@@ -109,26 +108,26 @@ export default function ManageCoupons() {
             <tbody className="divide-y divide-[#D4AF37]/15">
               {coupons.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-[#EADFC9]/70 italic">
+                  <td colSpan={8} className="py-8 text-center text-[#A1A1AA] italic">
                     No coupons created yet. Click "Create Coupon" to add one.
                   </td>
                 </tr>
               ) : (
                 coupons.map((c) => (
-                  <tr key={c.id} className="hover:bg-[#153424]/60 transition-colors">
-                    <td className="py-4 px-6 font-mono font-bold text-[#F3E5AB] flex items-center gap-2">
+                  <tr key={c.id} className="hover:bg-[#161B26]/60 transition-colors">
+                    <td className="py-4 px-6 font-mono font-bold text-[#FFFFFF] flex items-center gap-2">
                       <Tag className="w-3.5 h-3.5 text-[#D4AF37]" />
                       <span>{c.code}</span>
                     </td>
-                    <td className="py-4 px-6 uppercase text-[10px] font-bold text-[#EADFC9]">{c.type}</td>
-                    <td className="py-4 px-6 font-bold text-[#F3E5AB]">
+                    <td className="py-4 px-6 uppercase text-[10px] font-bold text-[#A1A1AA]">{c.type}</td>
+                    <td className="py-4 px-6 font-bold text-[#FFFFFF]">
                       {c.type === 'percentage' ? `${c.value}%` : `₹${c.value}`}
                     </td>
-                    <td className="py-4 px-6 text-[#EADFC9]">₹{c.min_order_amount || 0}</td>
-                    <td className="py-4 px-6 text-[#EADFC9]">
+                    <td className="py-4 px-6 text-[#A1A1AA]">₹{c.min_order_amount || 0}</td>
+                    <td className="py-4 px-6 text-[#A1A1AA]">
                       {c.used_count || 0} / {c.max_uses || '∞'}
                     </td>
-                    <td className="py-4 px-6 text-[#EADFC9]">
+                    <td className="py-4 px-6 text-[#A1A1AA]">
                       {c.expires_at ? new Date(c.expires_at).toLocaleDateString() : 'Never'}
                     </td>
                     <td className="py-4 px-6">
@@ -152,7 +151,7 @@ export default function ManageCoupons() {
       </div>
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create New Coupon">
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs font-sans text-[#F3E5AB] p-2">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs font-sans text-[#F5E6BE] p-2">
           <div className="space-y-1">
             <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">Coupon Code *</label>
             <input
@@ -160,7 +159,7 @@ export default function ManageCoupons() {
               value={form.code}
               onChange={(e) => setForm({ ...form, code: e.target.value })}
               placeholder="e.g. WELCOME10"
-              className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#F3E5AB] focus:outline-none focus:border-[#D4AF37] uppercase"
+              className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37] uppercase"
               required
             />
           </div>
@@ -170,7 +169,7 @@ export default function ManageCoupons() {
               <select
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#F3E5AB] focus:outline-none focus:border-[#D4AF37]"
+                className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
               >
                 <option value="percentage">Percentage (%)</option>
                 <option value="flat">Flat Amount (₹)</option>
@@ -182,7 +181,7 @@ export default function ManageCoupons() {
                 type="number"
                 value={form.value}
                 onChange={(e) => setForm({ ...form, value: e.target.value })}
-                className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#F3E5AB] focus:outline-none focus:border-[#D4AF37]"
+                className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
                 required
               />
             </div>
@@ -194,7 +193,7 @@ export default function ManageCoupons() {
                 type="number"
                 value={form.min_order_amount}
                 onChange={(e) => setForm({ ...form, min_order_amount: e.target.value })}
-                className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#F3E5AB] focus:outline-none focus:border-[#D4AF37]"
+                className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
               />
             </div>
             <div className="space-y-1">
@@ -203,7 +202,7 @@ export default function ManageCoupons() {
                 type="number"
                 value={form.max_uses}
                 onChange={(e) => setForm({ ...form, max_uses: e.target.value })}
-                className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#F3E5AB] focus:outline-none focus:border-[#D4AF37]"
+                className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
               />
             </div>
           </div>
@@ -213,7 +212,7 @@ export default function ManageCoupons() {
               type="date"
               value={form.expires_at}
               onChange={(e) => setForm({ ...form, expires_at: e.target.value })}
-              className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#F3E5AB] focus:outline-none focus:border-[#D4AF37]"
+              className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
             />
           </div>
           <div className="flex items-center gap-2 pt-1">
@@ -224,7 +223,7 @@ export default function ManageCoupons() {
               onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
               className="accent-[#D4AF37]"
             />
-            <label htmlFor="is_active" className="text-[#F3E5AB] font-bold">
+            <label htmlFor="is_active" className="text-[#FFFFFF] font-bold">
               Active immediately
             </label>
           </div>
@@ -232,13 +231,13 @@ export default function ManageCoupons() {
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 rounded-lg font-bold text-xs uppercase text-[#EADFC9] hover:bg-[#1A3C2B]"
+              className="px-4 py-2 rounded-lg font-bold text-xs uppercase text-[#A1A1AA] hover:bg-[#161B26]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 shadow-lg"
+              className="px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 shadow-lg"
             >
               Create Coupon
             </button>

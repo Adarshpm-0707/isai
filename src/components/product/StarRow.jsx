@@ -26,3 +26,4 @@ export default function StarRow({ value = 5, onChange = null, size = 'sm' }) {
     </div>
   );
 }
+

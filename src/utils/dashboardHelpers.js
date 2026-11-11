@@ -220,3 +220,4 @@ export function calculateDonutChartData(allOrders = []) {
 
   return { slices, totalOrders: allOrders.length };
 }
+

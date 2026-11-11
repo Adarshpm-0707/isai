@@ -12,7 +12,7 @@ export default function OrderFulfillmentChart({ donutChartData }) {
             <PieChartIcon className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-serif text-base font-bold text-[#FFFFFF]">
+            <h2 className="font-sans text-base font-bold text-[#FFFFFF]">
               Order Fulfillment Split
             </h2>
             <p className="text-xs text-[#A1A1AA]">
@@ -58,7 +58,7 @@ export default function OrderFulfillmentChart({ donutChartData }) {
               })}
             </svg>
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="font-serif text-2xl font-black text-[#FFFFFF]">
+              <span className="font-sans text-2xl font-black text-[#FFFFFF]">
                 {donutChartData.totalOrders}
               </span>
               <span className="text-[10px] uppercase font-bold text-[#D4AF37] tracking-wider">
@@ -95,3 +95,4 @@ export default function OrderFulfillmentChart({ donutChartData }) {
     </div>
   );
 }
+

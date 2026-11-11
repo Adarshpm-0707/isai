@@ -295,3 +295,4 @@ export function printOrderInvoice(order) {
     printWindow.print();
   }, 500);
 }
+

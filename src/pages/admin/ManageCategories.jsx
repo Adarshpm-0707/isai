@@ -33,7 +33,7 @@ export default function ManageCategories() {
   } = useManageCategories();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
@@ -44,7 +44,7 @@ export default function ManageCategories() {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => handleOpenModal()}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Add Category
           </button>
@@ -57,7 +57,7 @@ export default function ManageCategories() {
           className={`p-4 rounded-xl flex items-center gap-3 text-xs font-sans shadow-lg border transition-all ${
             feedback.type === 'error'
               ? 'bg-red-950/80 border-red-500/50 text-red-200'
-              : 'bg-[#153424] border-[#D4AF37]/50 text-[#F3E5AB]'
+              : 'bg-[#0F131C] border-[#D4AF37]/50 text-[#F5E6BE]'
           }`}
         >
           {feedback.type === 'error' ? (

@@ -4,13 +4,10 @@ import useAuth from "../../hooks/useAuth";
 import {
   LayoutDashboard,
   ShoppingBag,
-  PlusCircle,
   Package,
   FolderTree,
   Tag,
   Users,
-  CreditCard,
-  FileText,
   ExternalLink,
   LogOut,
   Menu,
@@ -64,16 +61,16 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#120B09] flex text-[#FDF8F4] font-sans">
+    <div className="min-h-screen bg-[#090B10] flex text-[#F5E6BE] font-sans antialiased">
       
       {/* ─── DESKTOP SIDEBAR ─── */}
-      <aside className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-30 bg-[#160E0B] border-r border-[#35221B] shadow-2xl">
+      <aside className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-30 bg-[#0D1017] border-r border-[#D4AF37]/20 shadow-2xl">
         
         {/* Brand Header */}
-        <div className="h-18 flex items-center gap-3 px-5 border-b border-[#35221B] bg-[#120B09] shrink-0">
+        <div className="h-18 flex items-center gap-3 px-5 border-b border-[#D4AF37]/20 bg-[#090B10] shrink-0">
           <img src={logoImg} alt="Isaitarang Logo" className="h-10 w-auto object-contain" />
           <div>
-            <h2 className="font-serif text-xs font-bold text-[#FDF8F4] uppercase tracking-wider leading-none">
+            <h2 className="font-sans text-xs font-bold text-[#FFFFFF] uppercase tracking-wider leading-none">
               Isaitarang
             </h2>
             <span className="text-[9px] font-semibold text-[#DFC18A] tracking-widest uppercase flex items-center gap-1 mt-1">
@@ -91,13 +88,13 @@ export default function AdminLayout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium uppercase tracking-wider transition-all ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
                   active
-                    ? "bg-[#1E130F] text-[#DFC18A] border-l-4 border-[#C86A27] shadow-lg"
-                    : "text-[#C7B5A7] hover:bg-[#1E130F]/60 hover:text-[#FDF8F4]"
+                    ? "bg-[#0F131C] text-[#DFC18A] border-l-4 border-[#D4AF37] shadow-lg"
+                    : "text-[#C7B5A7] hover:bg-[#0F131C]/70 hover:text-[#FFFFFF]"
                 }`}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${active ? "text-[#C86A27]" : "text-[#DFC18A]/60"}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${active ? "text-[#D4AF37]" : "text-[#DFC18A]/60"}`} />
                 <span>{item.name}</span>
               </Link>
             );
@@ -105,12 +102,12 @@ export default function AdminLayout() {
         </nav>
 
         {/* Sidebar Footer Quick Links */}
-        <div className="p-4 border-t border-[#35221B] space-y-2 bg-[#120B09] text-xs">
+        <div className="p-4 border-t border-[#D4AF37]/20 space-y-2 bg-[#090B10] text-xs">
           <Link
             to="/"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-between px-3 py-2 rounded-lg text-[#C7B5A7] hover:bg-[#1E130F] hover:text-[#DFC18A] font-medium transition-colors"
+            className="flex items-center justify-between px-3 py-2 rounded-lg text-[#C7B5A7] hover:bg-[#0F131C] hover:text-[#DFC18A] font-medium transition-colors"
           >
             <span>Live Store Preview</span>
             <ExternalLink className="w-3.5 h-3.5 text-[#DFC18A]" />
@@ -132,15 +129,15 @@ export default function AdminLayout() {
             className="fixed inset-0 bg-black/80 backdrop-blur-xs"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative flex-1 max-w-xs w-full bg-[#160E0B] border-r border-[#35221B] flex flex-col z-50">
-            <div className="p-4 flex items-center justify-between border-b border-[#35221B]">
+          <div className="relative flex-1 max-w-xs w-full bg-[#0D1017] border-r border-[#D4AF37]/20 flex flex-col z-50">
+            <div className="p-4 flex items-center justify-between border-b border-[#D4AF37]/20 bg-[#090B10]">
               <div className="flex items-center gap-2">
                 <img src={logoImg} alt="Logo" className="h-8 w-auto object-contain" />
                 <span className="font-bold text-xs uppercase text-[#DFC18A]">Admin Panel</span>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1 text-[#C7B5A7] hover:text-[#FDF8F4] rounded"
+                className="p-1 text-[#C7B5A7] hover:text-[#FFFFFF] rounded"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -154,10 +151,10 @@ export default function AdminLayout() {
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-medium uppercase tracking-wider ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider ${
                       active
-                        ? "bg-[#1E130F] text-[#DFC18A] border-l-4 border-[#C86A27]"
-                        : "text-[#C7B5A7] hover:bg-[#1E130F]/60 hover:text-[#FDF8F4]"
+                        ? "bg-[#0F131C] text-[#DFC18A] border-l-4 border-[#D4AF37]"
+                        : "text-[#C7B5A7] hover:bg-[#0F131C]/70 hover:text-[#FFFFFF]"
                     }`}
                   >
                     <Icon className="w-4 h-4 text-[#DFC18A]" />
@@ -166,11 +163,11 @@ export default function AdminLayout() {
                 );
               })}
             </nav>
-            <div className="p-4 border-t border-[#35221B] space-y-2">
+            <div className="p-4 border-t border-[#D4AF37]/20 space-y-2 bg-[#090B10]">
               <Link
                 to="/"
                 onClick={() => setMobileOpen(false)}
-                className="block text-center py-2 border border-[#35221B] bg-[#1E130F] text-[#DFC18A] text-xs font-semibold rounded-lg"
+                className="block text-center py-2 border border-[#D4AF37]/30 bg-[#0F131C] text-[#DFC18A] text-xs font-semibold rounded-lg"
               >
                 View Live Store
               </Link>
@@ -189,15 +186,15 @@ export default function AdminLayout() {
       <div className="flex-1 md:pl-64 flex flex-col min-w-0">
         
         {/* Top Header Bar */}
-        <header className="h-16 bg-[#160E0B]/95 border-b border-[#35221B] sticky top-0 z-20 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between">
+        <header className="h-16 bg-[#0D1017]/95 border-b border-[#D4AF37]/20 sticky top-0 z-20 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-lg text-[#DFC18A] hover:bg-[#1E130F] border border-[#35221B]"
+              className="md:hidden p-2 rounded-lg text-[#DFC18A] hover:bg-[#0F131C] border border-[#D4AF37]/30"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-sm sm:text-base font-normal uppercase tracking-wider text-[#FDF8F4] font-serif" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h1 className="text-sm sm:text-base font-bold uppercase tracking-wider text-[#FFFFFF] font-sans">
               {navigationItems.find((i) => isActive(i.path))?.name || "Admin Management"}
             </h1>
           </div>
@@ -208,21 +205,21 @@ export default function AdminLayout() {
             title="View Admin Profile"
           >
             <div className="text-right hidden sm:block">
-              <span className="block text-xs font-medium text-[#FDF8F4]">
+              <span className="block text-xs font-medium text-[#FFFFFF]">
                 {profile?.name || user?.email || "System Admin"}
               </span>
-              <span className="block text-[10px] text-[#DFC18A] uppercase tracking-widest">
+              <span className="block text-[10px] text-[#DFC18A] uppercase tracking-widest font-semibold">
                 System Admin Profile
               </span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#1E130F] border border-[#DFC18A] flex items-center justify-center text-[#DFC18A] font-bold text-xs uppercase shadow-md">
+            <div className="w-8 h-8 rounded-full bg-[#0F131C] border border-[#D4AF37] flex items-center justify-center text-[#DFC18A] font-bold text-xs uppercase shadow-md">
               {(profile?.name || user?.email || "A")[0]}
             </div>
           </div>
         </header>
 
         {/* Render Page Children */}
-        <main ref={mainRef} className="flex-1 p-4 sm:p-8 overflow-y-auto bg-[#120B09]">
+        <main ref={mainRef} className="flex-1 p-4 sm:p-8 overflow-y-auto bg-[#090B10] text-[#F5E6BE] font-sans">
           <Outlet />
         </main>
       </div>

@@ -46,13 +46,13 @@ export default function PaymentSettings() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-4xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       <SectionHeading title="Payment Gateway Settings" subtitle="Configure Razorpay merchant keys and checkout status" align="left" />
 
-      <form onSubmit={handleSubmit} className="bg-[#0C2317] border border-[#D4AF37]/35 p-6 sm:p-8 rounded-2xl space-y-6 shadow-2xl text-xs font-sans">
+      <form onSubmit={handleSubmit} className="bg-[#0F131C] border border-[#D4AF37]/30 p-6 sm:p-8 rounded-2xl space-y-6 shadow-2xl text-xs font-sans">
         <div className="flex items-center gap-3 pb-4 border-b border-[#D4AF37]/25">
           <CreditCard className="w-6 h-6 text-[#D4AF37]" />
-          <h3 className="font-serif text-lg font-bold text-[#F3E5AB] uppercase tracking-wider">Razorpay API Integration</h3>
+          <h3 className="font-sans text-lg font-bold text-[#FFFFFF] uppercase tracking-wider">Razorpay API Integration</h3>
         </div>
 
         <div className="space-y-1.5">
@@ -61,7 +61,7 @@ export default function PaymentSettings() {
             type="text"
             value={form.gateway}
             disabled
-            className="w-full bg-[#081A11] border border-[#D4AF37]/20 rounded-lg p-2.5 text-[#EADFC9]/60 font-mono cursor-not-allowed uppercase"
+            className="w-full bg-[#0A0D14] border border-[#D4AF37]/20 rounded-lg p-2.5 text-[#A1A1AA]/60 font-mono cursor-not-allowed uppercase"
           />
         </div>
 
@@ -72,7 +72,7 @@ export default function PaymentSettings() {
             value={form.api_key}
             onChange={(e) => setForm({ ...form, api_key: e.target.value })}
             placeholder="rzp_test_xxxxxxxxxxxx"
-            className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-[#F3E5AB] font-mono focus:outline-none focus:border-[#D4AF37]"
+            className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg p-2.5 text-[#FFFFFF] font-mono focus:outline-none focus:border-[#D4AF37]"
             required
           />
         </div>
@@ -84,7 +84,7 @@ export default function PaymentSettings() {
             value={form.api_secret}
             onChange={(e) => setForm({ ...form, api_secret: e.target.value })}
             placeholder="••••••••••••••••"
-            className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg p-2.5 text-[#F3E5AB] font-mono focus:outline-none focus:border-[#D4AF37]"
+            className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg p-2.5 text-[#FFFFFF] font-mono focus:outline-none focus:border-[#D4AF37]"
             required
           />
         </div>
@@ -97,7 +97,7 @@ export default function PaymentSettings() {
             onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
             className="accent-[#D4AF37]"
           />
-          <label htmlFor="is_active" className="text-[#F3E5AB] font-bold">
+          <label htmlFor="is_active" className="text-[#FFFFFF] font-bold">
             Enable Razorpay Checkout Gateway
           </label>
         </div>
@@ -112,7 +112,7 @@ export default function PaymentSettings() {
         <div className="pt-4 border-t border-[#D4AF37]/25 flex justify-end">
           <button
             type="submit"
-            className="px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 flex items-center gap-2 shadow-xl cursor-pointer"
+            className="px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center gap-2 shadow-xl cursor-pointer"
           >
             <Save className="w-4 h-4" />
             <span>Save Settings</span>

@@ -11,7 +11,7 @@ export default function RevenueVelocityChart({ revenueChartData }) {
               <BarChart3 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-serif text-base font-bold text-[#FFFFFF]">
+              <h2 className="font-sans text-base font-bold text-[#FFFFFF]">
                 7-Day Revenue & Sales Velocity
               </h2>
               <p className="text-xs text-[#A1A1AA]">
@@ -82,3 +82,4 @@ export default function RevenueVelocityChart({ revenueChartData }) {
     </div>
   );
 }
+

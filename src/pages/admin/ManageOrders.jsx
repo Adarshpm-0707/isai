@@ -39,14 +39,14 @@ export default function ManageOrders() {
   } = useManageOrders();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       {/* Toast Notification */}
       {feedback && (
         <div
           className={`p-4 rounded-xl flex items-center gap-3 text-xs font-sans shadow-lg border transition-all ${
             feedback.type === 'error'
               ? 'bg-red-950/80 border-red-500/50 text-red-200'
-              : 'bg-[#153424] border-[#D4AF37]/50 text-[#F3E5AB]'
+              : 'bg-[#0F131C] border-[#D4AF37]/50 text-[#F5E6BE]'
           }`}
         >
           {feedback.type === 'error' ? (
@@ -70,7 +70,7 @@ export default function ManageOrders() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={handleExportPDF}
-            className="inline-flex items-center gap-2 bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#0C2317] px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer"
             title="Download PDF Orders Summary Report"
           >
             <FileText className="w-4 h-4 text-[#D4AF37]" />
@@ -79,7 +79,7 @@ export default function ManageOrders() {
 
           <button
             onClick={handleExportExcel}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer"
             title="Export Orders to Excel Sheet (.csv)"
           >
             <FileSpreadsheet className="w-4 h-4" />

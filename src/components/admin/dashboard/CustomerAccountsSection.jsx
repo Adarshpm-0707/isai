@@ -8,7 +8,7 @@ export default function CustomerAccountsSection({ customers = [], handleDeleteCu
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D4AF37]/20">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="font-serif text-lg sm:text-xl font-bold text-[#FFFFFF]">
+            <h2 className="font-sans text-lg sm:text-xl font-bold text-[#FFFFFF]">
               Customer Profiles & Account Records
             </h2>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#161B26] text-[#D4AF37] border border-[#D4AF37]/40">
@@ -120,3 +120,4 @@ export default function CustomerAccountsSection({ customers = [], handleDeleteCu
     </section>
   );
 }
+

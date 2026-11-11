@@ -14,7 +14,7 @@ export default function StockAlertBanner({ lowStockCount, outOfStockCount }) {
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="font-serif font-bold text-amber-200 text-sm tracking-wide">
+              <h2 className="font-sans font-bold text-amber-200 text-sm tracking-wide">
                 Urgent Inventory Alert: Low Stock Warning
               </h2>
               <span className="px-2 py-0.5 rounded text-[10px] font-black bg-amber-500 text-[#090B10] uppercase">
@@ -46,3 +46,4 @@ export default function StockAlertBanner({ lowStockCount, outOfStockCount }) {
     </div>
   );
 }
+

@@ -18,7 +18,7 @@ export default function DashboardKpiCards({ stats }) {
           </div>
         </div>
         <div className="space-y-1">
-          <span className="font-serif text-2xl font-bold text-[#FFFFFF] tracking-tight block">
+          <span className="font-sans text-2xl font-bold text-[#FFFFFF] tracking-tight block">
             ₹{stats.totalRevenue.toLocaleString('en-IN')}
           </span>
           <p className="text-[11px] text-[#A1A1AA] font-medium">Live all-time total</p>
@@ -39,7 +39,7 @@ export default function DashboardKpiCards({ stats }) {
           </div>
         </div>
         <div className="space-y-1">
-          <span className="font-serif text-2xl font-bold text-[#FFFFFF] tracking-tight block">
+          <span className="font-sans text-2xl font-bold text-[#FFFFFF] tracking-tight block">
             ₹{stats.estimatedProfit.toLocaleString('en-IN')}
           </span>
           <p className="text-[11px] text-[#A1A1AA] font-medium">Estimated ~48% margin</p>
@@ -60,7 +60,7 @@ export default function DashboardKpiCards({ stats }) {
           </div>
         </div>
         <div className="space-y-1">
-          <span className="font-serif text-2xl font-bold text-[#FFFFFF] tracking-tight block">
+          <span className="font-sans text-2xl font-bold text-[#FFFFFF] tracking-tight block">
             {stats.totalOrders}
           </span>
           <p className="text-[11px] text-[#A1A1AA] font-medium">Recorded sales orders</p>
@@ -81,7 +81,7 @@ export default function DashboardKpiCards({ stats }) {
           </div>
         </div>
         <div className="space-y-1">
-          <span className="font-serif text-2xl font-bold text-[#FFFFFF] tracking-tight block">
+          <span className="font-sans text-2xl font-bold text-[#FFFFFF] tracking-tight block">
             {stats.activeCustomersCount}
           </span>
           <p className="text-[11px] text-[#A1A1AA] font-medium">Registered client profiles</p>
@@ -113,7 +113,7 @@ export default function DashboardKpiCards({ stats }) {
         </div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="font-serif text-2xl font-bold text-[#FFFFFF] tracking-tight">
+            <span className="font-sans text-2xl font-bold text-[#FFFFFF] tracking-tight">
               {stats.totalStockUnits}
             </span>
             {hasLowStock && (
@@ -128,3 +128,4 @@ export default function DashboardKpiCards({ stats }) {
     </div>
   );
 }
+

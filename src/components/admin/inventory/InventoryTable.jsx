@@ -25,11 +25,11 @@ export default function InventoryTable({
   savingId,
 }) {
   return (
-    <div className="bg-[#0C2317] border border-[#D4AF37]/35 rounded-2xl overflow-hidden shadow-2xl">
+    <div className="bg-[#0F131C] border border-[#D4AF37]/35 rounded-2xl overflow-hidden shadow-2xl font-sans">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs font-sans">
           <thead>
-            <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] uppercase font-bold bg-[#081A11]">
+            <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] uppercase font-bold bg-[#0A0D14]">
               <th className="py-4 px-4 min-w-[220px]">Saree Product</th>
               <th className="py-4 px-3 min-w-[130px]">Cost Price</th>
               <th className="py-4 px-3 min-w-[120px]">Selling Price</th>
@@ -44,7 +44,7 @@ export default function InventoryTable({
           <tbody className="divide-y divide-[#D4AF37]/15">
             {filteredProducts.length === 0 ? (
               <tr>
-                <td colSpan={9} className="py-12 text-center text-[#EADFC9]/70 italic">
+                <td colSpan={9} className="py-12 text-center text-[#A1A1AA] italic">
                   No sarees match the selected inventory and financial criteria.
                 </td>
               </tr>
@@ -66,13 +66,13 @@ export default function InventoryTable({
                   <tr
                     key={p.id}
                     className={`transition-colors ${
-                      isModified ? 'bg-[#1D3E2B]/40' : 'hover:bg-[#153424]/60'
+                      isModified ? 'bg-[#161B26]/90' : 'hover:bg-[#161B26]/60'
                     }`}
                   >
                     {/* 1. Saree Product Info */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-11 aspect-[3/4] rounded-lg overflow-hidden bg-[#081A11] border border-[#D4AF37]/30 shrink-0 shadow">
+                        <div className="w-11 aspect-[3/4] rounded-lg overflow-hidden bg-[#0A0D14] border border-[#D4AF37]/30 shrink-0 shadow">
                           <img
                             src={getProductImage(p)}
                             alt={p.name}
@@ -80,14 +80,14 @@ export default function InventoryTable({
                           />
                         </div>
                         <div className="min-w-0 max-w-[180px]">
-                          <p className="font-bold text-[#F3E5AB] truncate text-xs">
+                          <p className="font-bold text-[#FFFFFF] truncate text-xs">
                             {p.name}
                           </p>
                           <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-[#1A3C2B] text-[#D4AF37] border border-[#D4AF37]/30">
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-[#161B26] text-[#D4AF37] border border-[#D4AF37]/30">
                               {p.category || 'Pure Silk'}
                             </span>
-                            <span className="text-[9px] text-[#D4AF37]/60 font-mono">
+                            <span className="text-[9px] text-[#A1A1AA] font-mono">
                               ID:{p.id?.slice(0, 6)}
                             </span>
                           </div>
@@ -98,8 +98,8 @@ export default function InventoryTable({
                     {/* 2. Cost Price (Inline Editable) */}
                     <td className="py-3.5 px-3">
                       <div className="space-y-1">
-                        <div className="flex items-center border border-[#D4AF37]/40 rounded-lg overflow-hidden bg-[#081A11] max-w-[110px]">
-                          <span className="px-1.5 text-xs text-[#D4AF37] font-bold bg-[#1A3C2B]/60 select-none">
+                        <div className="flex items-center border border-[#D4AF37]/40 rounded-lg overflow-hidden bg-[#0A0D14] max-w-[110px]">
+                          <span className="px-1.5 text-xs text-[#D4AF37] font-bold bg-[#161B26] select-none">
                             ₹
                           </span>
                           <input
@@ -127,11 +127,11 @@ export default function InventoryTable({
                     {/* 3. Selling Price */}
                     <td className="py-3.5 px-3">
                       <div>
-                        <span className="font-bold text-[#F3E5AB] text-xs block">
+                        <span className="font-bold text-[#FFFFFF] text-xs block">
                           ₹{fin.sellingPrice.toLocaleString('en-IN')}
                         </span>
                         {fin.originalPrice > fin.sellingPrice && (
-                          <span className="text-[10px] text-[#D4AF37]/50 line-through block">
+                          <span className="text-[10px] text-[#A1A1AA] line-through block">
                             ₹{fin.originalPrice.toLocaleString('en-IN')}
                           </span>
                         )}
@@ -150,7 +150,7 @@ export default function InventoryTable({
                           </span>
                         </div>
                       ) : (
-                        <span className="text-[10px] text-[#D4AF37]/60 italic">
+                        <span className="text-[10px] text-[#A1A1AA] italic">
                           Full MRP
                         </span>
                       )}
@@ -184,8 +184,8 @@ export default function InventoryTable({
                     <td className="py-3.5 px-3">
                       <div className="space-y-0.5">
                         <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-[#D4AF37]/70">Retail:</span>
-                          <span className="font-bold text-[#F3E5AB]">
+                          <span className="text-[#A1A1AA]">Retail:</span>
+                          <span className="font-bold text-[#FFFFFF]">
                             ₹{fin.lineSelling.toLocaleString('en-IN')}
                           </span>
                         </div>
@@ -229,7 +229,7 @@ export default function InventoryTable({
                     {/* 8. Inline Stock Replenishment Controls */}
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center border border-[#D4AF37]/40 rounded-lg overflow-hidden bg-[#081A11]">
+                        <div className="flex items-center border border-[#D4AF37]/40 rounded-lg overflow-hidden bg-[#0A0D14]">
                           <button
                             type="button"
                             onClick={() => handleAdjustDelta(p.id, currentStock, -1)}
@@ -245,7 +245,7 @@ export default function InventoryTable({
                             min="0"
                             value={fin.stock}
                             onChange={(e) => handleStockChange(p.id, e.target.value)}
-                            className="w-12 text-center text-xs font-bold font-mono text-[#F3E5AB] bg-transparent border-x border-[#D4AF37]/40 focus:outline-none"
+                            className="w-12 text-center text-xs font-bold font-mono text-[#FFFFFF] bg-transparent border-x border-[#D4AF37]/40 focus:outline-none"
                             title="Available stock units"
                           />
 
@@ -265,7 +265,7 @@ export default function InventoryTable({
                             type="button"
                             onClick={() => handleSaveProduct(p)}
                             disabled={savingId === p.id}
-                            className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] font-bold text-[11px] uppercase tracking-wider flex items-center gap-1 shadow-md hover:brightness-110 cursor-pointer disabled:opacity-50"
+                            className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] font-bold text-[11px] uppercase tracking-wider flex items-center gap-1 shadow-md hover:brightness-110 cursor-pointer disabled:opacity-50"
                             title="Save stock and cost changes"
                           >
                             <Save className="w-3 h-3" />
@@ -291,10 +291,10 @@ export default function InventoryTable({
 
                         <Link
                           to={`/admin/products/edit/${p.id}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/35 hover:bg-[#D4AF37] hover:text-[#0C2317] transition-all text-[11px] font-bold uppercase tracking-wider cursor-pointer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#161B26] text-[#FFFFFF] border border-[#D4AF37]/35 hover:bg-[#D4AF37] hover:text-[#090B10] transition-all text-[11px] font-bold uppercase tracking-wider cursor-pointer"
                           title="Edit full product details"
                         >
-                          <Edit2 className="w-3 h-3" />
+                          <Edit2 className="w-3.5 h-3.5" />
                           <span>Edit</span>
                         </Link>
                       </div>

@@ -275,3 +275,4 @@ export function useInventoryManager() {
     fetchProducts,
   };
 }
+

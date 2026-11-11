@@ -39,7 +39,7 @@ export default function AddEditProduct() {
   } = useAddEditProduct();
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-4xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       <div>
         <button
           onClick={() => navigate('/admin/products')}
@@ -65,7 +65,7 @@ export default function AddEditProduct() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-[#0C2317] border border-[#D4AF37]/35 p-6 sm:p-8 rounded-2xl space-y-6 shadow-2xl text-[#F3E5AB]"
+        className="bg-[#0F131C] border border-[#D4AF37]/35 p-6 sm:p-8 rounded-2xl space-y-6 shadow-2xl text-[#F5E6BE]"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-sans">
           {/* Product Name */}
@@ -77,7 +77,7 @@ export default function AddEditProduct() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
+              className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none focus:border-[#D4AF37]"
               placeholder="e.g. Royal Varanasi Katan Silk Saree"
               required
             />
@@ -115,7 +115,7 @@ export default function AddEditProduct() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              className="w-full bg-[#1A3C2B] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#F3E5AB] placeholder:text-[#EADFC9]/50 focus:outline-none focus:border-[#D4AF37]"
+              className="w-full bg-[#161B26] border border-[#D4AF37]/35 rounded-lg px-4 py-2.5 text-sm text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none focus:border-[#D4AF37]"
               placeholder="Product overview, fabric specifications, weave details, and blouse piece information..."
             />
           </div>
@@ -133,7 +133,7 @@ export default function AddEditProduct() {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 flex items-center gap-2 shadow-xl cursor-pointer disabled:opacity-50"
+            className="px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center gap-2 shadow-xl cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{loading ? 'Saving...' : 'Save Product'}</span>

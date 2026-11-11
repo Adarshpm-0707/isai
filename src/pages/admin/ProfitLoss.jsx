@@ -15,7 +15,7 @@ export default function ProfitLoss() {
   } = useProfitLoss();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
       {/* Title & Range Filter */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
@@ -26,7 +26,7 @@ export default function ProfitLoss() {
 
         <div className="flex items-center gap-2 flex-wrap">
           {/* Time Filter Buttons */}
-          <div className="flex items-center bg-[#0C2317] border border-[#D4AF37]/35 p-1 rounded-xl">
+          <div className="flex items-center bg-[#0F131C] border border-[#D4AF37]/35 p-1 rounded-xl">
             {[
               { id: 'all', label: 'All Time' },
               { id: 'month', label: 'This Month' },
@@ -38,8 +38,8 @@ export default function ProfitLoss() {
                 onClick={() => setTimeRange(t.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
                   timeRange === t.id
-                    ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317]'
-                    : 'text-[#EADFC9] hover:text-[#F3E5AB]'
+                    ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10]'
+                    : 'text-[#A1A1AA] hover:text-[#FFFFFF]'
                 }`}
               >
                 {t.label}
@@ -50,7 +50,7 @@ export default function ProfitLoss() {
           <button
             type="button"
             onClick={handleExportReport}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#0C2317] transition-all text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] transition-all text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export P&amp;L</span>
