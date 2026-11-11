@@ -6,9 +6,7 @@ export default function CheckoutOrderSummary({
   cartItems,
   subtotal,
   discount,
-  shippingFee,
   paymentMethod,
-  codFee,
   finalTotal,
   submitting,
 }) {
@@ -58,16 +56,6 @@ export default function CheckoutOrderSummary({
           <div className="flex justify-between text-[#DFC18A]">
             <span>Discount</span>
             <span>-₹{discount.toLocaleString('en-IN')}</span>
-          </div>
-        )}
-        <div className="flex justify-between">
-          <span>Shipping Fee</span>
-          <span>{shippingFee === 0 ? <span className="text-[#4ADE80]">FREE</span> : `₹${shippingFee}`}</span>
-        </div>
-        {paymentMethod === 'cod' && (
-          <div className="flex justify-between">
-            <span>COD Handling Fee</span>
-            <span>₹{codFee}</span>
           </div>
         )}
         <div className="flex justify-between text-base font-bold text-[#FDF8F4] border-t border-[#2C1C16] pt-3">

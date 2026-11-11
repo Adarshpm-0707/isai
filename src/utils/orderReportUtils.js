@@ -274,10 +274,6 @@ export function printOrderInvoice(order) {
                 <span>Subtotal:</span>
                 <span>₹${total.toLocaleString('en-IN')}</span>
               </div>
-              <div class="totals-row">
-                <span>Shipping:</span>
-                <span style="color: #2F855A; font-weight: 600;">FREE</span>
-              </div>
               <div class="totals-row grand">
                 <span>Grand Total:</span>
                 <span>₹${total.toLocaleString('en-IN')}</span>

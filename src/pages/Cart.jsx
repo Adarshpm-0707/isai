@@ -213,10 +213,6 @@ export default function Cart() {
                     <span>-₹{discount.toLocaleString('en-IN')}</span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span>{shippingFee === 0 ? <span className="text-[#4ADE80]">FREE</span> : `₹${shippingFee}`}</span>
-                </div>
                 <div className="flex justify-between text-base font-bold text-[#FDF8F4] border-t border-[#2C1C16] pt-3">
                   <span>Total</span>
                   <span>₹{totalAmount.toLocaleString('en-IN')}</span>

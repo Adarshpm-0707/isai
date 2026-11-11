@@ -32,7 +32,7 @@ export default function useCheckout() {
   });
 
   const [paymentMethod, setPaymentMethod] = useState('cod'); // 'prepaid' | 'cod'
-  const [codFee, setCodFee] = useState(40);
+  const [codFee, setCodFee] = useState(0);
   const [etaInfo, setEtaInfo] = useState(null);
   const [checkingEta, setCheckingEta] = useState(false);
   const [errors, setErrors] = useState({});
@@ -55,16 +55,9 @@ export default function useCheckout() {
     }
   }, [profile]);
 
-  // Fetch COD Settings
+  // Free delivery & zero handling fee
   useEffect(() => {
-    checkoutService
-      .getCodSettings()
-      .then((settings) => {
-        if (settings && settings.cod_fee !== undefined) {
-          setCodFee(Number(settings.cod_fee));
-        }
-      })
-      .catch(() => {});
+    setCodFee(0);
   }, []);
 
   // Check Courier ETA on pincode entry
@@ -108,14 +101,11 @@ export default function useCheckout() {
     return Object.keys(errs).length === 0;
   }, [formData]);
 
-  const currentCodFee = useMemo(
-    () => (paymentMethod === 'cod' ? codFee : 0),
-    [paymentMethod, codFee]
-  );
+  const currentCodFee = 0;
 
   const finalTotal = useMemo(
-    () => Math.max(0, totalAmount + currentCodFee),
-    [totalAmount, currentCodFee]
+    () => Math.max(0, totalAmount),
+    [totalAmount]
   );
 
   const handleSubmit = useCallback(

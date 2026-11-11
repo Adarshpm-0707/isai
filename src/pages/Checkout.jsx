@@ -10,11 +10,9 @@ export default function Checkout() {
     cartItems,
     subtotal,
     discount,
-    shippingFee,
     formData,
     paymentMethod,
     setPaymentMethod,
-    codFee,
     finalTotal,
     etaInfo,
     checkingEta,
@@ -71,7 +69,6 @@ export default function Checkout() {
             <CheckoutPaymentMethod
               paymentMethod={paymentMethod}
               setPaymentMethod={setPaymentMethod}
-              codFee={codFee}
             />
           </div>
 
@@ -81,9 +78,7 @@ export default function Checkout() {
               cartItems={cartItems}
               subtotal={subtotal}
               discount={discount}
-              shippingFee={shippingFee}
               paymentMethod={paymentMethod}
-              codFee={codFee}
               finalTotal={finalTotal}
               submitting={submitting}
             />

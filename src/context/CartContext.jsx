@@ -207,8 +207,8 @@ export default function CartProvider({ children }) {
     discount = Math.min(discount, subtotal);
   }
 
-  const shippingFee = subtotal > 1000 || subtotal === 0 ? 0 : 50;
-  const totalAmount = Math.max(0, subtotal - discount + shippingFee);
+  const shippingFee = 0;
+  const totalAmount = Math.max(0, subtotal - discount);
 
   const value = {
     cartItems,

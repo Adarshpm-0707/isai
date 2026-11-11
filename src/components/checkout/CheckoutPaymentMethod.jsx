@@ -4,7 +4,6 @@ import { Truck, CreditCard } from 'lucide-react';
 export default function CheckoutPaymentMethod({
   paymentMethod,
   setPaymentMethod,
-  codFee,
 }) {
   return (
     <div className="bg-[#1E130F] border border-[#35221B] p-6 sm:p-8 rounded-2xl space-y-4 shadow-xl">
@@ -35,7 +34,7 @@ export default function CheckoutPaymentMethod({
                 Cash on Delivery
               </span>
               <span className="text-xs text-[#8E7B6F]">
-                Pay securely with cash upon doorstep delivery (+₹{codFee} fee)
+                Pay securely with cash upon doorstep delivery
               </span>
             </div>
           </div>

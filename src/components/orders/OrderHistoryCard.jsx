@@ -54,8 +54,6 @@ export default function OrderHistoryCard({
   );
   const subtotal = Number(order.subtotal || totalAmount);
   const discount = Number(order.discount || 0);
-  const shippingFee = Number(order.shippingFee || order.shipping_fee || 0);
-  const codFee = Number(order.codFee || order.cod_fee || 0);
 
   return (
     <motion.div
@@ -271,26 +269,6 @@ export default function OrderHistoryCard({
               <div className="flex justify-between text-green-400">
                 <span>Coupon Discount</span>
                 <span>-₹{discount.toLocaleString('en-IN')}</span>
-              </div>
-            )}
-
-            <div className="flex justify-between text-[#C7B5A7]">
-              <span>Delivery / Shipping</span>
-              <span>
-                {shippingFee === 0 ? (
-                  <span className="text-green-400 font-semibold uppercase text-[10px]">
-                    Free Delivery
-                  </span>
-                ) : (
-                  `₹${shippingFee}`
-                )}
-              </span>
-            </div>
-
-            {codFee > 0 && (
-              <div className="flex justify-between text-[#C7B5A7]">
-                <span>Cash on Delivery Handling</span>
-                <span>₹{codFee}</span>
               </div>
             )}
 

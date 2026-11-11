@@ -244,10 +244,6 @@ export default function OrderSuccess() {
                   <span>Subtotal</span>
                   <span>₹{totalAmount.toLocaleString('en-IN')}</span>
                 </div>
-                <div className="flex justify-between text-[#6D5D53]">
-                  <span>Shipping & Handling</span>
-                  <span className="font-bold text-emerald-800 uppercase text-[10px]">FREE</span>
-                </div>
                 <div className="flex justify-between pt-1.5 border-t border-[#C7BBAA] font-bold text-sm text-[#140E0C]">
                   <span>Amount Paid</span>
                   <span className="text-[#8F4412] font-black text-base">
