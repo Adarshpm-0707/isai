@@ -120,25 +120,7 @@ export function useAdminDashboard() {
 
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
-      try {
-        await supabase
-          .from('orders')
-          .update({ status: newStatus, updated_at: new Date().toISOString() })
-          .eq('id', orderId);
-      } catch {
-        // Fallback silently if offline
-      }
-
-      try {
-        const localOrders = JSON.parse(localStorage.getItem('isai_orders') || '[]');
-        const updated = localOrders.map((o) =>
-          o.id === orderId || o.order_id === orderId ? { ...o, status: newStatus } : o
-        );
-        localStorage.setItem('isai_orders', JSON.stringify(updated));
-      } catch {
-        // Fallback silently
-      }
-
+      await orderService.updateOrderStatus(orderId, newStatus);
       fetchStats();
     } catch (err) {
       alert(err.message || 'Failed to update order status');

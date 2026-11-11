@@ -28,7 +28,7 @@ export function useManageOrders() {
     setLoading(true);
     try {
       const res = await orderService.getAllOrders({ status: 'all', limit: 200 });
-      if (res?.orders && res.orders.length > 0) {
+      if (res?.orders) {
         setOrders(res.orders);
       }
     } catch (err) {

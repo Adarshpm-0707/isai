@@ -1,4 +1,9 @@
 import { supabase } from '../lib/supabaseClient';
+import { syncLocalhostData } from './dataSyncService';
+
+function isValidUUID(str) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(str || ''));
+}
 
 function withTimeout(promise, ms = 2000) {
   let timer;
@@ -107,7 +112,8 @@ export const checkoutService = {
 
     const orderUuid = generateUUID();
     const readableOrderId = `ORD-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const userId = orderPayload.userId || orderPayload.user_id || null;
+    const rawUserId = orderPayload.userId || orderPayload.user_id || null;
+    const userId = isValidUUID(rawUserId) ? rawUserId : null;
 
     // Database record matching Supabase schema.sql exactly
     const dbInsertPayload = {
@@ -145,6 +151,7 @@ export const checkoutService = {
       existing.unshift(orderData);
       localStorage.setItem('isai_orders', JSON.stringify(existing));
       window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: existing }));
+      syncLocalhostData({ orders: existing });
     } catch (e) {
       console.warn('Orders local store notice:', e);
     }
@@ -220,7 +227,8 @@ export const checkoutService = {
 
     const orderUuid = generateUUID();
     const readableOrderId = `ORD-${Date.now().toString().slice(-6)}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-    const userId = payload.userId || payload.user_id || null;
+    const rawUserId = payload.userId || payload.user_id || null;
+    const userId = isValidUUID(rawUserId) ? rawUserId : null;
 
     // Database record matching Supabase schema.sql exactly
     const dbInsertPayload = {
@@ -260,6 +268,7 @@ export const checkoutService = {
       existing.unshift(orderData);
       localStorage.setItem('isai_orders', JSON.stringify(existing));
       window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: existing }));
+      syncLocalhostData({ orders: existing });
     } catch (e) {}
 
     // 2. Persist customer contact into customer directory

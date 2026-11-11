@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 import { compressImage } from '../utils/imageCompressor';
 import bundledCatalog from '../data/catalog.json';
+import { syncLocalhostData } from './dataSyncService';
 
 const PRODUCTS_STORAGE_KEY = 'isai_tarang_products';
 const DELETED_PRODUCTS_KEY = 'isai_deleted_product_ids';
@@ -132,6 +133,24 @@ function saveLocalProducts(prods) {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('isai:products_updated', { detail: cleaned }));
   }
+
+  // Auto-sync to disk when running on localhost so changes are committed to Git
+  try {
+    const rawCats = typeof localStorage !== 'undefined' ? localStorage.getItem('isai_tarang_categories') : null;
+    let cats = [];
+    if (rawCats) {
+      try { cats = JSON.parse(rawCats); } catch {}
+    }
+    if (!Array.isArray(cats) || cats.length === 0) {
+      cats = Array.isArray(bundledCatalog?.categories) ? bundledCatalog.categories : [];
+    }
+    syncLocalhostData({
+      catalog: {
+        products: cleaned,
+        categories: cats,
+      },
+    });
+  } catch {}
 }
 
 function filterAndSortProducts(

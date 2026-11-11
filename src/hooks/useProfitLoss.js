@@ -16,7 +16,7 @@ export default function useProfitLoss() {
     try {
       // 1. Fetch Orders
       const orderRes = await orderService.getAllOrders({ limit: 1000 });
-      if (orderRes?.orders && orderRes.orders.length > 0) {
+      if (orderRes?.orders) {
         setOrders(orderRes.orders);
       }
 

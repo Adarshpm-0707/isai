@@ -115,11 +115,11 @@ export const customerService = {
           id: rawId || `usr_${Math.random().toString(36).slice(2, 8)}`,
           name: u.name || (rawEmail.includes('@') ? rawEmail.split('@')[0] : 'Customer User'),
           email: rawEmail || `${rawName.replace(/\s+/g, '')}@customer.isai`,
-          phone: u.phone || u.shipping_address?.phone || '+91 98401 23456',
+          phone: u.phone || u.shipping_address?.phone || '',
           role: 'user',
-          address: u.address || u.shipping_address?.addressLine1 || u.shipping_address?.street || 'Tamil Nadu, India',
-          city: u.city || u.shipping_address?.city || 'Chennai',
-          pincode: u.pincode || u.shipping_address?.pincode || '600001',
+          address: u.address || u.shipping_address?.addressLine1 || u.shipping_address?.street || '',
+          city: u.city || u.shipping_address?.city || '',
+          pincode: u.pincode || u.shipping_address?.pincode || '',
           created_at: u.created_at || new Date().toISOString(),
         });
       }

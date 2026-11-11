@@ -1,10 +1,20 @@
 import { supabase } from '../lib/supabaseClient';
+import bundledOrders from '../data/orders.json';
+import { syncLocalhostData } from './dataSyncService';
 
 const DEMO_ORDER_IDS = new Set([
   '6f52a1b0-4a89-4e78-98e2-b0113c490a01',
   '7a83b2c1-5b90-4f89-89f3-c1224d501b02',
   '8b94c3d2-6c01-409a-90a4-d2335e612c03',
 ]);
+
+const withTimeout = (promise, ms = 3000) => {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error('timeout')), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+};
 
 function getDeletedOrderIds() {
   try {
@@ -21,29 +31,68 @@ function cleanDemoOrders(list) {
   return list.filter(
     (o) =>
       o &&
-      (o.id || o.order_id) &&
+      (o.id || o.order_id || o.orderId) &&
       !DEMO_ORDER_IDS.has(o.id) &&
+      !DEMO_ORDER_IDS.has(o.order_id) &&
       !deleted.has(o.id) &&
-      !deleted.has(o.order_id)
+      !deleted.has(o.order_id) &&
+      !String(o.customer_name || '').toLowerCase().includes('priya sundaram') &&
+      !String(o.customer_name || '').toLowerCase().includes('meenakshi ramanathan') &&
+      !String(o.customer_name || '').toLowerCase().includes('ananya iyer') &&
+      !String(o.customer_name || '').toLowerCase().includes('deepika natarajan')
   );
 }
 
 export function getLocalOrders() {
+  let list = [];
   try {
-    const raw = localStorage.getItem('isai_orders');
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('isai_orders') : null;
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        const cleaned = cleanDemoOrders(parsed);
-        if (cleaned.length !== parsed.length) {
-          localStorage.setItem('isai_orders', JSON.stringify(cleaned));
-        }
-        return cleaned;
+        list = parsed;
       }
     }
-  } catch (e) {}
+  } catch {}
 
-  return [];
+  // Merge bundled orders from codebase so localhost additions deploy to Vercel and Netlify
+  const bundled = Array.isArray(bundledOrders) ? bundledOrders : [];
+  if (bundled.length > 0) {
+    const map = new Map();
+    bundled.forEach((o) => {
+      const key = o.id || o.order_id || o.orderId;
+      if (key) map.set(key, o);
+    });
+    list.forEach((o) => {
+      const key = o.id || o.order_id || o.orderId;
+      if (key) {
+        const existing = map.get(key);
+        map.set(key, { ...existing, ...o });
+      }
+    });
+    list = Array.from(map.values());
+  }
+
+  const cleaned = cleanDemoOrders(list);
+  return cleaned;
+}
+
+export function saveLocalOrders(orders) {
+  const cleaned = cleanDemoOrders(orders);
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('isai_orders', JSON.stringify(cleaned));
+    }
+  } catch (err) {
+    console.warn('LocalStorage orders quota notice:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: cleaned }));
+  }
+
+  // Auto-sync to disk when running on localhost
+  syncLocalhostData({ orders: cleaned });
 }
 
 export const orderService = {
@@ -145,42 +194,46 @@ export const orderService = {
       updates.shiprocket_order_id = trackingId;
     }
 
-    const { data, error } = await supabase
-      .from('orders')
-      .update(updates)
-      .eq('id', orderId)
-      .select()
-      .single();
+    // 1. Update local and sync to orders.json on localhost
+    const local = getLocalOrders();
+    const updated = local.map((o) => {
+      if (o.id === orderId || o.order_id === orderId || o.orderId === orderId) {
+        return { ...o, ...updates };
+      }
+      return o;
+    });
+    saveLocalOrders(updated);
 
-    if (error) throw error;
-    return data;
+    // 2. Background update Supabase
+    try {
+      await withTimeout(
+        supabase.from('orders').update(updates).eq('id', orderId).select().maybeSingle(),
+        3000
+      );
+    } catch (e) {
+      console.warn('Supabase updateOrderStatus notice:', e?.message);
+    }
+
+    return { id: orderId, ...updates };
   },
 
   async cancelOrder(orderId) {
-    try {
-      const { data, error } = await supabase.functions.invoke('cancel-order', {
-        body: { order_id: orderId },
-      });
-      if (!error && data) return data;
-    } catch (err) {
-      console.warn('Edge Function cancel-order notice, updating database directly:', err);
-    }
-
-    // Direct Database & Local Storage Fallback Update
-    try {
-      await supabase
-        .from('orders')
-        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
-        .eq('id', orderId);
-    } catch (e) {}
-
-    try {
-      const existing = JSON.parse(localStorage.getItem('isai_orders') || '[]');
-      const found = existing.find((o) => o.id === orderId || o.order_id === orderId);
-      if (found) {
-        found.status = 'cancelled';
-        localStorage.setItem('isai_orders', JSON.stringify(existing));
+    // 1. Update local and sync to orders.json on localhost
+    const local = getLocalOrders();
+    const updated = local.map((o) => {
+      if (o.id === orderId || o.order_id === orderId || o.orderId === orderId) {
+        return { ...o, status: 'cancelled', updated_at: new Date().toISOString() };
       }
+      return o;
+    });
+    saveLocalOrders(updated);
+
+    // 2. Cloud Edge Function / Supabase update
+    try {
+      await withTimeout(
+        supabase.from('orders').update({ status: 'cancelled', updated_at: new Date().toISOString() }).eq('id', orderId),
+        3000
+      );
     } catch (e) {}
 
     return { success: true, order_id: orderId, status: 'cancelled' };
@@ -189,7 +242,7 @@ export const orderService = {
   async deleteOrder(orderOrId) {
     if (!orderOrId) return false;
     const id = typeof orderOrId === 'object' ? orderOrId.id : orderOrId;
-    const order_id = typeof orderOrId === 'object' ? orderOrId.order_id : null;
+    const order_id = typeof orderOrId === 'object' ? (orderOrId.order_id || orderOrId.orderId) : null;
 
     // 1. Mark in deleted order ids
     try {
@@ -205,28 +258,16 @@ export const orderService = {
       localStorage.setItem('isai_deleted_order_ids', JSON.stringify(deletedList));
     } catch (e) {}
 
-    // 2. Remove from local storage orders
-    try {
-      const raw = localStorage.getItem('isai_orders');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          const updated = parsed.filter((o) => {
-            if (id && (o.id === id || o.order_id === id || String(o.id) === String(id))) return false;
-            if (order_id && (o.id === order_id || o.order_id === order_id || String(o.order_id) === String(order_id))) return false;
-            return true;
-          });
-          localStorage.setItem('isai_orders', JSON.stringify(updated));
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: updated }));
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('LocalStorage order delete error:', e);
-    }
+    // 2. Remove from local & bundled storage and sync to disk on localhost
+    const local = getLocalOrders();
+    const updated = local.filter((o) => {
+      if (id && (o.id === id || o.order_id === id || o.orderId === id || String(o.id) === String(id))) return false;
+      if (order_id && (o.id === order_id || o.order_id === order_id || o.orderId === order_id || String(o.order_id) === String(order_id))) return false;
+      return true;
+    });
+    saveLocalOrders(updated);
 
-    // 3. Delete from Supabase in background with fast timeout
+    // 3. Delete from Supabase in background
     try {
       const targetQuery = id && order_id
         ? `id.eq.${id},order_id.eq.${order_id}`
@@ -234,13 +275,10 @@ export const orderService = {
         ? `id.eq.${id}`
         : `order_id.eq.${order_id}`;
 
-      const timer = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 800)
-      );
-      Promise.race([
+      withTimeout(
         supabase.from('orders').delete().or(targetQuery),
-        timer,
-      ]).catch(() => {});
+        3000
+      ).catch(() => {});
     } catch (err) {
       console.warn('Supabase deleteOrder notice:', err.message);
     }
