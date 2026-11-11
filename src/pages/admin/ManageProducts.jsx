@@ -66,7 +66,7 @@ export default function ManageProducts() {
     if (!window.confirm('Are you sure you want to permanently delete this product?')) return;
     try {
       await productService.deleteProduct(id);
-      await adminLogService.logAction('DELETE_PRODUCT', 'products', id, {});
+      adminLogService.logAction('DELETE_PRODUCT', 'products', id, {}).catch(() => {});
       setProducts(products.filter((p) => p.id !== id));
     } catch (err) {
       console.error('Delete failed:', err);

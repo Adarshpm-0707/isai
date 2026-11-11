@@ -269,7 +269,11 @@ export default function Products() {
             {paginatedProducts.length === 0 && (
               <EmptyState
                 title="No Sarees Found"
-                message="Try refining your filter criteria or search keyword."
+                message={
+                  products.length === 0
+                    ? 'Our master weavers are curating new saree arrivals. Please check back soon!'
+                    : 'Try refining your filter criteria or search keyword.'
+                }
                 onAction={() => {
                   setSearchQuery('');
                   setSelectedCategory('All');

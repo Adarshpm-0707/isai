@@ -5,6 +5,11 @@ import Badge from '../../components/reusable/Badge';
 import Modal from '../../components/reusable/Modal';
 import { Search, Eye, Trash2, User, Mail, Phone, MapPin, ShoppingBag, Calendar, Package } from 'lucide-react';
 
+const DEMO_CUSTOMER_EMAILS = new Set([
+  'priya.sharma@example.com',
+  'ananya.ramesh@example.com',
+]);
+
 export default function ManageCustomers() {
   const [customers, setCustomers] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -141,31 +146,8 @@ export default function ManageCustomers() {
         }
       });
 
-      // Default demo customer records if system is completely fresh
-      if (customerMap.size === 0) {
-        addCustomer({
-          id: 'usr_demo_1',
-          name: 'Priya Sharma',
-          email: 'priya.sharma@example.com',
-          phone: '+91 98765 43210',
-          role: 'user',
-          address: '12 Heritage Street',
-          city: 'Chennai',
-          pincode: '600001',
-          created_at: new Date().toISOString(),
-        });
-        addCustomer({
-          id: 'usr_demo_2',
-          name: 'Ananya Ramesh',
-          email: 'ananya.ramesh@example.com',
-          phone: '+91 94440 12345',
-          role: 'user',
-          address: '45 Temple Road',
-          city: 'Kanchipuram',
-          pincode: '631501',
-          created_at: new Date().toISOString(),
-        });
-      }
+      // Exclude any residual demo accounts
+      DEMO_CUSTOMER_EMAILS.forEach((demoEmail) => customerMap.delete(demoEmail));
 
       setCustomers(Array.from(customerMap.values()));
     } catch (err) {

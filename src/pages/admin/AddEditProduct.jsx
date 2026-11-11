@@ -38,13 +38,19 @@ export default function AddEditProduct() {
       const data = await categoryService.getCategories();
       if (Array.isArray(data)) {
         setCategoriesList(data);
-        if (!isEdit && data.length > 0 && !category) {
-          setCategory(data[0].name);
-          setCategoryId(data[0].id);
+        if (data.length > 0) {
+          if (!isEdit && !category) {
+            setCategory(data[0].name);
+            setCategoryId(data[0].id);
+          }
+        } else {
+          // If no categories exist yet, automatically enable typing a new category
+          setIsCreatingNewCategory(true);
         }
       }
     } catch (err) {
       console.warn('Could not load categories:', err);
+      setIsCreatingNewCategory(true);
     }
   };
 
@@ -180,15 +186,15 @@ export default function AddEditProduct() {
     try {
       if (isEdit) {
         await productService.updateProduct(id, productPayload);
-        await adminLogService.logAction('UPDATE_PRODUCT', 'products', id, productPayload);
+        adminLogService.logAction('UPDATE_PRODUCT', 'products', id, productPayload).catch(() => {});
       } else {
         const res = await productService.createProduct(productPayload);
-        await adminLogService.logAction('CREATE_PRODUCT', 'products', res.id, productPayload);
+        adminLogService.logAction('CREATE_PRODUCT', 'products', res.id, productPayload).catch(() => {});
       }
       navigate('/admin/products');
     } catch (err) {
       console.error('Form submit failed:', err);
-      setError('Database save failed: ' + err.message);
+      setError('Save notice: ' + err.message);
     } finally {
       setLoading(false);
     }

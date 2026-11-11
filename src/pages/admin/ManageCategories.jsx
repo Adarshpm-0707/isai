@@ -136,11 +136,11 @@ export default function ManageCategories() {
           slug: cleanSlug,
           image_url: cleanImage,
         });
-        await adminLogService.logAction('UPDATE_CATEGORY', 'categories', editingId, {
+        adminLogService.logAction('UPDATE_CATEGORY', 'categories', editingId, {
           name: cleanName,
           slug: cleanSlug,
           image_url: cleanImage,
-        });
+        }).catch(() => {});
         showNotification(`Category "${cleanName}" updated successfully!`);
       } else {
         const created = await categoryService.createCategory({
@@ -148,11 +148,11 @@ export default function ManageCategories() {
           slug: cleanSlug,
           image_url: cleanImage,
         });
-        await adminLogService.logAction('CREATE_CATEGORY', 'categories', created.id, {
+        adminLogService.logAction('CREATE_CATEGORY', 'categories', created.id, {
           name: cleanName,
           slug: cleanSlug,
           image_url: cleanImage,
-        });
+        }).catch(() => {});
         showNotification(`Category "${cleanName}" created successfully!`);
       }
       setModalOpen(false);
@@ -172,7 +172,7 @@ export default function ManageCategories() {
 
     try {
       await categoryService.deleteCategory(id);
-      await adminLogService.logAction('DELETE_CATEGORY', 'categories', id, {});
+      adminLogService.logAction('DELETE_CATEGORY', 'categories', id, {}).catch(() => {});
       showNotification(`Category "${catName}" deleted successfully`);
       fetchCategoriesAndProducts();
     } catch (err) {

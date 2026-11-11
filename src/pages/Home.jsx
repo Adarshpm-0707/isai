@@ -120,62 +120,19 @@ export default function Home() {
     }));
   }, [categories, products]);
 
-  /* 3D Circular Carousel Saree Items */
+  /* 3D Carousel Saree Items: only real categories added in admin/database */
   const categoryCarouselItems = useMemo(() => {
-    if (dynamicCategories && dynamicCategories.length >= 3) {
-      return dynamicCategories.map((col) => ({
-        src: col.img || DEFAULT_CATEGORY_BG,
-        alt: `${col.name} Handloom Saree Collection`,
-        title: col.name,
-        subtitle: 'Explore Handcrafted Saree Weaves',
-        category: col.category,
-      }));
+    if (!dynamicCategories || dynamicCategories.length === 0) {
+      return [];
     }
 
-    return [
-      {
-        src: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=900',
-        alt: 'Kanchipuram Silk Sarees',
-        title: 'Kanchipuram Silk',
-        subtitle: 'Pure Zari Temple Borders',
-        category: 'Kanchipuram',
-      },
-      {
-        src: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=900',
-        alt: 'Banarasi Brocade Silk Sarees',
-        title: 'Banarasi Brocade',
-        subtitle: 'Heritage Varanasi Weaves',
-        category: 'Banarasi',
-      },
-      {
-        src: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&q=80&w=900',
-        alt: 'Kerala Kasavu Handloom Sarees',
-        title: 'Kerala Kasavu',
-        subtitle: 'Golden Border Cotton Silk',
-        category: 'Kasavu',
-      },
-      {
-        src: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=900',
-        alt: 'Chanderi Pure Silk Sarees',
-        title: 'Chanderi Silk',
-        subtitle: 'Featherlight Royal Drapes',
-        category: 'Chanderi',
-      },
-      {
-        src: 'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&q=80&w=900',
-        alt: 'Tussar Handwoven Silk Sarees',
-        title: 'Tussar Silk',
-        subtitle: 'Wild Forest Raw Silk',
-        category: 'Tussar',
-      },
-      {
-        src: 'https://images.unsplash.com/photo-1610030469668-93510cb67655?auto=format&fit=crop&q=80&w=900',
-        alt: 'Organza Sheer Silk Sarees',
-        title: 'Organza Silk',
-        subtitle: 'Delicate Floral Embroidery',
-        category: 'Organza',
-      },
-    ];
+    return dynamicCategories.map((col) => ({
+      src: col.img || DEFAULT_CATEGORY_BG,
+      alt: `${col.name} Handloom Saree Collection`,
+      title: col.name,
+      subtitle: 'Explore Handcrafted Saree Weaves',
+      category: col.category,
+    }));
   }, [dynamicCategories]);
 
   // Newly Arrived products (newest additions from admin, exactly 4 products)
@@ -298,27 +255,37 @@ export default function Home() {
         </div>
 
         {/* ── FLEX CAROUSEL (RESPONSIVE LIQUID GLASS BEND) ── */}
-        <div
-          className="w-full relative mx-auto overflow-hidden"
-          style={{ width: '100%', height: carouselHeight, position: 'relative' }}
-        >
-          <FlexCarousel
-            items={categoryCarouselItems}
-            preset="liquid"
-            intro="rise"
-            fit="portrait"
-            radius={18}
-            squeeze={0.2}
-            focusOnClick={true}
-            captions={true}
-            captureWheel={false}
-            onSelect={(_index, item) => {
-              if (item) {
-                navigate(`/products?category=${encodeURIComponent(item.category || item.title || '')}`);
-              }
-            }}
-          />
-        </div>
+        {categoryCarouselItems.length === 0 ? (
+          <div className="py-14 px-6 rounded-2xl bg-[#1A100C]/60 border border-[#301F18] text-center max-w-xl mx-auto my-4">
+            <LotusEmblem className="w-8 h-8 text-[#DFC18A] mx-auto mb-3 opacity-80" />
+            <h3 className="font-serif text-lg text-[#FDF8F4]">Handloom Collections Coming Soon</h3>
+            <p className="text-xs text-[#A69385] mt-1.5 font-light">
+              Weave categories added in the admin dashboard will automatically appear here.
+            </p>
+          </div>
+        ) : (
+          <div
+            className="w-full relative mx-auto overflow-hidden"
+            style={{ width: '100%', height: carouselHeight, position: 'relative' }}
+          >
+            <FlexCarousel
+              items={categoryCarouselItems}
+              preset="liquid"
+              intro="rise"
+              fit="portrait"
+              radius={18}
+              squeeze={0.2}
+              focusOnClick={true}
+              captions={true}
+              captureWheel={false}
+              onSelect={(_index, item) => {
+                if (item) {
+                  navigate(`/products?category=${encodeURIComponent(item.category || item.title || '')}`);
+                }
+              }}
+            />
+          </div>
+        )}
       </section>
 
       {/* ── 4. NEWLY ARRIVED SECTION (UNDER CATEGORIES) ── */}

@@ -3,17 +3,22 @@ import { supabase } from '../lib/supabaseClient';
 export const adminLogService = {
   async logAction(action, targetTable, targetId, details = {}) {
     try {
-      const { data } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
+      const fastAuth = Promise.race([
+        supabase.auth.getUser(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 400)),
+      ]).catch(() => ({ data: { user: null } }));
+
+      const { data } = await fastAuth;
       const user = data?.user;
       if (!user) return;
 
-      await supabase.from('admin_logs').insert({
+      supabase.from('admin_logs').insert({
         actor_id: user.id,
         action,
         target_table: targetTable,
         target_id: String(targetId),
         details,
-      }).catch((err) => console.warn('Failed to log admin action:', err.message));
+      }).catch(() => {});
     } catch (err) {
       console.warn('adminLogService notice:', err.message);
     }

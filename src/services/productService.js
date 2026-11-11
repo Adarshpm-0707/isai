@@ -1,181 +1,36 @@
 import { supabase } from '../lib/supabaseClient';
+import { compressImage } from '../utils/imageCompressor';
 
 const PRODUCTS_STORAGE_KEY = 'isai_tarang_products';
 
-// Comprehensive master catalog of authentic handloom sarees
-export const SEED_PRODUCTS = [
-  {
-    id: 'prod-kanchi-01',
-    name: 'Royal Crimson Kanchipuram Pure Zari Silk Saree',
-    slug: 'royal-crimson-kanchipuram-pure-zari-silk-saree',
-    category: 'Kanchipuram',
-    category_id: 'cat-kanchi-01',
-    price: 18500,
-    discount_price: 15999,
-    cost: 11200,
-    stock: 12,
-    badge: 'Bestseller',
-    rating: 4.9,
-    review_count: 142,
-    reviewsCount: 142,
-    description: 'Handwoven with pure mulberry silk and authentic 2G silver gold electroplated zari temple border motifs by master weavers of Kanchipuram.',
-    images: [
-      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1610030469668-93510cb67655?auto=format&fit=crop&q=80&w=900',
-    ],
-    created_at: '2026-11-10T14:00:00Z',
-  },
-  {
-    id: 'prod-banarasi-02',
-    name: 'Midnight Emerald Banarasi Katan Silk Saree',
-    slug: 'midnight-emerald-banarasi-katan-silk-saree',
-    category: 'Banarasi',
-    category_id: 'cat-banarasi-02',
-    price: 16800,
-    discount_price: 14499,
-    cost: 9800,
-    stock: 8,
-    badge: 'Bridal Heritage',
-    rating: 4.95,
-    review_count: 89,
-    reviewsCount: 89,
-    description: 'Exquisite handloom Katan silk saree woven in Varanasi featuring intricate floral jaal motifs, kadwa weave, and heavy ceremonial pallu.',
-    images: [
-      'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&q=80&w=900',
-    ],
-    created_at: '2026-11-09T16:30:00Z',
-  },
-  {
-    id: 'prod-kasavu-03',
-    name: 'Kuthampully Traditional Kasavu Tissue Silk Saree',
-    slug: 'kuthampully-traditional-kasavu-tissue-silk-saree',
-    category: 'Kasavu',
-    category_id: 'cat-kasavu-03',
-    price: 7500,
-    discount_price: 6299,
-    cost: 4100,
-    stock: 18,
-    badge: 'Authentic Handloom',
-    rating: 4.88,
-    review_count: 64,
-    reviewsCount: 64,
-    description: 'Direct from Kuthampully master weavers, woven with shimmering golden tissue weft, peacock motifs, and temple borders for sacred festivities.',
-    images: [
-      'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&q=80&w=900',
-    ],
-    created_at: '2026-11-08T11:15:00Z',
-  },
-  {
-    id: 'prod-chanderi-04',
-    name: 'Pastel Peach Chanderi Pure Silk Drape',
-    slug: 'pastel-peach-chanderi-pure-silk-drape',
-    category: 'Chanderi',
-    category_id: 'cat-chanderi-04',
-    price: 9200,
-    discount_price: 7999,
-    cost: 5200,
-    stock: 10,
-    badge: 'New Arrival',
-    rating: 4.85,
-    review_count: 38,
-    reviewsCount: 38,
-    description: 'Featherlight silk cotton Chanderi saree adorned with hand-punched golden zari peacock buttis and a sheer gossamer texture.',
-    images: [
-      'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=900',
-    ],
-    created_at: '2026-11-07T18:00:00Z',
-  },
-  {
-    id: 'prod-tussar-05',
-    name: 'Raw Honey Handwoven Tussar Silk Saree',
-    slug: 'raw-honey-handwoven-tussar-silk-saree',
-    category: 'Tussar',
-    category_id: 'cat-tussar-05',
-    price: 11500,
-    discount_price: 9899,
-    cost: 6900,
-    stock: 7,
-    badge: 'Forest Raw Silk',
-    rating: 4.92,
-    review_count: 51,
-    reviewsCount: 51,
-    description: 'Organic wild forest Tussar silk offering rich earthen texture and hand-painted Madhubani floral motifs with antique dull gold borders.',
-    images: [
-      'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&q=80&w=900',
-    ],
-    created_at: '2026-11-06T12:20:00Z',
-  },
-  {
-    id: 'prod-organza-06',
-    name: 'Lavender Blossom Sheer Organza Silk Saree',
-    slug: 'lavender-blossom-sheer-organza-silk-saree',
-    category: 'Organza',
-    category_id: 'cat-organza-06',
-    price: 8800,
-    discount_price: 7499,
-    cost: 4800,
-    stock: 15,
-    badge: 'Festive Edition',
-    rating: 4.86,
-    review_count: 44,
-    reviewsCount: 44,
-    description: 'Modern royal pastel organza saree featuring delicate scalloped resham borders, subtle cutwork, and hand-embroidered botanical motifs.',
-    images: [
-      'https://images.unsplash.com/photo-1610030469668-93510cb67655?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?auto=format&fit=crop&q=80&w=900',
-    ],
-    created_at: '2026-11-05T15:45:00Z',
-  },
-  {
-    id: 'prod-softsilk-07',
-    name: 'Vermillion Maroon Soft Silk Festive Saree',
-    slug: 'vermillion-maroon-soft-silk-festive-saree',
-    category: 'Soft Silk',
-    category_id: 'cat-softsilk-07',
-    price: 12900,
-    discount_price: 10999,
-    cost: 7500,
-    stock: 9,
-    badge: 'Trending',
-    rating: 4.91,
-    review_count: 76,
-    reviewsCount: 76,
-    description: 'Ultra-soft pure silk weave with contrasting antique gold pallu and temple border designed for comfortable, regal all-day drape.',
-    images: [
-      'https://images.unsplash.com/photo-1610030469884-3c767f70b749?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=900',
-    ],
-    created_at: '2026-11-04T13:10:00Z',
-  },
-  {
-    id: 'prod-cotton-08',
-    name: 'Ivory Gold Kerala Handloom Cotton Saree',
-    slug: 'ivory-gold-kerala-handloom-cotton-saree',
-    category: 'Pure Cotton',
-    category_id: 'cat-cotton-08',
-    price: 4500,
-    discount_price: 3899,
-    cost: 2100,
-    stock: 22,
-    badge: 'Daily Heritage',
-    rating: 4.89,
-    review_count: 98,
-    reviewsCount: 98,
-    description: 'Fine 100-count combed cotton handwoven by heritage weavers with a pure zari border for temple rituals and understated elegance.',
-    images: [
-      'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&q=80&w=900',
-      'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&q=80&w=900',
-    ],
-    created_at: '2026-11-03T17:30:00Z',
-  },
-];
+// Identifiers of previous demo sarees to purge from existing storage
+const DEMO_PRODUCT_IDS = new Set([
+  'prod-kanchi-01',
+  'prod-banarasi-02',
+  'prod-kasavu-03',
+  'prod-chanderi-04',
+  'prod-tussar-05',
+  'prod-organza-06',
+  'prod-softsilk-07',
+  'prod-cotton-08',
+]);
 
-// Helper for fast network timeout (prevents 20 to 30s browser hang when DNS/network is slow)
-function withTimeout(promise, ms = 1200) {
+function generateUUID() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      // fallback below
+    }
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+function withTimeout(promise, ms = 1000) {
   let timer;
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error('Network request timed out')), ms);
@@ -183,44 +38,42 @@ function withTimeout(promise, ms = 1200) {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
+function cleanDemoProducts(list) {
+  if (!Array.isArray(list)) return [];
+  return list.filter((p) => p && p.id && !DEMO_PRODUCT_IDS.has(p.id));
+}
+
 function getLocalProducts() {
   try {
     const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(PRODUCTS_STORAGE_KEY) : null;
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // Merge seed products with user additions so no admin products are lost
-        const map = new Map();
-        SEED_PRODUCTS.forEach((p) => map.set(p.id, p));
-        parsed.forEach((p) => {
-          if (p && p.id) {
-            const existing = map.get(p.id);
-            map.set(p.id, { ...existing, ...p });
-          }
-        });
-        return Array.from(map.values());
+      if (Array.isArray(parsed)) {
+        const cleaned = cleanDemoProducts(parsed);
+        if (cleaned.length !== parsed.length && typeof localStorage !== 'undefined') {
+          localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(cleaned));
+        }
+        return cleaned;
       }
     }
-    // Auto initialize persistent storage with master products
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(SEED_PRODUCTS));
-    }
-    return SEED_PRODUCTS;
+    return [];
   } catch {
-    return SEED_PRODUCTS;
+    return [];
   }
 }
 
 function saveLocalProducts(prods) {
+  const cleaned = cleanDemoProducts(prods);
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(prods));
-    }
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('isai:products_updated', { detail: prods }));
+      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(cleaned));
     }
   } catch (err) {
-    console.warn('LocalStorage products write notice:', err);
+    console.warn('LocalStorage products quota notice:', err);
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('isai:products_updated', { detail: cleaned }));
   }
 }
 
@@ -300,7 +153,7 @@ export const productService = {
       sortBy,
     });
 
-    // Try cloud sync with a strict 1.2s timeout so the UI never waits
+    // Background sync with Supabase (strict 1s timeout to keep app instant)
     try {
       let query = supabase.from('products').select('*', { count: 'exact' });
 
@@ -339,26 +192,28 @@ export const productService = {
       const to = from + limit - 1;
       query = query.range(from, to);
 
-      const { data, count, error } = await withTimeout(query, 1200);
-      if (!error && Array.isArray(data) && data.length > 0) {
-        // Merge fresh cloud data into local persistent store
+      const { data, count, error } = await withTimeout(query, 1000);
+      if (!error && Array.isArray(data)) {
+        // Sync cloud items to local
+        const cleanedCloud = cleanDemoProducts(data);
         const map = new Map();
         local.forEach((p) => map.set(p.id, p));
-        data.forEach((p) => map.set(p.id, p));
-        saveLocalProducts(Array.from(map.values()));
+        cleanedCloud.forEach((p) => map.set(p.id, p));
+        const merged = Array.from(map.values());
+        saveLocalProducts(merged);
 
+        const paginatedCloud = cleanedCloud.slice(0, limit);
         return {
-          products: data,
-          total: typeof count === 'number' ? count : data.length,
+          products: paginatedCloud,
+          total: typeof count === 'number' ? count : paginatedCloud.length,
           page,
-          totalPages: Math.ceil((count || data.length) / limit) || 1,
+          totalPages: Math.ceil((count || paginatedCloud.length) / limit) || 1,
         };
       }
-    } catch (err) {
-      console.warn('Fast product sync note (using persistent local store):', err.message);
+    } catch {
+      // Offline or network timeout, fall through to instant local products
     }
 
-    // Return instant local filtered products
     const paginated = localFiltered.slice((page - 1) * limit, page * limit);
     return {
       products: paginated,
@@ -377,11 +232,11 @@ export const productService = {
     try {
       const { data, error } = await withTimeout(
         supabase.from('products').select('*').eq('slug', slug).maybeSingle(),
-        1200
+        1000
       );
       if (!error && data) return data;
-    } catch (err) {
-      console.warn('getProductBySlug notice:', err.message);
+    } catch {
+      // ignore
     }
 
     return null;
@@ -389,8 +244,6 @@ export const productService = {
 
   async getProductById(id) {
     if (!id) return null;
-
-    // Fast instant check from local store (0 ms)
     const local = getLocalProducts();
     const found = local.find(
       (p) => p.id === id || String(p.id) === String(id) || p.slug === id
@@ -400,17 +253,18 @@ export const productService = {
     try {
       const { data, error } = await withTimeout(
         supabase.from('products').select('*').eq('id', id).maybeSingle(),
-        1200
+        1000
       );
       if (!error && data) return data;
-    } catch (err) {
-      console.warn('getProductById notice:', err.message);
+    } catch {
+      // ignore
     }
 
     return null;
   },
 
   async createProduct(productData) {
+    const id = generateUUID();
     const slug =
       (productData.name || 'saree')
         .toLowerCase()
@@ -419,32 +273,53 @@ export const productService = {
 
     const newProd = {
       ...productData,
-      id:
-        typeof crypto !== 'undefined' && crypto.randomUUID
-          ? crypto.randomUUID()
-          : `prod_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      id,
       slug,
       created_at: new Date().toISOString(),
     };
 
+    // 1. Immediately commit to local persistent store so UI is 100% responsive
     const local = getLocalProducts();
     const updated = [newProd, ...local];
     saveLocalProducts(updated);
 
-    try {
-      const { data, error } = await withTimeout(
-        supabase.from('products').insert(newProd).select().maybeSingle(),
-        1500
-      );
+    // 2. Asynchronously attempt cloud sync without blocking
+    (async () => {
+      try {
+        const payload = {
+          id: newProd.id,
+          name: newProd.name,
+          slug: newProd.slug,
+          description: newProd.description || null,
+          price: Number(newProd.price || 0),
+          discount_price: newProd.discount_price ? Number(newProd.discount_price) : null,
+          stock: Number(newProd.stock || 0),
+          category: newProd.category || null,
+          images: Array.isArray(newProd.images) ? newProd.images : null,
+          cost: Number(newProd.cost || 0),
+          created_at: newProd.created_at,
+        };
 
-      if (!error && data) {
-        const synced = updated.map((p) => (p.id === newProd.id ? data : p));
-        saveLocalProducts(synced);
-        return data;
+        // Only pass category_id if it is a valid UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (newProd.category_id && uuidRegex.test(newProd.category_id)) {
+          payload.category_id = newProd.category_id;
+        }
+
+        const { data, error } = await withTimeout(
+          supabase.from('products').insert(payload).select().maybeSingle(),
+          1500
+        );
+
+        if (!error && data) {
+          const currentLocal = getLocalProducts();
+          const synced = currentLocal.map((p) => (p.id === newProd.id ? { ...p, ...data } : p));
+          saveLocalProducts(synced);
+        }
+      } catch (err) {
+        console.warn('Background product cloud sync notice:', err.message);
       }
-    } catch (err) {
-      console.warn('Supabase product create notice (persisted locally):', err.message);
-    }
+    })();
 
     return newProd;
   },
@@ -459,20 +334,23 @@ export const productService = {
     });
     saveLocalProducts(updated);
 
-    try {
-      const { data, error } = await withTimeout(
-        supabase.from('products').update(updates).eq('id', id).select().maybeSingle(),
-        1500
-      );
+    (async () => {
+      try {
+        const payload = { ...updates };
+        delete payload.id;
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (payload.category_id && !uuidRegex.test(payload.category_id)) {
+          delete payload.category_id;
+        }
 
-      if (!error && data) {
-        const synced = updated.map((p) => (p.id === id ? data : p));
-        saveLocalProducts(synced);
-        return data;
+        await withTimeout(
+          supabase.from('products').update(payload).eq('id', id).select().maybeSingle(),
+          1500
+        );
+      } catch (err) {
+        console.warn('Background product update cloud notice:', err.message);
       }
-    } catch (err) {
-      console.warn('Supabase product update notice (persisted locally):', err.message);
-    }
+    })();
 
     return { id, ...updates };
   },
@@ -482,11 +360,13 @@ export const productService = {
     const updated = local.filter((p) => p.id !== id && String(p.id) !== String(id));
     saveLocalProducts(updated);
 
-    try {
-      await withTimeout(supabase.from('products').delete().eq('id', id), 1500);
-    } catch (err) {
-      console.warn('Supabase product delete notice (persisted locally):', err.message);
-    }
+    (async () => {
+      try {
+        await withTimeout(supabase.from('products').delete().eq('id', id), 1500);
+      } catch (err) {
+        console.warn('Background product delete cloud notice:', err.message);
+      }
+    })();
 
     return true;
   },
@@ -494,30 +374,31 @@ export const productService = {
   async uploadProductImage(file) {
     if (!file) return '';
 
+    // First compress client-side to ensure lightweight web image (< 60 KB)
+    const compressedDataUrl = await compressImage(file, {
+      maxWidth: 1000,
+      maxHeight: 1000,
+      quality: 0.75,
+    });
+
     try {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name ? file.name.split('.').pop() : 'jpg';
       const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
       const { error: uploadError } = await withTimeout(
         supabase.storage.from('products').upload(filePath, file),
-        2000
+        1500
       );
 
       if (!uploadError) {
         const { data } = supabase.storage.from('products').getPublicUrl(filePath);
         if (data?.publicUrl) return data.publicUrl;
       }
-    } catch (err) {
-      console.warn('Supabase storage upload notice (using instant local file reader):', err.message);
+    } catch {
+      // Cloud storage offline or timeout, use instant compressed data URL
     }
 
-    // High quality instant local data URL fallback
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.onerror = () => resolve('');
-      reader.readAsDataURL(file);
-    });
+    return compressedDataUrl;
   },
 };
