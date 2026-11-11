@@ -27,3 +27,4 @@ export async function syncLocalhostData({ orders = null, catalog = null } = {}) 
     // Non-blocking in dev
   }
 }
+
