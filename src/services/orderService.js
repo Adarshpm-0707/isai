@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 import bundledOrders from '../data/orders.json';
 import { syncLocalhostData } from './dataSyncService';
+import { productService } from './productService';
 
 const DEMO_ORDER_IDS = new Set([
   '6f52a1b0-4a89-4e78-98e2-b0113c490a01',
@@ -196,13 +197,27 @@ export const orderService = {
 
     // 1. Update local and sync to orders.json on localhost
     const local = getLocalOrders();
+    let prevStatus = null;
+    let targetOrder = null;
+
     const updated = local.map((o) => {
       if (o.id === orderId || o.order_id === orderId || o.orderId === orderId) {
+        prevStatus = o.status;
+        targetOrder = o;
         return { ...o, ...updates };
       }
       return o;
     });
     saveLocalOrders(updated);
+
+    // If order was cancelled, restore inventory units; if un-cancelled, deduct again
+    if (targetOrder && Array.isArray(targetOrder.items)) {
+      if (updates.status === 'cancelled' && prevStatus !== 'cancelled') {
+        productService.restoreStockForItems(targetOrder.items).catch(() => {});
+      } else if (prevStatus === 'cancelled' && updates.status && updates.status !== 'cancelled') {
+        productService.deductStockForItems(targetOrder.items).catch(() => {});
+      }
+    }
 
     // 2. Background update Supabase
     try {
@@ -220,13 +235,22 @@ export const orderService = {
   async cancelOrder(orderId) {
     // 1. Update local and sync to orders.json on localhost
     const local = getLocalOrders();
+    let orderToCancel = null;
     const updated = local.map((o) => {
       if (o.id === orderId || o.order_id === orderId || o.orderId === orderId) {
+        orderToCancel = o;
         return { ...o, status: 'cancelled', updated_at: new Date().toISOString() };
       }
       return o;
     });
     saveLocalOrders(updated);
+
+    // Restore stock if the order had not already been cancelled
+    if (orderToCancel && orderToCancel.status !== 'cancelled' && Array.isArray(orderToCancel.items)) {
+      try {
+        await productService.restoreStockForItems(orderToCancel.items);
+      } catch (e) {}
+    }
 
     // 2. Cloud Edge Function / Supabase update
     try {

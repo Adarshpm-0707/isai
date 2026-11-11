@@ -462,6 +462,119 @@ export const productService = {
     return true;
   },
 
+  async deductStockForItems(items) {
+    if (!Array.isArray(items) || items.length === 0) return [];
+    const products = getLocalProducts();
+    const updatedProducts = [...products];
+    const affected = [];
+
+    items.forEach((item) => {
+      if (!item) return;
+      const targetId = item.product_id || item.productId || item.product?.id || item.id;
+      const targetSlug = item.slug || item.product?.slug;
+      const targetName = (item.name || item.product?.name || '').toLowerCase().trim();
+      const deductQty = Math.max(1, Number(item.quantity || item.qty || item.count || 1));
+
+      const product = updatedProducts.find((p) => {
+        if (!p) return false;
+        if (targetId && (p.id === targetId || String(p.id).toLowerCase() === String(targetId).toLowerCase() || p.slug === targetId)) {
+          return true;
+        }
+        if (targetSlug && p.slug && String(p.slug).toLowerCase() === String(targetSlug).toLowerCase()) {
+          return true;
+        }
+        if (targetName && p.name && p.name.toLowerCase().trim() === targetName) {
+          return true;
+        }
+        return false;
+      });
+
+      if (product) {
+        const currentStock = Math.max(0, Number(product.stock) || 0);
+        const newStock = Math.max(0, currentStock - deductQty);
+        product.stock = newStock;
+        product.updated_at = new Date().toISOString();
+        affected.push({ id: product.id, name: product.name, oldStock: currentStock, newStock, deductQty });
+      }
+    });
+
+    if (affected.length > 0) {
+      saveLocalProducts(updatedProducts);
+
+      // Background cloud update to Supabase
+      (async () => {
+        for (const aff of affected) {
+          try {
+            await withTimeout(
+              supabase.from('products').update({ stock: aff.newStock }).eq('id', aff.id),
+              2000
+            );
+          } catch (err) {
+            console.warn('Cloud stock deduct notice:', err?.message);
+          }
+        }
+      })();
+    }
+
+    return affected;
+  },
+
+  async restoreStockForItems(items) {
+    if (!Array.isArray(items) || items.length === 0) return [];
+    const products = getLocalProducts();
+    const updatedProducts = [...products];
+    const affected = [];
+
+    items.forEach((item) => {
+      if (!item) return;
+      const targetId = item.product_id || item.productId || item.product?.id || item.id;
+      const targetSlug = item.slug || item.product?.slug;
+      const targetName = (item.name || item.product?.name || '').toLowerCase().trim();
+      const restoreQty = Math.max(1, Number(item.quantity || item.qty || item.count || 1));
+
+      const product = updatedProducts.find((p) => {
+        if (!p) return false;
+        if (targetId && (p.id === targetId || String(p.id).toLowerCase() === String(targetId).toLowerCase() || p.slug === targetId)) {
+          return true;
+        }
+        if (targetSlug && p.slug && String(p.slug).toLowerCase() === String(targetSlug).toLowerCase()) {
+          return true;
+        }
+        if (targetName && p.name && p.name.toLowerCase().trim() === targetName) {
+          return true;
+        }
+        return false;
+      });
+
+      if (product) {
+        const currentStock = Math.max(0, Number(product.stock) || 0);
+        const newStock = currentStock + restoreQty;
+        product.stock = newStock;
+        product.updated_at = new Date().toISOString();
+        affected.push({ id: product.id, name: product.name, oldStock: currentStock, newStock, restoreQty });
+      }
+    });
+
+    if (affected.length > 0) {
+      saveLocalProducts(updatedProducts);
+
+      (async () => {
+        for (const aff of affected) {
+          try {
+            await withTimeout(
+              supabase.from('products').update({ stock: aff.newStock }).eq('id', aff.id),
+              2000
+            );
+          } catch (err) {
+            console.warn('Cloud stock restore notice:', err?.message);
+          }
+        }
+      })();
+    }
+
+    return affected;
+  },
+
   async uploadProductImage(file) {
     if (!file) return '';
 

@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 import { syncLocalhostData } from './dataSyncService';
+import { productService } from './productService';
 
 function isValidUUID(str) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(str || ''));
@@ -159,7 +160,14 @@ export const checkoutService = {
     // 2. Persist customer contact into customer directory
     saveCustomerContact(shipping, userId);
 
-    // 3. Save into Supabase orders table
+    // 3. Automatically decrease product stock in inventory
+    try {
+      await productService.deductStockForItems(items);
+    } catch (stockErr) {
+      console.warn('Auto inventory stock deduct notice:', stockErr?.message);
+    }
+
+    // 4. Save into Supabase orders table
     try {
       const { data: dbData, error: dbErr } = await withTimeout(
         supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
@@ -274,7 +282,14 @@ export const checkoutService = {
     // 2. Persist customer contact into customer directory
     saveCustomerContact(shipping, userId);
 
-    // 3. Cloud sync to Supabase orders table
+    // 3. Automatically decrease product stock in inventory
+    try {
+      await productService.deductStockForItems(items);
+    } catch (stockErr) {
+      console.warn('Auto inventory stock deduct notice:', stockErr?.message);
+    }
+
+    // 4. Cloud sync to Supabase orders table
     try {
       const { data: dbData, error: dbErr } = await withTimeout(
         supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
