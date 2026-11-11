@@ -49,14 +49,27 @@ export function useManageOrders() {
       }
     };
 
+    const handleStorageChange = (e) => {
+      if (!e.key || e.key === 'isai_orders' || e.key === 'isai_deleted_order_ids') {
+        setOrders(orderService.getLocalOrders());
+      }
+    };
+
     window.addEventListener('isai:orders_updated', handleOrdersUpdated);
-    return () => window.removeEventListener('isai:orders_updated', handleOrdersUpdated);
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('isai:orders_updated', handleOrdersUpdated);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [fetchOrders]);
 
-  const handleDeleteOrder = async (order) => {
-    if (!order) return;
-    const orderId = order.id || order.order_id;
-    const displayId = order.order_id || String(order.id).slice(0, 10);
+  const handleDeleteOrder = async (orderOrId) => {
+    if (!orderOrId) return;
+    const order = typeof orderOrId === 'object'
+      ? orderOrId
+      : (orders.find((o) => o.id === orderOrId || o.order_id === orderOrId) || { id: orderOrId });
+    const orderId = order.id || order.order_id || orderOrId;
+    const displayId = order.order_id || String(orderId).slice(0, 10);
     if (!window.confirm(`Are you sure you want to permanently delete order #${displayId}?`)) {
       return;
     }
@@ -148,9 +161,9 @@ export function useManageOrders() {
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const idMatch = (o.id || o.order_id || '').toLowerCase().includes(q);
-        const custName = (o.shipping_address?.name || o.profiles?.name || '').toLowerCase();
-        const custEmail = (o.shipping_address?.email || o.profiles?.email || '').toLowerCase();
-        const custPhone = (o.shipping_address?.phone || o.profiles?.phone || '').toLowerCase();
+        const custName = (o.customer_name || o.shipping_address?.name || o.profiles?.name || '').toLowerCase();
+        const custEmail = (o.customer_email || o.shipping_address?.email || o.profiles?.email || '').toLowerCase();
+        const custPhone = (o.customer_phone || o.shipping_address?.phone || o.profiles?.phone || '').toLowerCase();
 
         const nameMatch = custName.includes(q);
         const emailMatch = custEmail.includes(q);
@@ -184,6 +197,7 @@ export function useManageOrders() {
   return {
     orders,
     loading,
+    fetchOrders,
     activeTab,
     setActiveTab,
     searchQuery,

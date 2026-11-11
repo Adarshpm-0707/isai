@@ -46,12 +46,15 @@ export default function OrdersTable({
 
                 const items = Array.isArray(order.items) ? order.items : [];
                 const custName =
-                  order.shipping_address?.name || order.profiles?.name || 'Customer';
+                  order.customer_name ||
+                  order.shipping_address?.name ||
+                  order.profiles?.name ||
+                  'Customer';
 
                 return (
-                  <tr key={order.id} className="hover:bg-[#161B26]/60 transition-colors">
+                  <tr key={order.id || order.order_id || Math.random()} className="hover:bg-[#161B26]/60 transition-colors">
                     <td className="py-4 px-6 font-mono font-bold text-[#FFFFFF]">
-                      {order.id?.slice(0, 12) || order.order_id}
+                      {order.order_id || String(order.id || '').slice(0, 12)}
                     </td>
                     <td className="py-4 px-6 font-semibold text-[#FFFFFF]">{custName}</td>
                     <td className="py-4 px-6 text-[#A1A1AA]">
@@ -117,7 +120,7 @@ export default function OrdersTable({
                       </button>
 
                       <button
-                        onClick={() => handleDeleteOrder(order.id)}
+                        onClick={() => handleDeleteOrder(order)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-950/60 text-red-300 hover:bg-red-900 border border-red-500/40 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
                         title="Delete Order Record"
                       >

@@ -10,12 +10,14 @@ import {
   FileSpreadsheet,
   AlertCircle,
   CheckCircle2,
+  RefreshCw,
 } from 'lucide-react';
 
 export default function ManageOrders() {
   const {
     orders,
     loading,
+    fetchOrders,
     activeTab,
     setActiveTab,
     searchQuery,
@@ -66,8 +68,18 @@ export default function ManageOrders() {
           align="left"
         />
 
-        {/* 2 Export Options: PDF & Excel Sheet */}
+        {/* Export & Refresh Options */}
         <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={fetchOrders}
+            disabled={loading}
+            className="inline-flex items-center gap-2 bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer disabled:opacity-50"
+            title="Refresh orders from database and local storage"
+          >
+            <RefreshCw className={`w-4 h-4 text-[#D4AF37] ${loading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+
           <button
             onClick={handleExportPDF}
             className="inline-flex items-center gap-2 bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer"

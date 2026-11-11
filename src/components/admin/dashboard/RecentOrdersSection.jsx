@@ -122,10 +122,10 @@ export default function RecentOrdersSection({
                   ord.status === 'paid' || ord.payment_details?.status === 'captured';
 
                 return (
-                  <tr key={ord.id} className="hover:bg-[#161B26] transition-colors">
+                  <tr key={ord.id || ord.order_id || Math.random()} className="hover:bg-[#161B26] transition-colors">
                     {/* Order ID */}
                     <td className="py-3.5 px-4 font-mono font-bold text-[#FFFFFF] align-top">
-                      #{ord.order_id || ord.id?.slice(0, 10)}
+                      #{ord.order_id || String(ord.id || '').slice(0, 10)}
                     </td>
 
                     {/* Customer & Phone */}

@@ -1,0 +1,96 @@
+[
+  {
+    "id": "83935f92-f7ae-4448-b755-5bfa00a3dd17",
+    "order_id": "ORD-5BFA00-A3DD",
+    "orderId": "ORD-5BFA00-A3DD",
+    "created_at": "2026-11-11T13:03:00.000Z",
+    "updated_at": "2026-11-11T13:03:00.000Z",
+    "customer_name": "isaitarangind",
+    "customer_email": "isaitarangind@gmail.com",
+    "customer_phone": "+91 90488 68444",
+    "shipping_address": {
+      "name": "isaitarangind",
+      "email": "isaitarangind@gmail.com",
+      "phone": "+91 90488 68444",
+      "addressLine1": "Kannur",
+      "city": "Kannur",
+      "state": "Kerala",
+      "pincode": "670004"
+    },
+    "items": [
+      {
+        "id": "421ef72b-9586-4d95-896b-4e9c4a12f6cd",
+        "product_id": "421ef72b-9586-4d95-896b-4e9c4a12f6cd",
+        "name": "bbivpweprrl",
+        "price": 1000,
+        "selling_price": 1000,
+        "unit_price": 1000,
+        "regular_price": 1500,
+        "discount_price": 1000,
+        "qty": 1,
+        "quantity": 1
+      }
+    ],
+    "subtotal": 1000,
+    "discount": 100,
+    "discount_amount": 100,
+    "coupon_code": "WELCOME10",
+    "coupon": {
+      "code": "WELCOME10",
+      "type": "percentage",
+      "value": 10
+    },
+    "shipping_fee": 0,
+    "cod_fee": 0,
+    "total": 900,
+    "total_amount": 900,
+    "payment_method": "cod",
+    "paymentMethod": "Cash on Delivery (COD)",
+    "status": "pending"
+  },
+  {
+    "id": "00bb47be-2471-4188-9b81-7465fcff3a3b",
+    "order_id": "ORD-7465FC-3A3B",
+    "orderId": "ORD-7465FC-3A3B",
+    "created_at": "2026-11-11T10:43:00.000Z",
+    "updated_at": "2026-11-11T10:43:00.000Z",
+    "customer_name": "isaitarangind",
+    "customer_email": "isaitarangind@gmail.com",
+    "customer_phone": "+91 90488 68444",
+    "shipping_address": {
+      "name": "isaitarangind",
+      "email": "isaitarangind@gmail.com",
+      "phone": "+91 90488 68444",
+      "addressLine1": "Kannur",
+      "city": "Kannur",
+      "state": "Kerala",
+      "pincode": "670004"
+    },
+    "items": [
+      {
+        "id": "421ef72b-9586-4d95-896b-4e9c4a12f6cd",
+        "product_id": "421ef72b-9586-4d95-896b-4e9c4a12f6cd",
+        "name": "bbivpweprrl",
+        "price": 1000,
+        "selling_price": 1000,
+        "unit_price": 1000,
+        "regular_price": 1500,
+        "discount_price": 1000,
+        "qty": 1,
+        "quantity": 1
+      }
+    ],
+    "subtotal": 1000,
+    "discount": 0,
+    "discount_amount": 0,
+    "coupon_code": null,
+    "coupon": null,
+    "shipping_fee": 0,
+    "cod_fee": 0,
+    "total": 1000,
+    "total_amount": 1000,
+    "payment_method": "cod",
+    "paymentMethod": "Cash on Delivery (COD)",
+    "status": "pending"
+  }
+]

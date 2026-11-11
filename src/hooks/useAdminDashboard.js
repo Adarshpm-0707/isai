@@ -70,8 +70,17 @@ export function useAdminDashboard() {
       }
 
       const orderMap = new Map();
-      localOrders.forEach((o) => orderMap.set(o.id || o.order_id, o));
-      dbOrders.forEach((o) => orderMap.set(o.id || o.order_id, o));
+      localOrders.forEach((o) => {
+        const key = o.id || o.order_id;
+        if (key) orderMap.set(String(key), o);
+      });
+      dbOrders.forEach((o) => {
+        const key = o.id || o.order_id;
+        if (key) {
+          const existing = orderMap.get(String(key));
+          orderMap.set(String(key), { ...o, ...existing });
+        }
+      });
       const combinedOrders = Array.from(orderMap.values());
 
       const prodMap = new Map();
@@ -110,11 +119,13 @@ export function useAdminDashboard() {
     window.addEventListener('isai:orders_updated', handleDataUpdate);
     window.addEventListener('isai:products_updated', handleDataUpdate);
     window.addEventListener('isai:customers_updated', handleDataUpdate);
+    window.addEventListener('storage', handleDataUpdate);
 
     return () => {
       window.removeEventListener('isai:orders_updated', handleDataUpdate);
       window.removeEventListener('isai:products_updated', handleDataUpdate);
       window.removeEventListener('isai:customers_updated', handleDataUpdate);
+      window.removeEventListener('storage', handleDataUpdate);
     };
   }, [fetchStats]);
 

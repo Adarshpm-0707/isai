@@ -36,7 +36,11 @@ export default function useProfitLoss() {
     };
 
     window.addEventListener('isai:orders_updated', handleUpdate);
-    return () => window.removeEventListener('isai:orders_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('isai:orders_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, [fetchData]);
 
   // Filter orders by time range

@@ -56,30 +56,42 @@ export function getLocalOrders() {
     }
   } catch {}
 
-  // Merge bundled orders from codebase so localhost additions deploy to Vercel and Netlify
+  // Merge bundled orders from codebase with localStorage orders so localhost additions deploy to Vercel and Netlify
   const bundled = Array.isArray(bundledOrders) ? bundledOrders : [];
-  if (bundled.length > 0) {
-    const map = new Map();
-    bundled.forEach((o) => {
-      const key = o.id || o.order_id || o.orderId;
-      if (key) map.set(key, o);
-    });
-    list.forEach((o) => {
-      const key = o.id || o.order_id || o.orderId;
-      if (key) {
-        const existing = map.get(key);
-        map.set(key, { ...existing, ...o });
-      }
-    });
-    list = Array.from(map.values());
-  }
+  const map = new Map();
 
-  const cleaned = cleanDemoOrders(list);
+  // 1. Seed with bundled orders
+  bundled.forEach((o) => {
+    const key = o.id || o.order_id || o.orderId;
+    if (key) map.set(String(key), o);
+  });
+
+  // 2. Layer on top current localStorage orders (preserving newer status/data)
+  list.forEach((o) => {
+    const key = o.id || o.order_id || o.orderId;
+    if (key) {
+      const existing = map.get(String(key));
+      map.set(String(key), { ...existing, ...o });
+    }
+  });
+
+  const merged = Array.from(map.values());
+  const cleaned = cleanDemoOrders(merged);
+  cleaned.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+  // Seed back to localStorage if it was empty so other components read the same data immediately
+  try {
+    if (typeof localStorage !== 'undefined' && list.length === 0 && cleaned.length > 0) {
+      localStorage.setItem('isai_orders', JSON.stringify(cleaned));
+    }
+  } catch {}
+
   return cleaned;
 }
 
-export function saveLocalOrders(orders) {
+export function saveLocalOrders(orders, replaceAll = false) {
   const cleaned = cleanDemoOrders(orders);
+  cleaned.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
   try {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('isai_orders', JSON.stringify(cleaned));
@@ -93,7 +105,7 @@ export function saveLocalOrders(orders) {
   }
 
   // Auto-sync to disk when running on localhost
-  syncLocalhostData({ orders: cleaned });
+  syncLocalhostData({ orders: cleaned, replaceAll });
 }
 
 export const orderService = {
@@ -289,7 +301,7 @@ export const orderService = {
       if (order_id && (o.id === order_id || o.order_id === order_id || o.orderId === order_id || String(o.order_id) === String(order_id))) return false;
       return true;
     });
-    saveLocalOrders(updated);
+    saveLocalOrders(updated, true);
 
     // 3. Delete from Supabase in background
     try {

@@ -7,7 +7,7 @@
  * on localhost are included and visible on Vercel and Netlify at publish time.
  */
 
-export async function syncLocalhostData({ orders = null, catalog = null } = {}) {
+export async function syncLocalhostData({ orders = null, catalog = null, replaceAll = false } = {}) {
   if (typeof window === 'undefined') return;
   const hostname = window.location?.hostname || '';
   const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
@@ -17,6 +17,7 @@ export async function syncLocalhostData({ orders = null, catalog = null } = {}) 
     const payload = {};
     if (orders !== null) payload.orders = orders;
     if (catalog !== null) payload.catalog = catalog;
+    if (replaceAll) payload.replaceAll = true;
 
     await fetch('/api/sync-data', {
       method: 'POST',

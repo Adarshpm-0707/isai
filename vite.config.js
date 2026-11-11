@@ -27,7 +27,37 @@ function dataSyncPlugin() {
               }
               if (data.orders) {
                 const ordersPath = path.resolve(__dirname, 'src/data/orders.json');
-                fs.writeFileSync(ordersPath, JSON.stringify(data.orders, null, 2), 'utf-8');
+                const publicOrdersPath = path.resolve(__dirname, 'public/data/orders.json');
+                let finalOrders = data.orders;
+
+                if (!data.replaceAll) {
+                  let existingOrders = [];
+                  try {
+                    existingOrders = JSON.parse(fs.readFileSync(ordersPath, 'utf-8'));
+                  } catch {}
+                  const map = new Map();
+                  if (Array.isArray(existingOrders)) {
+                    existingOrders.forEach((o) => {
+                      const key = o.id || o.order_id || o.orderId;
+                      if (key) map.set(String(key), o);
+                    });
+                  }
+                  if (Array.isArray(data.orders)) {
+                    data.orders.forEach((o) => {
+                      const key = o.id || o.order_id || o.orderId;
+                      if (key) {
+                        const existing = map.get(String(key));
+                        map.set(String(key), { ...existing, ...o });
+                      }
+                    });
+                  }
+                  finalOrders = Array.from(map.values());
+                }
+
+                fs.writeFileSync(ordersPath, JSON.stringify(finalOrders, null, 2), 'utf-8');
+                try {
+                  fs.writeFileSync(publicOrdersPath, JSON.stringify(finalOrders, null, 2), 'utf-8');
+                } catch {}
               }
               res.setHeader('Content-Type', 'application/json');
               res.end(JSON.stringify({ success: true }));
