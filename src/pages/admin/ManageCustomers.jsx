@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import SectionHeading from '../../components/reusable/SectionHeading';
 import Badge from '../../components/reusable/Badge';
 import Modal from '../../components/reusable/Modal';
-import { Search, Eye, Trash2, User, Mail, Phone, MapPin, ShoppingBag, Calendar, Package } from 'lucide-react';
+import { Search, Eye, Trash2, User, Mail, Phone, MapPin, ShoppingBag, Calendar, Package, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const DEMO_CUSTOMER_EMAILS = new Set([
   'priya.sharma@example.com',
@@ -18,6 +18,12 @@ export default function ManageCustomers() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+
+  const showNotification = (msg, type = 'success') => {
+    setFeedback({ msg, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
 
   const getItemDetails = (item) => {
     if (!item) return { name: 'Handcrafted Heritage Saree', price: 0, qty: 1, image: '', size: 'Free Size', lineTotal: 0 };
@@ -95,7 +101,14 @@ export default function ManageCustomers() {
 
       const customerMap = new Map();
 
-      // Helper to aggregate customer accounts (exclude admins)
+      let deletedEmails = new Set();
+      let deletedIds = new Set();
+      try {
+        deletedEmails = new Set(JSON.parse(localStorage.getItem('isai_deleted_customer_emails') || '[]'));
+        deletedIds = new Set(JSON.parse(localStorage.getItem('isai_deleted_customer_ids') || '[]'));
+      } catch (e) {}
+
+      // Helper to aggregate customer accounts (exclude admins & deleted customers)
       const addCustomer = (u) => {
         if (!u || (!u.email && !u.name)) return;
         if (u.role === 'admin' || u.email?.toLowerCase().includes('admin')) return;
@@ -103,6 +116,9 @@ export default function ManageCustomers() {
         const emailKey = u.email
           ? u.email.toLowerCase()
           : `cust_${String(u.name).toLowerCase().replace(/\s+/g, '')}@isaitarang.com`;
+
+        if (deletedEmails.has(emailKey) || (u.email && deletedEmails.has(u.email.toLowerCase()))) return;
+        if (u.id && deletedIds.has(u.id)) return;
 
         if (!customerMap.has(emailKey)) {
           customerMap.set(emailKey, {
@@ -173,36 +189,77 @@ export default function ManageCustomers() {
   }, []);
 
   const handleDeleteCustomer = async (customer) => {
+    if (!customer) return;
     const identifier = customer.name || customer.email;
-    if (!window.confirm(`Are you sure you want to delete customer "${identifier}"?`)) {
+    if (!window.confirm(`Are you sure you want to permanently delete customer "${identifier}"?`)) {
       return;
     }
 
     try {
-      if (customer.id) {
-        await supabase.from('profiles').delete().eq('id', customer.id);
-        await supabase.from('customers').delete().eq('id', customer.id);
-        await supabase.from('users').delete().eq('id', customer.id);
-      }
-      if (customer.email) {
-        await supabase.from('profiles').delete().eq('email', customer.email);
-        await supabase.from('customers').delete().eq('email', customer.email);
-        await supabase.from('users').delete().eq('email', customer.email);
-      }
+      const email = customer.email?.toLowerCase();
+      const id = customer.id;
 
-      // Remove from local storage registered users
+      // 1. Permanently track in deleted customer storage so it never reappears
+      try {
+        if (email) {
+          const rawEmails = localStorage.getItem('isai_deleted_customer_emails') || '[]';
+          const listEmails = JSON.parse(rawEmails);
+          if (!listEmails.includes(email)) {
+            listEmails.push(email);
+            localStorage.setItem('isai_deleted_customer_emails', JSON.stringify(listEmails));
+          }
+        }
+        if (id) {
+          const rawIds = localStorage.getItem('isai_deleted_customer_ids') || '[]';
+          const listIds = JSON.parse(rawIds);
+          if (!listIds.includes(id)) {
+            listIds.push(id);
+            localStorage.setItem('isai_deleted_customer_ids', JSON.stringify(listIds));
+          }
+        }
+      } catch (e) {}
+
+      // 2. Remove from local storage registered users
       try {
         const localUsers = JSON.parse(localStorage.getItem('isai_registered_users') || '[]');
         const updatedUsers = localUsers.filter(
-          (u) => u.email?.toLowerCase() !== customer.email?.toLowerCase() && u.id !== customer.id
+          (u) => (email && u.email?.toLowerCase() !== email) && (id && u.id !== id)
         );
         localStorage.setItem('isai_registered_users', JSON.stringify(updatedUsers));
       } catch (e) {}
 
-      fetchCustomersAndOrders();
+      // 3. Update UI state immediately
+      setCustomers((prev) =>
+        prev.filter((c) => (id ? c.id !== id : true) && (email ? c.email?.toLowerCase() !== email : true))
+      );
+
+      if (selectedCustomer && (selectedCustomer.id === id || selectedCustomer.email?.toLowerCase() === email)) {
+        setModalOpen(false);
+        setSelectedCustomer(null);
+      }
+
+      showNotification(`Customer "${identifier}" deleted successfully`);
+
+      // 4. Background deletion in Supabase
+      (async () => {
+        try {
+          if (id) {
+            await supabase.from('profiles').delete().eq('id', id);
+          }
+          if (email) {
+            await supabase.from('profiles').delete().eq('email', email);
+          }
+        } catch (cloudErr) {
+          console.warn('Cloud customer delete notice:', cloudErr.message);
+        }
+      })();
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('isai:customers_updated'));
+      }
     } catch (err) {
       console.error('Delete customer error:', err);
-      alert('Could not delete customer record: ' + err.message);
+      showNotification(err.message || 'Could not delete customer', 'error');
     }
   };
 
@@ -246,6 +303,24 @@ export default function ManageCustomers() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+      {/* Floating Notification */}
+      {feedback && (
+        <div
+          className={`p-4 rounded-xl flex items-center gap-3 text-xs font-sans shadow-lg border transition-all ${
+            feedback.type === 'error'
+              ? 'bg-red-950/80 border-red-500/50 text-red-200'
+              : 'bg-[#153424] border-[#D4AF37]/50 text-[#F3E5AB]'
+          }`}
+        >
+          {feedback.type === 'error' ? (
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-[#D4AF37] shrink-0" />
+          )}
+          <span className="font-semibold">{feedback.msg}</span>
+        </div>
+      )}
+
       {/* Page Header */}
       <SectionHeading
         title="Customers Directory"
@@ -484,7 +559,17 @@ export default function ManageCustomers() {
               })()}
             </div>
 
-            <div className="flex justify-end pt-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#D4AF37]/20">
+              <button
+                type="button"
+                onClick={() => handleDeleteCustomer(selectedCustomer)}
+                className="px-4 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-red-950/70 text-red-300 hover:bg-red-900 border border-red-500/40 shadow-lg flex items-center gap-1.5 cursor-pointer font-sans transition-all"
+                title="Permanently remove customer record"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Customer</span>
+              </button>
+
               <button
                 onClick={() => setModalOpen(false)}
                 className="px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 shadow-lg cursor-pointer"

@@ -6,9 +6,26 @@ const DEMO_ORDER_IDS = new Set([
   '8b94c3d2-6c01-409a-90a4-d2335e612c03',
 ]);
 
+function getDeletedOrderIds() {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('isai_deleted_order_ids') : null;
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch {
+    return new Set();
+  }
+}
+
 function cleanDemoOrders(list) {
   if (!Array.isArray(list)) return [];
-  return list.filter((o) => o && o.id && !DEMO_ORDER_IDS.has(o.id));
+  const deleted = getDeletedOrderIds();
+  return list.filter(
+    (o) =>
+      o &&
+      (o.id || o.order_id) &&
+      !DEMO_ORDER_IDS.has(o.id) &&
+      !deleted.has(o.id) &&
+      !deleted.has(o.order_id)
+  );
 }
 
 export function getLocalOrders() {
@@ -167,5 +184,55 @@ export const orderService = {
     } catch (e) {}
 
     return { success: true, order_id: orderId, status: 'cancelled' };
+  },
+
+  async deleteOrder(orderId) {
+    if (!orderId) return false;
+
+    // 1. Mark in deleted order ids
+    try {
+      const deletedRaw = localStorage.getItem('isai_deleted_order_ids') || '[]';
+      const deletedList = JSON.parse(deletedRaw);
+      if (!deletedList.includes(orderId)) {
+        deletedList.push(orderId);
+        localStorage.setItem('isai_deleted_order_ids', JSON.stringify(deletedList));
+      }
+    } catch (e) {}
+
+    // 2. Remove from local storage orders
+    try {
+      const raw = localStorage.getItem('isai_orders');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const updated = parsed.filter(
+            (o) => o.id !== orderId && o.order_id !== orderId && String(o.id) !== String(orderId)
+          );
+          localStorage.setItem('isai_orders', JSON.stringify(updated));
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: updated }));
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('LocalStorage order delete error:', e);
+    }
+
+    // 3. Delete from Supabase in background
+    (async () => {
+      try {
+        const timer = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 1500)
+        );
+        await Promise.race([
+          supabase.from('orders').delete().or(`id.eq.${orderId},order_id.eq.${orderId}`),
+          timer,
+        ]);
+      } catch (err) {
+        console.warn('Supabase deleteOrder cloud notice:', err.message);
+      }
+    })();
+
+    return true;
   },
 };

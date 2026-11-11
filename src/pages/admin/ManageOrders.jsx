@@ -25,6 +25,9 @@ import {
   Search,
   X,
   Filter,
+  Trash2,
+  AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
 
 export default function ManageOrders() {
@@ -37,6 +40,35 @@ export default function ManageOrders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [newStatus, setNewStatus] = useState('pending');
   const [trackingId, setTrackingId] = useState('');
+  const [feedback, setFeedback] = useState(null);
+
+  const showNotification = (msg, type = 'success') => {
+    setFeedback({ msg, type });
+    setTimeout(() => setFeedback(null), 4000);
+  };
+
+  const handleDeleteOrder = async (order) => {
+    if (!order) return;
+    const orderId = order.id || order.order_id;
+    const displayId = order.order_id || String(order.id).slice(0, 10);
+    if (!window.confirm(`Are you sure you want to permanently delete order #${displayId}?`)) {
+      return;
+    }
+
+    try {
+      await orderService.deleteOrder(orderId);
+      adminLogService.logAction('DELETE_ORDER', 'orders', orderId, {}).catch(() => {});
+      setOrders((prev) => prev.filter((o) => o.id !== orderId && o.order_id !== orderId));
+      if (selectedOrder && (selectedOrder.id === orderId || selectedOrder.order_id === orderId)) {
+        setModalOpen(false);
+        setSelectedOrder(null);
+      }
+      showNotification(`Order #${displayId} deleted successfully`);
+    } catch (err) {
+      console.error('Delete order error:', err);
+      showNotification(err.message || 'Failed to delete order', 'error');
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -473,6 +505,24 @@ export default function ManageOrders() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 text-[#F3E5AB]">
+      {/* Floating Notification */}
+      {feedback && (
+        <div
+          className={`p-4 rounded-xl flex items-center gap-3 text-xs font-sans shadow-lg border transition-all ${
+            feedback.type === 'error'
+              ? 'bg-red-950/80 border-red-500/50 text-red-200'
+              : 'bg-[#153424] border-[#D4AF37]/50 text-[#F3E5AB]'
+          }`}
+        >
+          {feedback.type === 'error' ? (
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-[#D4AF37] shrink-0" />
+          )}
+          <span className="font-semibold">{feedback.msg}</span>
+        </div>
+      )}
+
       {/* Page Header & Action Buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
@@ -700,13 +750,23 @@ export default function ManageOrders() {
                       <td className="py-4 px-6">
                         <Badge text={order.status || 'pending'} variant={badgeVariant} />
                       </td>
-                      <td className="py-4 px-6 text-right">
+                      <td className="py-4 px-6 text-right space-x-2">
                         <button
                           onClick={() => handleOpenModal(order)}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/35 hover:bg-[#D4AF37] hover:text-[#0C2317] transition-all cursor-pointer shadow-md"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider bg-[#1A3C2B] text-[#F3E5AB] border border-[#D4AF37]/35 hover:bg-[#D4AF37] hover:text-[#0C2317] transition-all cursor-pointer shadow-md"
+                          title="View Order Details"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          <span>View Details</span>
+                          <span>View</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteOrder(order)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider bg-red-950/60 text-red-300 hover:bg-red-900 hover:text-white border border-red-500/40 transition-all cursor-pointer shadow-md"
+                          title="Delete Order"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Delete</span>
                         </button>
                       </td>
                     </tr>
@@ -977,21 +1037,33 @@ export default function ManageOrders() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-[#D4AF37]/20">
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#D4AF37]/20">
                 <button
                   type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-lg font-bold text-xs uppercase text-[#EADFC9] hover:bg-[#081A11]"
+                  onClick={() => handleDeleteOrder(selectedOrder)}
+                  className="px-4 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-red-950/70 text-red-300 hover:bg-red-900 border border-red-500/40 shadow-lg flex items-center gap-1.5 cursor-pointer font-sans transition-all"
+                  title="Permanently remove order from database and storage"
                 >
-                  Close
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Order</span>
                 </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 shadow-lg flex items-center gap-1.5 cursor-pointer font-sans"
-                >
-                  <Save className="w-3.5 h-3.5" />
-                  <span>Save Status</span>
-                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="px-4 py-2 rounded-lg font-bold text-xs uppercase text-[#EADFC9] hover:bg-[#081A11]"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#0C2317] hover:brightness-110 shadow-lg flex items-center gap-1.5 cursor-pointer font-sans"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    <span>Save Status</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>
