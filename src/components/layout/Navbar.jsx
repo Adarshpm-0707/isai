@@ -13,7 +13,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { user, role, logout } = useAuth();
   const { cartCount } = useCart();
-  const { wishlistCount } = useWishlist ? useWishlist() : { wishlistCount: 0 };
+  const { wishlistCount } = useWishlist();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
