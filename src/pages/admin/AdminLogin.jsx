@@ -50,7 +50,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 relative bg-[#090B10] text-[#FFFFFF] font-sans">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:py-16 relative bg-[#090B10] text-[#FFFFFF] font-sans">
       {/* Ambient background glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#D4AF37]/10 rounded-full blur-[140px] pointer-events-none" />
 
@@ -69,7 +69,7 @@ export default function AdminLogin() {
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#D4AF37]/35 bg-[#161B26] text-[#D4AF37] text-[10px] font-bold uppercase tracking-widest">
             <Shield className="w-3.5 h-3.5 text-[#D4AF37]" /> Restricted Admin Portal
           </div>
-          <h1 className="text-3xl font-bold tracking-wide text-[#FFFFFF] font-sans">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-wide text-[#FFFFFF] font-sans">
             Admin Sign In
           </h1>
           <FloralOrnament />
@@ -78,7 +78,7 @@ export default function AdminLogin() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden bg-[#0F131C] border border-[#D4AF37]/30"
+          className="rounded-2xl p-5 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden bg-[#0F131C] border border-[#D4AF37]/30"
         >
           {error && (
             <div className="p-3 rounded-lg flex items-center gap-2 text-xs font-medium text-red-300 border border-red-500/30 bg-red-950/40">
@@ -127,7 +127,7 @@ export default function AdminLogin() {
             </button>
           </div>
 
-          <div className="pt-3 border-t border-[#D4AF37]/20 flex items-center justify-between text-xs">
+          <div className="pt-3 border-t border-[#D4AF37]/20 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-center sm:text-left text-xs">
             <Link
               to="/admin/signup"
               className="text-[#D4AF37] font-medium hover:underline"

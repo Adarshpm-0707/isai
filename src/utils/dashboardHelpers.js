@@ -65,7 +65,7 @@ export function calculateDashboardStats(orders = [], products = [], users = []) 
     0
   );
   const totalOrders = combinedOrders.length;
-  const recentOrders = combinedOrders.slice(0, 8);
+  const recentOrders = combinedOrders.slice(0, 50);
 
   const productCostMap = new Map();
   products.forEach((p) => {

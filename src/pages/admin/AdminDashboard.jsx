@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   } = useAdminDashboard();
 
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F5E6BE] font-sans pb-16">
+    <div className="text-[#F5E6BE] font-sans pb-12">
       {/* Embedded CSS Container Animations */}
       <style>{`
         @keyframes containerEntrance {
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
         }
       `}</style>
 
-      <div className="max-w-7xl mx-auto space-y-7 px-4 sm:px-6 lg:px-8 pt-5">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Top Header */}
         <DashboardHeader onRefresh={fetchStats} loading={loading} />
 
@@ -72,7 +72,7 @@ export default function AdminDashboard() {
         <DashboardKpiCards stats={stats} />
 
         {/* Charts: 7-Day Velocity & Order Fulfillment */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           <RevenueVelocityChart revenueChartData={revenueChartData} />
           <OrderFulfillmentChart donutChartData={donutChartData} />
         </div>

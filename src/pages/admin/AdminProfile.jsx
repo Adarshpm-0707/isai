@@ -119,15 +119,15 @@ export default function AdminProfile() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
+    <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 text-[#F5E6BE] font-sans">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <SectionHeading
-          title="Admin Account & Security Profile"
+          title="Admin Account &amp; Security Profile"
           subtitle="Manage administrator login credentials, contact info, and password policies"
           align="left"
         />
-        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#D4AF37]/40 bg-[#161B26] text-[#FFD54F] text-xs font-bold uppercase tracking-widest">
+        <div className="inline-flex self-start sm:self-auto items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#D4AF37]/40 bg-[#161B26] text-[#FFD54F] text-xs font-bold uppercase tracking-widest shrink-0">
           <Shield className="w-4 h-4 text-[#D4AF37]" /> Active Superadmin
         </div>
       </div>
@@ -140,17 +140,17 @@ export default function AdminProfile() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         
         {/* Left Column: Admin Identity Badge & Quick Details */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-[#0F131C] border border-[#D4AF37]/30 p-6 rounded-2xl shadow-xl text-center space-y-4">
-            <div className="w-20 h-20 mx-auto rounded-full bg-[#161B26] border-2 border-[#D4AF37] flex items-center justify-center text-[#FFFFFF] font-sans text-3xl font-bold shadow-xl">
+          <div className="bg-[#0F131C] border border-[#D4AF37]/30 p-4 sm:p-6 rounded-2xl shadow-xl text-center space-y-4">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#161B26] border-2 border-[#D4AF37] flex items-center justify-center text-[#FFFFFF] font-sans text-2xl sm:text-3xl font-bold shadow-xl">
               {(name || "A")[0]}
             </div>
             <div>
-              <h3 className="font-sans text-lg font-bold text-[#FFFFFF]">{name}</h3>
-              <p className="text-xs text-[#D4AF37] font-mono">{email}</p>
+              <h3 className="font-sans text-base sm:text-lg font-bold text-[#FFFFFF] truncate">{name}</h3>
+              <p className="text-xs text-[#D4AF37] font-mono truncate">{email}</p>
               <span className="inline-block mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#161B26] text-[#FFD54F] border border-[#D4AF37]/40">
                 System Administrator
               </span>
@@ -176,14 +176,14 @@ export default function AdminProfile() {
         </div>
 
         {/* Right Column: Forms for Admin Profile Info & Password Update */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-8">
           
           {/* Card 1: Update Admin Information */}
-          <div className="bg-[#0F131C] border border-[#D4AF37]/30 p-6 sm:p-8 rounded-2xl shadow-xl space-y-6">
+          <div className="bg-[#0F131C] border border-[#D4AF37]/30 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl space-y-5 sm:space-y-6">
             <div className="flex items-center gap-3 border-b border-[#D4AF37]/25 pb-4">
-              <User className="w-5 h-5 text-[#D4AF37]" />
+              <User className="w-5 h-5 text-[#D4AF37] shrink-0" />
               <div>
-                <h3 className="font-sans text-base font-bold text-[#FFFFFF] uppercase tracking-wider">
+                <h3 className="font-sans text-sm sm:text-base font-bold text-[#FFFFFF] uppercase tracking-wider">
                   Admin Contact Details
                 </h3>
                 <p className="text-xs text-[#A1A1AA]">Update display name and administrator contact number</p>
@@ -245,7 +245,7 @@ export default function AdminProfile() {
                 <button
                   type="submit"
                   disabled={infoLoading}
-                  className="px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
                   <span>{infoLoading ? "Saving Details..." : "Save Profile Details"}</span>
@@ -255,11 +255,11 @@ export default function AdminProfile() {
           </div>
 
           {/* Card 2: Password Change & Security Options */}
-          <div className="bg-[#0F131C] border border-[#D4AF37]/30 p-6 sm:p-8 rounded-2xl shadow-xl space-y-6">
+          <div className="bg-[#0F131C] border border-[#D4AF37]/30 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-xl space-y-5 sm:space-y-6">
             <div className="flex items-center gap-3 border-b border-[#D4AF37]/25 pb-4">
               <Key className="w-5 h-5 text-[#D4AF37]" />
               <div>
-                <h3 className="font-sans text-base font-bold text-[#FFFFFF] uppercase tracking-wider">
+                <h3 className="font-sans text-sm sm:text-base font-bold text-[#FFFFFF] uppercase tracking-wider">
                   Change Admin Password
                 </h3>
                 <p className="text-xs text-[#A1A1AA]">Set a new secure password for your administrator account</p>
@@ -308,7 +308,7 @@ export default function AdminProfile() {
                 <button
                   type="submit"
                   disabled={passLoading}
-                  className="px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50"
                 >
                   <Key className="w-4 h-4" />
                   <span>{passLoading ? "Updating Password..." : "Update Password"}</span>

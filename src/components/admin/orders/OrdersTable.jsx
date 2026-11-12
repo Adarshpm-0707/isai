@@ -19,14 +19,14 @@ export default function OrdersTable({
         <table className="w-full text-left border-collapse text-xs font-sans">
           <thead>
             <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#0A0D14]">
-              <th className="py-4 px-6">Order ID</th>
-              <th className="py-4 px-6">Customer</th>
-              <th className="py-4 px-6">Date</th>
-              <th className="py-4 px-6">Items Purchased</th>
-              <th className="py-4 px-6">Total Amount</th>
-              <th className="py-4 px-6">Payment Method</th>
-              <th className="py-4 px-6">Status</th>
-              <th className="py-4 px-6 text-right">Actions</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6">Order ID</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6">Customer</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6">Date</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6 min-w-[180px] sm:min-w-[200px]">Items Purchased</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6">Total Amount</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6">Payment Method</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6">Status</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#D4AF37]/15">
@@ -64,24 +64,24 @@ export default function OrdersTable({
 
                 return (
                   <tr key={order.id || order.order_id || Math.random()} className="hover:bg-[#161B26]/60 transition-colors">
-                    <td className="py-4 px-6 font-mono font-bold text-[#FFFFFF]">
+                    <td className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6 font-mono font-bold text-[#FFFFFF] whitespace-nowrap">
                       {order.order_id || String(order.id || '').slice(0, 12)}
                     </td>
-                    <td className="py-4 px-6 font-semibold text-[#FFFFFF]">{custName}</td>
-                    <td className="py-4 px-6 text-[#A1A1AA]">
+                    <td className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6 font-semibold text-[#FFFFFF] max-w-[140px] truncate">{custName}</td>
+                    <td className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6 text-[#A1A1AA] whitespace-nowrap">
                       {new Date(order.created_at || Date.now()).toLocaleDateString('en-IN')}
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6">
                       <div className="space-y-1">
                         {items.slice(0, 2).map((raw, i) => {
                           const item = getItemDetails(raw);
                           return (
                             <div key={i} className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
-                              <span className="truncate max-w-[170px] text-[#FFFFFF] font-medium" title={item.name}>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] shrink-0" />
+                              <span className="truncate max-w-[150px] sm:max-w-[170px] text-[#FFFFFF] font-medium" title={item.name}>
                                 {item.name}
                               </span>
-                              <span className="text-[10px] text-[#A1A1AA] font-bold">
+                              <span className="text-[10px] text-[#A1A1AA] font-bold shrink-0">
                                 (x{item.qty})
                               </span>
                             </div>
@@ -99,7 +99,7 @@ export default function OrdersTable({
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-6 font-bold text-[#DFC18A]">
+                    <td className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6 font-bold text-[#DFC18A] whitespace-nowrap">
                       <div>
                         <span>₹{Number(order.total || order.total_amount || 0).toLocaleString('en-IN')}</span>
                         {(Number(order.discount || order.discount_amount || 0) > 0 || order.coupon_code) && (
@@ -112,12 +112,12 @@ export default function OrdersTable({
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-6 uppercase font-bold text-[10px] text-[#A1A1AA]">
+                    <td className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6 uppercase font-bold text-[10px] text-[#A1A1AA] whitespace-nowrap">
                       {order.payment_method === 'cod' || order.payment_method === 'COD'
                         ? 'Cash on Delivery'
                         : 'Prepaid Online'}
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <select
                           value={order.status || 'pending'}
@@ -126,7 +126,7 @@ export default function OrdersTable({
                               ? handleQuickStatusChange(order, e.target.value)
                               : null
                           }
-                          className="bg-[#0A0D14] border border-[#D4AF37]/40 rounded-lg px-2.5 py-1.5 text-[11px] font-bold uppercase cursor-pointer text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
+                          className="bg-[#0A0D14] border border-[#D4AF37]/40 rounded-lg px-2 sm:px-2.5 py-1 sm:py-1.5 text-[10px] sm:text-[11px] font-bold uppercase cursor-pointer text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
                           title="Change fulfillment status directly"
                         >
                           <option value="pending">PENDING</option>
@@ -140,11 +140,11 @@ export default function OrdersTable({
                         <Badge text={order.status || 'pending'} variant={badgeVariant} />
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-right space-x-1.5 whitespace-nowrap">
+                    <td className="py-3.5 sm:py-4 px-3 sm:px-4 lg:px-6 text-right space-x-1 sm:space-x-1.5 whitespace-nowrap">
                       {handlePrintInvoice && (
                         <button
                           onClick={() => handlePrintInvoice(order)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-[#161B26] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
+                          className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1.5 bg-[#161B26] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
                           title="Print / Download Official Invoice PDF"
                         >
                           <Printer className="w-3.5 h-3.5" />
@@ -154,20 +154,20 @@ export default function OrdersTable({
 
                       <button
                         onClick={() => handleOpenModal(order)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
+                        className="inline-flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
                         title="View Full Order Details, Items & Edit Status"
                       >
                         <Eye className="w-3.5 h-3.5" />
-                        <span>Manage</span>
+                        <span className="hidden sm:inline">Manage</span>
                       </button>
 
                       <button
                         onClick={() => handleDeleteOrder(order)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-950/60 text-red-300 hover:bg-red-900 border border-red-500/40 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
+                        className="inline-flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-red-950/60 text-red-300 hover:bg-red-900 border border-red-500/40 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer shadow-sm"
                         title="Delete Order Record"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete</span>
+                        <span className="hidden sm:inline">Delete</span>
                       </button>
                     </td>
                   </tr>

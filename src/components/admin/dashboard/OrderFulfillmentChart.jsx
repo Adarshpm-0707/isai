@@ -5,14 +5,14 @@ export default function OrderFulfillmentChart({ donutChartData }) {
   let accumulated = 0;
 
   return (
-    <div className="animate-container-in bg-[#0F131C] border border-[#D4AF37]/35 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+    <div className="animate-container-in bg-[#0F131C] border border-[#D4AF37]/35 rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col justify-between">
       <div>
         <div className="flex items-center gap-2.5 pb-3 border-b border-[#D4AF37]/20">
-          <div className="p-2 rounded-lg bg-[#161B26] text-[#D4AF37] border border-[#D4AF37]/30">
+          <div className="p-2 rounded-lg bg-[#161B26] text-[#D4AF37] border border-[#D4AF37]/30 shrink-0">
             <PieChartIcon className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-sans text-base font-bold text-[#FFFFFF]">
+            <h2 className="font-sans text-sm sm:text-base font-bold text-[#FFFFFF]">
               Order Fulfillment Split
             </h2>
             <p className="text-xs text-[#A1A1AA]">
@@ -23,7 +23,7 @@ export default function OrderFulfillmentChart({ donutChartData }) {
 
         {/* Donut Graphic Visualizer */}
         <div className="mt-5 flex items-center justify-center">
-          <div className="relative w-40 h-40 flex items-center justify-center">
+          <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
               <circle
                 cx="50"
@@ -58,10 +58,10 @@ export default function OrderFulfillmentChart({ donutChartData }) {
               })}
             </svg>
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="font-sans text-2xl font-black text-[#FFFFFF]">
+              <span className="font-sans text-xl sm:text-2xl font-black text-[#FFFFFF]">
                 {donutChartData.totalOrders}
               </span>
-              <span className="text-[10px] uppercase font-bold text-[#D4AF37] tracking-wider">
+              <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[#D4AF37] tracking-wider">
                 Orders
               </span>
             </div>
@@ -73,16 +73,16 @@ export default function OrderFulfillmentChart({ donutChartData }) {
           {donutChartData.slices.map((slice, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between text-xs py-1 border-b border-[#D4AF37]/10 last:border-none"
+              className="flex items-center justify-between text-xs py-1 border-b border-[#D4AF37]/10 last:border-none gap-2"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <span
-                  className="w-3 h-3 rounded-full shrink-0"
+                  className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full shrink-0"
                   style={{ backgroundColor: slice.color }}
                 />
-                <span className="text-[#FFFFFF] font-medium">{slice.label}</span>
+                <span className="text-[#FFFFFF] font-medium truncate">{slice.label}</span>
               </div>
-              <div className="flex items-center gap-2 font-mono">
+              <div className="flex items-center gap-2 font-mono shrink-0">
                 <span className="text-[#A1A1AA]">{slice.count} units</span>
                 <span className="font-bold text-[#D4AF37] w-8 text-right">
                   {slice.pct}%

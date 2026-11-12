@@ -15,10 +15,10 @@ export default function ProfitLossDetailsGrid({ metrics }) {
   } = metrics;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 font-sans">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 font-sans">
       {/* Cost & Margin Analysis */}
-      <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-6 rounded-2xl shadow-xl space-y-4">
-        <h4 className="font-sans text-base font-bold text-[#FFFFFF] uppercase tracking-wider pb-3 border-b border-[#D4AF37]/25 flex items-center justify-between">
+      <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-4 sm:p-6 rounded-2xl shadow-xl space-y-4">
+        <h4 className="font-sans text-sm sm:text-base font-bold text-[#FFFFFF] uppercase tracking-wider pb-3 border-b border-[#D4AF37]/25 flex items-center justify-between">
           <span>Profit &amp; Loss Breakdown</span>
           <span className="text-[10px] text-[#D4AF37] font-sans font-bold uppercase">
             Financial Summary
@@ -62,14 +62,14 @@ export default function ProfitLossDetailsGrid({ metrics }) {
 
           <div className="flex justify-between items-center py-2.5 bg-[#161B26] px-3 rounded-xl mt-2 text-sm font-bold text-emerald-300">
             <span className="uppercase tracking-wider text-xs">Estimated Net Profit</span>
-            <span className="text-base">₹{netProfit.toLocaleString('en-IN')}</span>
+            <span className="text-sm sm:text-base">₹{netProfit.toLocaleString('en-IN')}</span>
           </div>
         </div>
       </div>
 
       {/* Payment Channels (Prepaid vs COD) */}
-      <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-6 rounded-2xl shadow-xl space-y-4">
-        <h4 className="font-sans text-base font-bold text-[#FFFFFF] uppercase tracking-wider pb-3 border-b border-[#D4AF37]/25 flex items-center justify-between">
+      <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-4 sm:p-6 rounded-2xl shadow-xl space-y-4">
+        <h4 className="font-sans text-sm sm:text-base font-bold text-[#FFFFFF] uppercase tracking-wider pb-3 border-b border-[#D4AF37]/25 flex items-center justify-between">
           <span>Payment Method Analysis</span>
           <span className="text-[10px] text-[#D4AF37] font-sans font-bold uppercase">
             Settlement Split
@@ -81,7 +81,7 @@ export default function ProfitLossDetailsGrid({ metrics }) {
           <div className="p-3.5 rounded-xl bg-[#161B26] border border-[#D4AF37]/25 space-y-2">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-emerald-400" />
+                <CreditCard className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span className="font-bold text-[#FFFFFF]">Online Prepaid (Card / UPI)</span>
               </div>
               <span className="font-bold text-emerald-300">

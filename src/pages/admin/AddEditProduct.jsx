@@ -39,7 +39,7 @@ export default function AddEditProduct() {
   } = useAddEditProduct();
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 text-[#F5E6BE] font-sans">
       <div>
         <button
           onClick={() => navigate('/admin/products')}
@@ -65,9 +65,9 @@ export default function AddEditProduct() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-[#0F131C] border border-[#D4AF37]/35 p-6 sm:p-8 rounded-2xl space-y-6 shadow-2xl text-[#F5E6BE]"
+        className="bg-[#0F131C] border border-[#D4AF37]/35 p-4 sm:p-6 md:p-8 rounded-2xl space-y-6 shadow-2xl text-[#F5E6BE]"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs font-sans">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-xs font-sans">
           {/* Product Name */}
           <div className="sm:col-span-2 space-y-1.5">
             <label className="block uppercase font-bold text-[#D4AF37] tracking-wider">
@@ -133,7 +133,7 @@ export default function AddEditProduct() {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center gap-2 shadow-xl cursor-pointer disabled:opacity-50"
+            className="w-full sm:w-auto px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center justify-center gap-2 shadow-xl cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{loading ? 'Saving...' : 'Save Product'}</span>

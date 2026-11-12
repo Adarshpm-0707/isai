@@ -29,7 +29,7 @@ export function useAdminDashboard() {
   const fetchStats = useCallback(async () => {
     setLoading(true);
     try {
-      const fastTimeout = (promise, ms = 1200) => {
+      const fastTimeout = (promise, ms = 2000) => {
         let t;
         const timer = new Promise((_, reject) => {
           t = setTimeout(() => reject(new Error('timeout')), ms);
@@ -37,20 +37,20 @@ export function useAdminDashboard() {
         return Promise.race([promise, timer]).finally(() => clearTimeout(t));
       };
 
-      const [ordersResult, prodsResult, profilesResult] = await Promise.allSettled([
+      const [ordersRes, prodsResult, profilesResult] = await Promise.allSettled([
+        orderService.getAllOrders({ status: 'all', limit: 200 }),
+        fastTimeout(supabase.from('products').select('*'), 2000),
         fastTimeout(
-          supabase.from('orders').select('*').order('created_at', { ascending: false })
-        ),
-        fastTimeout(supabase.from('products').select('*')),
-        fastTimeout(
-          supabase.from('profiles').select('*').order('created_at', { ascending: false })
+          supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+          2000
         ),
       ]);
 
-      const dbOrders =
-        ordersResult.status === 'fulfilled' && ordersResult.value?.data
-          ? ordersResult.value.data
-          : [];
+      const combinedOrders =
+        ordersRes.status === 'fulfilled' && ordersRes.value?.orders
+          ? ordersRes.value.orders
+          : orderService.getLocalOrders();
+
       const dbProducts =
         prodsResult.status === 'fulfilled' && prodsResult.value?.data
           ? prodsResult.value.data
@@ -60,7 +60,6 @@ export function useAdminDashboard() {
           ? profilesResult.value.data
           : [];
 
-      const localOrders = orderService.getLocalOrders();
       const localProds = productService.getLocalProducts();
       let localUsers = [];
       try {
@@ -68,20 +67,6 @@ export function useAdminDashboard() {
       } catch {
         localUsers = [];
       }
-
-      const orderMap = new Map();
-      localOrders.forEach((o) => {
-        const key = o.id || o.order_id;
-        if (key) orderMap.set(String(key), o);
-      });
-      dbOrders.forEach((o) => {
-        const key = o.id || o.order_id;
-        if (key) {
-          const existing = orderMap.get(String(key));
-          orderMap.set(String(key), { ...o, ...existing });
-        }
-      });
-      const combinedOrders = Array.from(orderMap.values());
 
       const prodMap = new Map();
       localProds.forEach((p) => prodMap.set(p.id, p));
@@ -105,27 +90,21 @@ export function useAdminDashboard() {
     fetchStats();
 
     const handleDataUpdate = () => {
-      const localOrders = orderService.getLocalOrders();
-      const localProds = productService.getLocalProducts();
-      let localUsers = [];
-      try {
-        localUsers = JSON.parse(localStorage.getItem('isai_registered_users') || '[]');
-      } catch {
-        localUsers = [];
-      }
-      setStats(calculateDashboardStats(localOrders, localProds, localUsers));
+      fetchStats();
     };
 
     window.addEventListener('isai:orders_updated', handleDataUpdate);
     window.addEventListener('isai:products_updated', handleDataUpdate);
     window.addEventListener('isai:customers_updated', handleDataUpdate);
     window.addEventListener('storage', handleDataUpdate);
+    window.addEventListener('focus', fetchStats);
 
     return () => {
       window.removeEventListener('isai:orders_updated', handleDataUpdate);
       window.removeEventListener('isai:products_updated', handleDataUpdate);
       window.removeEventListener('isai:customers_updated', handleDataUpdate);
       window.removeEventListener('storage', handleDataUpdate);
+      window.removeEventListener('focus', fetchStats);
     };
   }, [fetchStats]);
 

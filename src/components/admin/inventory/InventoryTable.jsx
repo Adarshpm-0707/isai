@@ -30,15 +30,15 @@ export default function InventoryTable({
         <table className="w-full text-left text-xs font-sans">
           <thead>
             <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] uppercase font-bold bg-[#0A0D14]">
-              <th className="py-4 px-4 min-w-[220px]">Saree Product</th>
-              <th className="py-4 px-3 min-w-[130px]">Cost Price</th>
-              <th className="py-4 px-3 min-w-[120px]">Selling Price</th>
-              <th className="py-4 px-3 min-w-[110px]">Discount</th>
-              <th className="py-4 px-3 min-w-[120px]">Unit Profit</th>
-              <th className="py-4 px-3 min-w-[140px]">Line Valuation</th>
-              <th className="py-4 px-3 min-w-[130px]">Stock Status</th>
-              <th className="py-4 px-4 min-w-[160px]">Stock Count</th>
-              <th className="py-4 px-4 text-right min-w-[100px]">Actions</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 min-w-[180px] sm:min-w-[220px]">Saree Product</th>
+              <th className="py-3.5 sm:py-4 px-2.5 sm:px-3 min-w-[110px] sm:min-w-[130px]">Cost Price</th>
+              <th className="py-3.5 sm:py-4 px-2.5 sm:px-3 min-w-[100px] sm:min-w-[120px]">Selling Price</th>
+              <th className="py-3.5 sm:py-4 px-2.5 sm:px-3 min-w-[100px] sm:min-w-[110px]">Discount</th>
+              <th className="py-3.5 sm:py-4 px-2.5 sm:px-3 min-w-[100px] sm:min-w-[120px]">Unit Profit</th>
+              <th className="py-3.5 sm:py-4 px-2.5 sm:px-3 min-w-[120px] sm:min-w-[140px]">Line Valuation</th>
+              <th className="py-3.5 sm:py-4 px-2.5 sm:px-3 min-w-[110px] sm:min-w-[130px]">Stock Status</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 min-w-[140px] sm:min-w-[160px]">Stock Count</th>
+              <th className="py-3.5 sm:py-4 px-3 sm:px-4 text-right min-w-[90px] sm:min-w-[100px]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#D4AF37]/15">

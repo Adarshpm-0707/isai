@@ -46,13 +46,13 @@ export default function PaymentSettings() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 text-[#F5E6BE] font-sans">
       <SectionHeading title="Payment Gateway Settings" subtitle="Configure Razorpay merchant keys and checkout status" align="left" />
 
-      <form onSubmit={handleSubmit} className="bg-[#0F131C] border border-[#D4AF37]/30 p-6 sm:p-8 rounded-2xl space-y-6 shadow-2xl text-xs font-sans">
+      <form onSubmit={handleSubmit} className="bg-[#0F131C] border border-[#D4AF37]/30 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl space-y-5 sm:space-y-6 shadow-2xl text-xs font-sans">
         <div className="flex items-center gap-3 pb-4 border-b border-[#D4AF37]/25">
           <CreditCard className="w-6 h-6 text-[#D4AF37]" />
-          <h3 className="font-sans text-lg font-bold text-[#FFFFFF] uppercase tracking-wider">Razorpay API Integration</h3>
+          <h3 className="font-sans text-base sm:text-lg font-bold text-[#FFFFFF] uppercase tracking-wider">Razorpay API Integration</h3>
         </div>
 
         <div className="space-y-1.5">
@@ -112,7 +112,7 @@ export default function PaymentSettings() {
         <div className="pt-4 border-t border-[#D4AF37]/25 flex justify-end">
           <button
             type="submit"
-            className="px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center gap-2 shadow-xl cursor-pointer"
+            className="w-full sm:w-auto px-6 py-3 rounded-lg font-bold text-xs uppercase tracking-wider transition-all bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 flex items-center justify-center gap-2 shadow-xl cursor-pointer"
           >
             <Save className="w-4 h-4" />
             <span>Save Settings</span>

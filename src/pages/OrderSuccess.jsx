@@ -12,9 +12,24 @@ export default function OrderSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const orderState = location.state || {};
+  // Try retrieving order from location state, then sessionStorage fallback
+  const resolvedState = (() => {
+    if (location.state && (location.state.orderId || location.state.order)) {
+      try {
+        sessionStorage.setItem('isai_last_order', JSON.stringify(location.state));
+      } catch {}
+      return location.state;
+    }
+    try {
+      const cached = sessionStorage.getItem('isai_last_order');
+      if (cached) return JSON.parse(cached);
+    } catch {}
+    return location.state || {};
+  })();
+
+  const orderState = resolvedState || {};
   const order = orderState.order || {};
-  const orderId = orderState.orderId || order.id || order.order_id;
+  const orderId = orderState.orderId || order.id || order.order_id || order.orderId;
   const totalAmount = Number(orderState.totalAmount ?? order.total_amount ?? order.total ?? 0);
   const items = orderState.items || order.items || [];
   const subtotal = Number(
@@ -30,15 +45,18 @@ export default function OrderSuccess() {
   const discount = Number(orderState.discount ?? order.discount ?? order.discount_amount ?? 0);
   const couponCode = orderState.couponCode || order.coupon_code || order.coupon?.code || null;
   const shippingAddress = orderState.shippingAddress || order.shipping_address || {};
-  const paymentMethod = orderState.paymentMethod || order.paymentMethod || 'Cash on Delivery (COD)';
+  const paymentMethod = orderState.paymentMethod || order.paymentMethod || (order.payment_method === 'cod' ? 'Cash on Delivery (COD)' : 'Online Payment (Prepaid)');
   const orderDate = orderState.date || order.created_at || new Date().toLocaleDateString('en-IN');
 
   const [isPrinting, setIsPrinting] = useState(true);
 
   useEffect(() => {
     if (!orderId) {
-      navigate('/', { replace: true });
-      return;
+      // Only navigate if no order was found anywhere
+      const fallbackTimer = setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 1500);
+      return () => clearTimeout(fallbackTimer);
     }
 
     // Printing machine sound/motion duration simulation (2.6 seconds)

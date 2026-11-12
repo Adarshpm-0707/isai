@@ -63,24 +63,24 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen bg-[#090B10] flex text-[#F5E6BE] font-sans antialiased">
       
-      {/* ─── DESKTOP SIDEBAR ─── */}
-      <aside className="hidden md:flex md:w-64 md:flex-col fixed inset-y-0 z-30 bg-[#0D1017] border-r border-[#D4AF37]/20 shadow-2xl">
+      {/* ─── DESKTOP SIDEBAR (Visible on laptop/desktop: lg and up) ─── */}
+      <aside className="hidden lg:flex lg:w-64 lg:flex-col fixed inset-y-0 z-30 bg-[#0D1017] border-r border-[#D4AF37]/20 shadow-2xl">
         
         {/* Brand Header */}
-        <div className="h-18 flex items-center gap-3 px-5 border-b border-[#D4AF37]/20 bg-[#090B10] shrink-0">
-          <img src={logoImg} alt="Isaitarang Logo" className="h-10 w-auto object-contain" />
-          <div>
-            <h2 className="font-sans text-xs font-bold text-[#FFFFFF] uppercase tracking-wider leading-none">
+        <div className="h-16 flex items-center gap-3 px-5 border-b border-[#D4AF37]/20 bg-[#090B10] shrink-0">
+          <img src={logoImg} alt="Isaitarang Logo" className="h-9 w-auto object-contain" />
+          <div className="min-w-0">
+            <h2 className="font-sans text-xs font-bold text-[#FFFFFF] uppercase tracking-wider leading-none truncate">
               Isaitarang
             </h2>
             <span className="text-[9px] font-semibold text-[#DFC18A] tracking-widest uppercase flex items-center gap-1 mt-1">
-              <Shield className="w-2.5 h-2.5 text-[#DFC18A]" /> Admin Panel
+              <Shield className="w-2.5 h-2.5 text-[#DFC18A] shrink-0" /> Admin Panel
             </span>
           </div>
         </div>
 
         {/* Sidebar Nav Links */}
-        <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -88,21 +88,21 @@ export default function AdminLayout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+                className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
                   active
                     ? "bg-[#0F131C] text-[#DFC18A] border-l-4 border-[#D4AF37] shadow-lg"
                     : "text-[#C7B5A7] hover:bg-[#0F131C]/70 hover:text-[#FFFFFF]"
                 }`}
               >
                 <Icon className={`w-4 h-4 shrink-0 ${active ? "text-[#D4AF37]" : "text-[#DFC18A]/60"}`} />
-                <span>{item.name}</span>
+                <span className="truncate">{item.name}</span>
               </Link>
             );
           })}
         </nav>
 
         {/* Sidebar Footer Quick Links */}
-        <div className="p-4 border-t border-[#D4AF37]/20 space-y-2 bg-[#090B10] text-xs">
+        <div className="p-3.5 border-t border-[#D4AF37]/20 space-y-1.5 bg-[#090B10] text-xs">
           <Link
             to="/"
             target="_blank"
@@ -122,22 +122,26 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* ─── MOBILE DRAWER OVERLAY ─── */}
+      {/* ─── MOBILE & TABLET DRAWER OVERLAY (Screen width < 1024px) ─── */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex">
+        <div className="fixed inset-0 z-50 lg:hidden flex">
           <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative flex-1 max-w-xs w-full bg-[#0D1017] border-r border-[#D4AF37]/20 flex flex-col z-50">
+          <div className="relative flex-1 max-w-xs sm:max-w-sm w-full bg-[#0D1017] border-r border-[#D4AF37]/25 flex flex-col z-50 shadow-2xl">
             <div className="p-4 flex items-center justify-between border-b border-[#D4AF37]/20 bg-[#090B10]">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <img src={logoImg} alt="Logo" className="h-8 w-auto object-contain" />
-                <span className="font-bold text-xs uppercase text-[#DFC18A]">Admin Panel</span>
+                <div>
+                  <span className="font-bold text-xs uppercase text-[#FFFFFF] block leading-none">Isaitarang</span>
+                  <span className="text-[9px] uppercase tracking-wider text-[#DFC18A] font-semibold">Admin Panel</span>
+                </div>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1 text-[#C7B5A7] hover:text-[#FFFFFF] rounded"
+                className="p-1.5 text-[#C7B5A7] hover:text-[#FFFFFF] rounded-lg hover:bg-[#161B26] transition-colors"
+                aria-label="Close menu"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -151,13 +155,13 @@ export default function AdminLayout() {
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
                       active
-                        ? "bg-[#0F131C] text-[#DFC18A] border-l-4 border-[#D4AF37]"
+                        ? "bg-[#0F131C] text-[#DFC18A] border-l-4 border-[#D4AF37] shadow-md"
                         : "text-[#C7B5A7] hover:bg-[#0F131C]/70 hover:text-[#FFFFFF]"
                     }`}
                   >
-                    <Icon className="w-4 h-4 text-[#DFC18A]" />
+                    <Icon className="w-4 h-4 text-[#DFC18A] shrink-0" />
                     <span>{item.name}</span>
                   </Link>
                 );
@@ -167,15 +171,19 @@ export default function AdminLayout() {
               <Link
                 to="/"
                 onClick={() => setMobileOpen(false)}
-                className="block text-center py-2 border border-[#D4AF37]/30 bg-[#0F131C] text-[#DFC18A] text-xs font-semibold rounded-lg"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center gap-2 py-2.5 border border-[#D4AF37]/35 bg-[#0F131C] hover:bg-[#161B26] text-[#DFC18A] text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
               >
-                View Live Store
+                <span>Live Store Preview</span>
+                <ExternalLink className="w-3.5 h-3.5" />
               </Link>
               <button
                 onClick={handleLogout}
-                className="w-full py-2 bg-red-950/40 text-red-300 border border-red-500/30 text-xs font-semibold rounded-lg"
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-red-950/40 text-red-300 hover:bg-red-900/60 border border-red-500/30 text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer"
               >
-                Sign Out
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
               </button>
             </div>
           </div>
@@ -183,43 +191,44 @@ export default function AdminLayout() {
       )}
 
       {/* ─── MAIN CONTENT WRAPPER ─── */}
-      <div className="flex-1 md:pl-64 flex flex-col min-w-0">
+      <div className="flex-1 lg:pl-64 flex flex-col min-w-0">
         
         {/* Top Header Bar */}
-        <header className="h-16 bg-[#0D1017]/95 border-b border-[#D4AF37]/20 sticky top-0 z-20 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <header className="h-16 bg-[#0D1017]/95 border-b border-[#D4AF37]/20 sticky top-0 z-20 backdrop-blur-md px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <button
               onClick={() => setMobileOpen(true)}
-              className="md:hidden p-2 rounded-lg text-[#DFC18A] hover:bg-[#0F131C] border border-[#D4AF37]/30"
+              className="lg:hidden p-2 rounded-xl text-[#DFC18A] hover:bg-[#0F131C] border border-[#D4AF37]/30 transition-colors shrink-0"
+              aria-label="Open navigation menu"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-sm sm:text-base font-bold uppercase tracking-wider text-[#FFFFFF] font-sans">
+            <h1 className="text-xs sm:text-sm lg:text-base font-bold uppercase tracking-wider text-[#FFFFFF] font-sans truncate">
               {navigationItems.find((i) => isActive(i.path))?.name || "Admin Management"}
             </h1>
           </div>
 
           <div
             onClick={() => navigate("/admin/profile")}
-            className="flex items-center gap-3 cursor-pointer hover:opacity-85 transition-opacity"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer hover:opacity-85 transition-opacity shrink-0"
             title="View Admin Profile"
           >
-            <div className="text-right hidden sm:block">
-              <span className="block text-xs font-medium text-[#FFFFFF]">
+            <div className="text-right hidden sm:block max-w-[160px] md:max-w-[220px]">
+              <span className="block text-xs font-medium text-[#FFFFFF] truncate">
                 {profile?.name || user?.email || "System Admin"}
               </span>
-              <span className="block text-[10px] text-[#DFC18A] uppercase tracking-widest font-semibold">
-                System Admin Profile
+              <span className="block text-[9px] text-[#DFC18A] uppercase tracking-widest font-semibold truncate">
+                Admin Profile
               </span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#0F131C] border border-[#D4AF37] flex items-center justify-center text-[#DFC18A] font-bold text-xs uppercase shadow-md">
+            <div className="w-8 h-8 rounded-full bg-[#0F131C] border border-[#D4AF37] flex items-center justify-center text-[#DFC18A] font-bold text-xs uppercase shadow-md shrink-0">
               {(profile?.name || user?.email || "A")[0]}
             </div>
           </div>
         </header>
 
         {/* Render Page Children */}
-        <main ref={mainRef} className="flex-1 p-4 sm:p-8 overflow-y-auto bg-[#090B10] text-[#F5E6BE] font-sans">
+        <main ref={mainRef} className="flex-1 p-3.5 sm:p-6 lg:p-8 overflow-y-auto bg-[#090B10] text-[#F5E6BE] font-sans">
           <Outlet />
         </main>
       </div>

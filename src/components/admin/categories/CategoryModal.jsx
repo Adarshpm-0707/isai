@@ -60,9 +60,9 @@ export default function CategoryModal({
             Category Cover Image
           </label>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
             {/* File Upload Button */}
-            <label className="relative cursor-pointer bg-[#161B26] border border-[#D4AF37]/45 hover:bg-[#D4AF37] hover:text-[#090B10] px-4 py-2.5 rounded-lg text-xs font-bold uppercase text-[#FFFFFF] flex items-center gap-2 shrink-0 transition-colors shadow">
+            <label className="relative cursor-pointer bg-[#161B26] border border-[#D4AF37]/45 hover:bg-[#D4AF37] hover:text-[#090B10] px-4 py-2.5 rounded-lg text-xs font-bold uppercase text-[#FFFFFF] flex items-center justify-center gap-2 shrink-0 transition-colors shadow">
               <Upload className="w-3.5 h-3.5" />
               <span>{uploadingImage ? 'Uploading...' : 'Upload Image'}</span>
               <input

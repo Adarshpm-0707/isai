@@ -4,12 +4,12 @@ import { ChevronRight, Mail, Phone, Trash2 } from 'lucide-react';
 
 export default function CustomerAccountsSection({ customers = [], handleDeleteCustomer }) {
   return (
-    <section className="animate-container-in bg-[#0F131C] border border-[#D4AF37]/35 rounded-2xl p-6 sm:p-7 shadow-xl space-y-5">
+    <section className="animate-container-in bg-[#0F131C] border border-[#D4AF37]/35 rounded-2xl p-4 sm:p-6 lg:p-7 shadow-xl space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D4AF37]/20">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="font-sans text-lg sm:text-xl font-bold text-[#FFFFFF]">
-              Customer Profiles & Account Records
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="font-sans text-base sm:text-lg lg:text-xl font-bold text-[#FFFFFF]">
+              Customer Profiles &amp; Account Records
             </h2>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#161B26] text-[#D4AF37] border border-[#D4AF37]/40">
               {customers.length} Profiles
@@ -21,7 +21,7 @@ export default function CustomerAccountsSection({ customers = [], handleDeleteCu
         </div>
         <Link
           to="/admin/customers"
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#161B26] border border-[#D4AF37]/40 text-xs font-bold text-[#D4AF37] hover:bg-[#1E2534] hover:text-[#FFFFFF] transition-all self-start sm:self-auto"
+          className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl bg-[#161B26] border border-[#D4AF37]/40 text-xs font-bold text-[#D4AF37] hover:bg-[#1E2534] hover:text-[#FFFFFF] transition-all self-start sm:self-auto shrink-0"
         >
           <span>View Full Directory</span>
           <ChevronRight className="w-4 h-4" />
@@ -37,11 +37,11 @@ export default function CustomerAccountsSection({ customers = [], handleDeleteCu
           <table className="w-full text-left text-xs font-sans">
             <thead>
               <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] uppercase font-bold tracking-wider bg-[#090B10]">
-                <th className="py-3 px-4">Customer Full Name</th>
-                <th className="py-3 px-4">Email Address & Phone Number</th>
-                <th className="py-3 px-4">User Role</th>
-                <th className="py-3 px-4">Registration Date</th>
-                <th className="py-3 px-4 text-right">Action</th>
+                <th className="py-3 px-3 sm:px-4">Customer Full Name</th>
+                <th className="py-3 px-3 sm:px-4">Email Address &amp; Phone</th>
+                <th className="py-3 px-3 sm:px-4">User Role</th>
+                <th className="py-3 px-3 sm:px-4">Registration Date</th>
+                <th className="py-3 px-3 sm:px-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#D4AF37]/15">
@@ -56,40 +56,40 @@ export default function CustomerAccountsSection({ customers = [], handleDeleteCu
                 return (
                   <tr key={c.id || i} className="hover:bg-[#161B26] transition-colors">
                     {/* Customer Full Name */}
-                    <td className="py-3.5 px-4 font-bold text-[#FFFFFF]">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#D4AF37] text-[#090B10] font-black flex items-center justify-center text-xs shrink-0">
+                    <td className="py-3.5 px-3 sm:px-4 font-bold text-[#FFFFFF]">
+                      <div className="flex items-center gap-2.5 sm:gap-3">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#D4AF37] text-[#090B10] font-black flex items-center justify-center text-xs shrink-0">
                           {initials}
                         </div>
-                        <span className="break-words">{c.name || 'Customer User'}</span>
+                        <span className="break-words truncate max-w-[140px] sm:max-w-none">{c.name || 'Customer User'}</span>
                       </div>
                     </td>
 
                     {/* Full Email & Phone */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-3 sm:px-4">
                       <div className="space-y-1">
                         <p className="font-mono text-[#FFFFFF] text-xs flex items-center gap-1.5 break-all">
                           <Mail className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
-                          {c.email}
+                          <span className="truncate max-w-[160px] sm:max-w-none">{c.email}</span>
                         </p>
                         {c.phone && (
                           <p className="text-xs text-[#A1A1AA] flex items-center gap-1.5 font-mono">
                             <Phone className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
-                            {c.phone}
+                            <span>{c.phone}</span>
                           </p>
                         )}
                       </div>
                     </td>
 
                     {/* Role */}
-                    <td className="py-3.5 px-4">
-                      <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#161B26] text-[#D4AF37] border border-[#D4AF37]/40">
+                    <td className="py-3.5 px-3 sm:px-4">
+                      <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#161B26] text-[#D4AF37] border border-[#D4AF37]/40 whitespace-nowrap">
                         {c.role || 'Verified Customer'}
                       </span>
                     </td>
 
                     {/* Joined Date */}
-                    <td className="py-3.5 px-4 text-[#A1A1AA] font-mono text-xs">
+                    <td className="py-3.5 px-3 sm:px-4 text-[#A1A1AA] font-mono text-xs whitespace-nowrap">
                       {c.created_at
                         ? new Date(c.created_at).toLocaleDateString('en-IN', {
                             day: 'numeric',

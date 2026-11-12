@@ -222,14 +222,40 @@ export const checkoutService = {
     }
 
     // 5. Cloud sync to Supabase orders table in background (non-blocking)
-    if (userId) {
+    try {
       supabase
         .from('orders')
         .insert(dbInsertPayload)
         .select()
         .maybeSingle()
-        .catch(() => {});
-    }
+        .catch((err) => {
+          console.warn('[Checkout] Supabase background sync notice:', err?.message);
+        });
+    } catch {}
+
+    // 6. Push to unified server API
+    try {
+      if (typeof window !== 'undefined') {
+        fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData),
+        }).catch(() => {});
+
+        // Cache last order in sessionStorage so reload on OrderSuccess never loses data
+        try {
+          sessionStorage.setItem('isai_last_order', JSON.stringify(orderData));
+        } catch {}
+
+        // Record guest order ID on device
+        try {
+          const guestIds = JSON.parse(localStorage.getItem('isai_guest_order_ids') || '[]');
+          if (!guestIds.includes(orderUuid)) guestIds.push(orderUuid);
+          if (!guestIds.includes(readableOrderId)) guestIds.push(readableOrderId);
+          localStorage.setItem('isai_guest_order_ids', JSON.stringify(guestIds));
+        } catch {}
+      }
+    } catch {}
 
     return orderData;
   },
@@ -391,14 +417,40 @@ export const checkoutService = {
     }
 
     // 5. Cloud sync to Supabase orders table in background (non-blocking)
-    if (userId) {
+    try {
       supabase
         .from('orders')
         .insert(dbInsertPayload)
         .select()
         .maybeSingle()
-        .catch(() => {});
-    }
+        .catch((err) => {
+          console.warn('[Checkout] Supabase background sync notice:', err?.message);
+        });
+    } catch {}
+
+    // 6. Push to unified server API
+    try {
+      if (typeof window !== 'undefined') {
+        fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData),
+        }).catch(() => {});
+
+        // Cache last order in sessionStorage so reload on OrderSuccess never loses data
+        try {
+          sessionStorage.setItem('isai_last_order', JSON.stringify(orderData));
+        } catch {}
+
+        // Record guest order ID on device
+        try {
+          const guestIds = JSON.parse(localStorage.getItem('isai_guest_order_ids') || '[]');
+          if (!guestIds.includes(orderUuid)) guestIds.push(orderUuid);
+          if (!guestIds.includes(readableOrderId)) guestIds.push(readableOrderId);
+          localStorage.setItem('isai_guest_order_ids', JSON.stringify(guestIds));
+        } catch {}
+      }
+    } catch {}
 
     return orderData;
   },

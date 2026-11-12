@@ -42,7 +42,7 @@ export default function ManageOrders() {
   } = useManageOrders();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
+    <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 text-[#F5E6BE] font-sans">
       {/* Toast Notification */}
       {feedback && (
         <div
@@ -70,29 +70,29 @@ export default function ManageOrders() {
         />
 
         {/* Export & Refresh Options */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={fetchOrders}
             disabled={loading}
-            className="inline-flex items-center gap-2 bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer disabled:opacity-50"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] px-3.5 sm:px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer disabled:opacity-50"
             title="Refresh orders from database and local storage"
           >
-            <RefreshCw className={`w-4 h-4 text-[#D4AF37] ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D4AF37] ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
 
           <button
             onClick={handleExportPDF}
-            className="inline-flex items-center gap-2 bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-[#161B26] text-[#F5E6BE] border border-[#D4AF37]/40 hover:bg-[#D4AF37] hover:text-[#090B10] px-3.5 sm:px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer"
             title="Download PDF Orders Summary Report"
           >
-            <FileText className="w-4 h-4 text-[#D4AF37]" />
+            <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D4AF37]" />
             <span>Download PDF</span>
           </button>
 
           <button
             onClick={handleExportExcel}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-4 py-2.5 rounded-xl font-sans text-xs uppercase tracking-wider font-bold shadow-xl transition-all cursor-pointer"
             title="Export Orders to Excel Sheet (.csv)"
           >
             <FileSpreadsheet className="w-4 h-4" />

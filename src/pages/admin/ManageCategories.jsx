@@ -33,7 +33,7 @@ export default function ManageCategories() {
   } = useManageCategories();
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
+    <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 text-[#F5E6BE] font-sans">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
@@ -41,10 +41,10 @@ export default function ManageCategories() {
           subtitle="Catalog category taxonomies, cover imagery, and classification"
           align="left"
         />
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
           <button
             onClick={() => handleOpenModal()}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Add Category
           </button>

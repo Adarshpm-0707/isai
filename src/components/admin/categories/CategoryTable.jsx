@@ -18,7 +18,7 @@ export default function CategoryTable({
   return (
     <div className="space-y-6 font-sans">
       {/* Search & Counter Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#0F131C] border border-[#D4AF37]/35 p-4 rounded-xl text-xs">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between bg-[#0F131C] border border-[#D4AF37]/35 p-3.5 sm:p-4 rounded-xl text-xs">
         <div className="flex items-center gap-2 bg-[#161B26] border border-[#D4AF37]/35 rounded-lg px-3 py-2 w-full sm:w-80">
           <Search className="w-4 h-4 text-[#D4AF37] shrink-0" />
           <input
@@ -26,10 +26,10 @@ export default function CategoryTable({
             placeholder="Search categories..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none w-full"
+            className="bg-transparent text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none w-full text-xs"
           />
         </div>
-        <div className="flex items-center gap-2 text-[#A1A1AA] text-xs font-medium">
+        <div className="flex items-center gap-2 text-[#A1A1AA] text-xs font-medium self-end sm:self-center">
           <span>Total Categories:</span>
           <span className="text-[#D4AF37] font-bold">{categories.length}</span>
         </div>
@@ -67,11 +67,11 @@ export default function CategoryTable({
             <table className="w-full text-left border-collapse text-xs font-sans">
               <thead>
                 <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#0A0D14]">
-                  <th className="py-4 px-6 w-24">Cover Image</th>
-                  <th className="py-4 px-6">Category Name</th>
-                  <th className="py-4 px-6">URL Slug</th>
-                  <th className="py-4 px-6">Sarees Linked</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6 w-16 sm:w-24">Cover</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6">Category Name</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6">URL Slug</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6">Sarees Linked</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#D4AF37]/15">
@@ -89,8 +89,8 @@ export default function CategoryTable({
                       className="hover:bg-[#161B26]/60 transition-colors"
                     >
                       {/* Cover Image Thumbnail */}
-                      <td className="py-4 px-6">
-                        <div className="w-12 h-14 rounded-lg overflow-hidden border border-[#D4AF37]/35 bg-[#0A0D14] shadow-md shrink-0">
+                      <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6">
+                        <div className="w-10 h-12 sm:w-12 sm:h-14 rounded-lg overflow-hidden border border-[#D4AF37]/35 bg-[#0A0D14] shadow-md shrink-0">
                           <img
                             src={displayImage}
                             alt={cat.name}
@@ -100,46 +100,46 @@ export default function CategoryTable({
                       </td>
 
                       {/* Category Name */}
-                      <td className="py-4 px-6 font-bold text-[#FFFFFF]">
+                      <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6 font-bold text-[#FFFFFF]">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold">{cat.name}</span>
+                          <span className="text-xs sm:text-sm font-semibold truncate max-w-[140px] sm:max-w-none">{cat.name}</span>
                         </div>
                       </td>
 
                       {/* URL Slug */}
-                      <td className="py-4 px-6 text-[#A1A1AA] font-mono text-xs">
-                        <span className="px-2 py-1 bg-[#161B26] rounded border border-[#D4AF37]/20 text-[#DFC18A]">
+                      <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6 text-[#A1A1AA] font-mono text-xs whitespace-nowrap">
+                        <span className="px-2 py-0.5 sm:py-1 bg-[#161B26] rounded border border-[#D4AF37]/20 text-[#DFC18A] text-[11px] sm:text-xs">
                           {cat.slug}
                         </span>
                       </td>
 
                       {/* Sarees Count */}
-                      <td className="py-4 px-6 text-[#A1A1AA]">
+                      <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6 text-[#A1A1AA] whitespace-nowrap">
                         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-[#161B26] border border-[#D4AF37]/35 text-[#D4AF37]">
                           {count} {count === 1 ? 'saree' : 'sarees'}
                         </span>
                       </td>
 
                       {/* Actions */}
-                      <td className="py-4 px-6 text-right space-x-2">
+                      <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6 text-right space-x-1.5 sm:space-x-2 whitespace-nowrap">
                         {/* Edit Button */}
                         <button
                           onClick={() => onOpenModal(cat)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+                          className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
                           title="Edit Category Name, Image, and Slug"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
-                          <span>Edit</span>
+                          <span className="hidden sm:inline">Edit</span>
                         </button>
 
                         {/* Delete Button */}
                         <button
                           onClick={() => onDelete(cat.id, cat.name)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-950/60 text-red-300 hover:bg-red-900 border border-red-500/40 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+                          className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-red-950/60 text-red-300 hover:bg-red-900 border border-red-500/40 transition-all rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
                           title="Delete Category"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                          <span>Delete</span>
+                          <span className="hidden sm:inline">Delete</span>
                         </button>
                       </td>
                     </tr>

@@ -46,20 +46,20 @@ export default function OrderDetailModal({
       onClose={onClose}
       title={`Order Details (#${selectedOrder.id || selectedOrder.order_id || ''})`}
     >
-      <div className="space-y-6 text-xs font-sans text-[#F5E6BE] p-1 max-h-[80vh] overflow-y-auto pr-1">
+      <div className="space-y-5 sm:space-y-6 text-xs font-sans text-[#F5E6BE]">
         {/* Header info banner */}
-        <div className="bg-[#161B26] border border-[#D4AF37]/40 p-4 rounded-xl flex flex-wrap items-center justify-between gap-4 shadow-lg">
+        <div className="bg-[#161B26] border border-[#D4AF37]/40 p-3.5 sm:p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-lg">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#D4AF37]" />
-              <span className="font-mono text-[#A1A1AA]">
+              <Calendar className="w-4 h-4 text-[#D4AF37] shrink-0" />
+              <span className="font-mono text-[#A1A1AA] text-[11px] sm:text-xs">
                 Ordered on:{' '}
                 {new Date(selectedOrder.created_at || Date.now()).toLocaleString('en-IN')}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-[#D4AF37]" />
-              <span className="font-bold text-[#FFFFFF]">
+              <CreditCard className="w-4 h-4 text-[#D4AF37] shrink-0" />
+              <span className="font-bold text-[#FFFFFF] text-xs">
                 Method:{' '}
                 {selectedOrder.payment_method === 'cod' || selectedOrder.payment_method === 'COD'
                   ? 'Cash on Delivery (COD)'
@@ -68,10 +68,10 @@ export default function OrderDetailModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between sm:justify-end gap-2.5 sm:gap-3">
             <button
               onClick={() => handlePrintInvoice(selectedOrder)}
-              className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] font-bold text-[10px] uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer hover:brightness-110"
+              className="px-3 sm:px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] font-bold text-[10px] sm:text-[11px] uppercase tracking-wider flex items-center gap-1.5 shadow-md cursor-pointer hover:brightness-110"
               title="Print / Download Official Tax Invoice PDF"
             >
               <Printer className="w-3.5 h-3.5" />
@@ -88,21 +88,21 @@ export default function OrderDetailModal({
         </div>
 
         {/* Customer & Shipping Address Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {/* Customer Info Card */}
-          <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-4 rounded-xl space-y-2.5 shadow-md">
-            <h4 className="font-sans text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
-              <User className="w-4 h-4" /> Customer Profile
+          <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-3.5 sm:p-4 rounded-xl space-y-2.5 shadow-md">
+            <h4 className="font-sans text-xs sm:text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
+              <User className="w-4 h-4 shrink-0" /> Customer Profile
             </h4>
             <div className="space-y-1.5 text-xs text-[#A1A1AA]">
-              <p className="font-bold text-[#FFFFFF] text-sm">
+              <p className="font-bold text-[#FFFFFF] text-sm break-words">
                 {selectedOrder.shipping_address?.name ||
                   selectedOrder.profiles?.name ||
                   selectedOrder.customer_name ||
                   'Valued Customer'}
               </p>
-              <p className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#D4AF37]" />
+              <p className="flex items-center gap-2 break-all">
+                <Mail className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                 <span>
                   {selectedOrder.shipping_address?.email ||
                     selectedOrder.profiles?.email ||
@@ -111,7 +111,7 @@ export default function OrderDetailModal({
                 </span>
               </p>
               <p className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <Phone className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                 <span>
                   {selectedOrder.shipping_address?.phone ||
                     selectedOrder.profiles?.phone ||
@@ -123,12 +123,12 @@ export default function OrderDetailModal({
           </div>
 
           {/* Delivery Address Card */}
-          <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-4 rounded-xl space-y-2.5 shadow-md">
-            <h4 className="font-sans text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
-              <MapPin className="w-4 h-4" /> Shipping Destination
+          <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-3.5 sm:p-4 rounded-xl space-y-2.5 shadow-md">
+            <h4 className="font-sans text-xs sm:text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
+              <MapPin className="w-4 h-4 shrink-0" /> Shipping Destination
             </h4>
             <div className="space-y-1 text-xs text-[#A1A1AA]">
-              <p className="text-[#FFFFFF]">
+              <p className="text-[#FFFFFF] break-words">
                 {selectedOrder.shipping_address?.street ||
                   selectedOrder.shipping_address?.addressLine1 ||
                   selectedOrder.shipping_address?.address ||
@@ -137,13 +137,13 @@ export default function OrderDetailModal({
               </p>
               {(selectedOrder.shipping_address?.landmark ||
                 selectedOrder.shipping_address?.addressLine2) && (
-                <p className="text-[11px] text-[#A1A1AA]/80">
+                <p className="text-[11px] text-[#A1A1AA]/80 break-words">
                   Landmark:{' '}
                   {selectedOrder.shipping_address.landmark ||
                     selectedOrder.shipping_address.addressLine2}
                 </p>
               )}
-              <p className="text-[#FFFFFF]">
+              <p className="text-[#FFFFFF] break-words">
                 {selectedOrder.shipping_address?.city || selectedOrder.city || ''}
                 {selectedOrder.shipping_address?.state ? `, ${selectedOrder.shipping_address.state}` : ''}{' '}
                 <span className="font-bold text-[#D4AF37]">
@@ -158,9 +158,9 @@ export default function OrderDetailModal({
         </div>
 
         {/* Ordered Sarees List */}
-        <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-4 rounded-xl space-y-3 shadow-md">
-          <h4 className="font-sans text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
-            <Package className="w-4 h-4" /> Ordered Sarees &amp; Items
+        <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-3.5 sm:p-4 rounded-xl space-y-3 shadow-md">
+          <h4 className="font-sans text-xs sm:text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
+            <Package className="w-4 h-4 shrink-0" /> Ordered Sarees &amp; Items
           </h4>
 
           <div className="space-y-2.5">
@@ -174,7 +174,7 @@ export default function OrderDetailModal({
                 return (
                   <div
                     key={idx}
-                    className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-[#161B26] border border-[#D4AF37]/20"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-lg bg-[#161B26] border border-[#D4AF37]/20"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-12 h-14 rounded-lg overflow-hidden border border-[#D4AF37]/30 bg-[#090B10] shrink-0">
@@ -189,7 +189,7 @@ export default function OrderDetailModal({
                         />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-sans font-bold text-[#FFFFFF] text-sm truncate" title={item.name}>
+                        <p className="font-sans font-bold text-[#FFFFFF] text-xs sm:text-sm truncate" title={item.name}>
                           {item.name}
                         </p>
                         <div className="text-[11px] text-[#A1A1AA] flex items-center gap-1.5 flex-wrap">
@@ -218,7 +218,7 @@ export default function OrderDetailModal({
                       </div>
                     </div>
 
-                    <div className="text-right shrink-0">
+                    <div className="text-right shrink-0 self-end sm:self-auto">
                       {item.hasDiscount && (
                         <p className="line-through text-[10px] text-[#71717A] font-mono">
                           ₹{item.regularLineTotal.toLocaleString('en-IN')}
@@ -236,15 +236,15 @@ export default function OrderDetailModal({
         </div>
 
         {/* Financial Billing & Payment Breakdown */}
-        <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-4 rounded-xl space-y-3 shadow-md">
-          <h4 className="font-sans text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
-            <CreditCard className="w-4 h-4" /> Billing &amp; Payment Ledger
+        <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-3.5 sm:p-4 rounded-xl space-y-3 shadow-md">
+          <h4 className="font-sans text-xs sm:text-sm font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-2">
+            <CreditCard className="w-4 h-4 shrink-0" /> Billing &amp; Payment Ledger
           </h4>
 
           <div className="space-y-2 text-xs">
-            <div className="flex justify-between items-center text-[#A1A1AA]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-[#A1A1AA]">
               <span>Payment Gateway Transaction Reference:</span>
-              <span className="font-mono text-[#FFFFFF] bg-[#161B26] px-2 py-0.5 rounded border border-[#D4AF37]/20">
+              <span className="font-mono text-[#FFFFFF] bg-[#161B26] px-2 py-0.5 rounded border border-[#D4AF37]/20 break-all text-[11px] self-start sm:self-auto">
                 {selectedOrder.razorpay_order_id ||
                   selectedOrder.razorpay_payment_id ||
                   selectedOrder.transaction_id ||
@@ -315,13 +315,13 @@ export default function OrderDetailModal({
         {/* Status Update Form */}
         <form
           onSubmit={handleUpdateStatus}
-          className="bg-[#161B26] border border-[#D4AF37]/40 p-4 rounded-xl space-y-4 shadow-lg"
+          className="bg-[#161B26] border border-[#D4AF37]/40 p-3.5 sm:p-4 rounded-xl space-y-4 shadow-lg"
         >
-          <h4 className="font-sans text-sm font-bold text-[#FFFFFF] uppercase tracking-wider flex items-center gap-1.5">
-            <Truck className="w-4 h-4 text-[#D4AF37]" /> Dispatch &amp; Status Update
+          <h4 className="font-sans text-xs sm:text-sm font-bold text-[#FFFFFF] uppercase tracking-wider flex items-center gap-1.5">
+            <Truck className="w-4 h-4 text-[#D4AF37] shrink-0" /> Dispatch &amp; Status Update
           </h4>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-1">
               <label className="block uppercase font-bold text-[#D4AF37] tracking-wider text-[10px]">
                 Select New Status
@@ -329,7 +329,7 @@ export default function OrderDetailModal({
               <select
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
-                className="w-full bg-[#0A0D14] border border-[#D4AF37]/35 rounded-lg p-2.5 text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
+                className="w-full bg-[#0A0D14] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37] cursor-pointer"
               >
                 {STATUS_OPTIONS.map((st) => (
                   <option key={st} value={st}>
@@ -347,34 +347,34 @@ export default function OrderDetailModal({
                 type="text"
                 value={trackingId}
                 onChange={(e) => setTrackingId(e.target.value)}
-                className="w-full bg-[#0A0D14] border border-[#D4AF37]/35 rounded-lg p-2.5 text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
+                className="w-full bg-[#0A0D14] border border-[#D4AF37]/35 rounded-lg p-2.5 text-xs text-[#FFFFFF] focus:outline-none focus:border-[#D4AF37]"
                 placeholder="e.g. AWB19827391"
               />
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#D4AF37]/20">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 border-t border-[#D4AF37]/20">
             <button
               type="button"
               onClick={() => handleDeleteOrder(selectedOrder)}
-              className="px-4 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-red-950/70 text-red-300 hover:bg-red-900 border border-red-500/40 shadow-lg flex items-center gap-1.5 cursor-pointer font-sans transition-all"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-red-950/70 text-red-300 hover:bg-red-900 border border-red-500/40 shadow-lg flex items-center justify-center gap-1.5 cursor-pointer font-sans transition-all"
               title="Permanently remove order from database and storage"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Delete Order</span>
             </button>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg font-bold text-xs uppercase text-[#A1A1AA] hover:bg-[#0A0D14] cursor-pointer"
+                className="flex-1 sm:flex-none px-4 py-2 rounded-lg font-bold text-xs uppercase text-[#A1A1AA] hover:bg-[#0A0D14] cursor-pointer text-center"
               >
                 Close
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 shadow-lg flex items-center gap-1.5 cursor-pointer font-sans"
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 shadow-lg flex items-center justify-center gap-1.5 cursor-pointer font-sans"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>Save Status</span>

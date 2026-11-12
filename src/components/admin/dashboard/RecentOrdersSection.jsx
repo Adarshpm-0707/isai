@@ -24,12 +24,12 @@ export default function RecentOrdersSection({
   recentOrdersCount,
 }) {
   return (
-    <section className="animate-container-in bg-[#0F131C] border border-[#D4AF37]/35 rounded-2xl p-6 sm:p-7 shadow-xl space-y-5">
+    <section className="animate-container-in bg-[#0F131C] border border-[#D4AF37]/35 rounded-2xl p-4 sm:p-6 lg:p-7 shadow-xl space-y-5">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#D4AF37]/20">
         <div>
-          <div className="flex items-center gap-2">
-            <h2 className="font-sans text-lg sm:text-xl font-bold text-[#FFFFFF]">
-              Recent Customer Orders & Fulfillments
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="font-sans text-base sm:text-lg lg:text-xl font-bold text-[#FFFFFF]">
+              Recent Customer Orders &amp; Fulfillments
             </h2>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#161B26] text-[#D4AF37] border border-[#D4AF37]/40">
               {recentOrdersCount} Recent
@@ -40,9 +40,9 @@ export default function RecentOrdersSection({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3 w-full md:w-auto">
           {/* Search Bar */}
-          <div className="relative min-w-[220px] sm:min-w-[260px]">
+          <div className="relative flex-1 md:w-64 lg:w-72">
             <Search className="w-4 h-4 text-[#D4AF37] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -55,7 +55,7 @@ export default function RecentOrdersSection({
 
           <Link
             to="/admin/orders"
-            className="inline-flex items-center gap-1 px-3.5 py-2 rounded-xl bg-[#161B26] border border-[#D4AF37]/40 text-xs font-bold text-[#D4AF37] hover:bg-[#1E2534] hover:text-[#FFFFFF] transition-all"
+            className="inline-flex items-center gap-1 px-3 sm:px-3.5 py-2 rounded-xl bg-[#161B26] border border-[#D4AF37]/40 text-xs font-bold text-[#D4AF37] hover:bg-[#1E2534] hover:text-[#FFFFFF] transition-all shrink-0"
           >
             <span>All Orders</span>
             <ChevronRight className="w-4 h-4" />
@@ -64,12 +64,12 @@ export default function RecentOrdersSection({
       </div>
 
       {/* Status Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 text-xs font-semibold">
         {STATUS_FILTERS.map((st) => (
           <button
             key={st}
             onClick={() => setOrderStatusFilter(st)}
-            className={`px-3.5 py-1.5 rounded-lg transition-all text-xs font-bold uppercase tracking-wider cursor-pointer ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-lg transition-all text-[11px] sm:text-xs font-bold uppercase tracking-wider cursor-pointer whitespace-nowrap shrink-0 ${
               orderStatusFilter === st
                 ? 'bg-[#D4AF37] text-[#090B10] shadow-md'
                 : 'bg-[#161B26] text-[#D1D5DB] hover:text-[#FFFFFF] hover:bg-[#1E2534]'
@@ -93,14 +93,14 @@ export default function RecentOrdersSection({
           <table className="w-full text-left text-xs font-sans">
             <thead>
               <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] uppercase font-bold tracking-wider bg-[#090B10]">
-                <th className="py-3 px-4">Order ID</th>
-                <th className="py-3 px-4">Customer & Contact</th>
-                <th className="py-3 px-4 min-w-[240px]">Purchased Saree(s)</th>
-                <th className="py-3 px-4">Date</th>
-                <th className="py-3 px-4">Payment</th>
-                <th className="py-3 px-4">Total Amount</th>
-                <th className="py-3 px-4">Fulfillment Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+                <th className="py-3 px-3 sm:px-4">Order ID</th>
+                <th className="py-3 px-3 sm:px-4">Customer &amp; Contact</th>
+                <th className="py-3 px-3 sm:px-4 min-w-[200px] sm:min-w-[240px]">Purchased Saree(s)</th>
+                <th className="py-3 px-3 sm:px-4">Date</th>
+                <th className="py-3 px-3 sm:px-4">Payment</th>
+                <th className="py-3 px-3 sm:px-4">Total Amount</th>
+                <th className="py-3 px-3 sm:px-4">Fulfillment Status</th>
+                <th className="py-3 px-3 sm:px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#D4AF37]/15">

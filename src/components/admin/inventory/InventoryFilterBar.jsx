@@ -23,15 +23,15 @@ export default function InventoryFilterBar({
   ];
 
   return (
-    <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4 font-sans">
+    <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-3.5 sm:p-5 rounded-2xl shadow-xl flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 sm:gap-4 font-sans">
       {/* Status Filter Tabs */}
-      <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto">
+      <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 lg:pb-0 scrollbar-none w-full lg:w-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setStockFilter(tab.id)}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               stockFilter === tab.id
                 ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] shadow-lg'
                 : 'bg-[#161B26] text-[#A1A1AA] border border-[#D4AF37]/30 hover:border-[#D4AF37] hover:text-[#FFFFFF]'
@@ -44,7 +44,7 @@ export default function InventoryFilterBar({
       </div>
 
       {/* Search & Sort Controls */}
-      <div className="flex items-center gap-3 w-full lg:w-auto">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full lg:w-auto">
         {/* Search */}
         <div className="relative flex-1 lg:w-72">
           <Search className="w-4 h-4 text-[#D4AF37] absolute left-3.5 top-1/2 -translate-y-1/2" />

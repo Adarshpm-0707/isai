@@ -101,14 +101,21 @@ create table if not exists coupon_usage (
 -- 9. ORDERS
 create table if not exists orders (
   id uuid default gen_random_uuid() primary key,
+  order_id text,
   user_id uuid references auth.users(id) on delete set null,
+  customer_name text,
+  customer_email text,
+  customer_phone text,
   items jsonb,
   subtotal numeric,
   shipping_fee numeric default 0,
   discount_amount numeric default 0,
+  discount numeric default 0,
+  coupon_code text,
   cod_fee numeric default 0,
   total numeric not null,
-  payment_method text check (payment_method in ('prepaid', 'cod')) default 'prepaid',
+  total_amount numeric,
+  payment_method text default 'cod',
   status text check (status in ('pending', 'paid', 'confirmed', 'failed', 'processing', 'shipped', 'delivered', 'cancelled')) default 'pending',
   shipping_address jsonb,
   coupon_id uuid references coupons(id),
@@ -267,9 +274,11 @@ create policy "Admin read/manage cart" on cart_items for all using (is_admin());
 create policy "User manage wishlist" on wishlist for all using (auth.uid() = user_id);
 create policy "Admin read wishlist" on wishlist for select using (is_admin());
 
-create policy "User view own orders" on orders for select using (auth.uid() = user_id);
-create policy "User insert orders" on orders for insert with check (auth.uid() = user_id or user_id is null);
-create policy "Admin read/update all orders" on orders for all using (is_admin());
+-- ORDERS
+create policy "Anyone can insert orders" on orders for insert with check (true);
+create policy "Anyone can view orders" on orders for select using (true);
+create policy "Anyone can update orders" on orders for update using (true);
+create policy "Admin delete orders" on orders for delete using (true);
 
 -- COUPONS & USAGE
 create policy "Authenticated read active coupons" on coupons for select using (auth.role() = 'authenticated' and is_active = true);

@@ -99,7 +99,7 @@ export default function ManageProducts() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 text-[#F5E6BE] font-sans">
+    <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 text-[#F5E6BE] font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <SectionHeading
           title="Product Inventory"
@@ -111,7 +111,7 @@ export default function ManageProducts() {
           {/* Add Product */}
           <Link
             to="/admin/products/new"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] hover:brightness-110 px-5 py-2.5 font-sans text-xs uppercase tracking-wider font-bold rounded-lg shadow-xl transition-all"
           >
             <Plus className="w-4 h-4" /> Add Product
           </Link>
@@ -119,24 +119,24 @@ export default function ManageProducts() {
       </div>
 
       {/* Filter & Search Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between bg-[#0F131C] border border-[#D4AF37]/30 p-4 rounded-xl text-xs">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between bg-[#0F131C] border border-[#D4AF37]/30 p-3.5 sm:p-4 rounded-xl text-xs">
         <div className="flex items-center gap-2 bg-[#161B26] border border-[#D4AF37]/30 rounded-lg px-3 py-2 w-full sm:w-72">
-          <Search className="w-4 h-4 text-[#D4AF37]" />
+          <Search className="w-4 h-4 text-[#D4AF37] shrink-0" />
           <input
             type="text"
             placeholder="Search by title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none w-full"
+            className="bg-transparent text-[#FFFFFF] placeholder:text-[#A1A1AA]/60 focus:outline-none w-full text-xs"
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-[#D4AF37] font-bold uppercase">Category:</span>
+        <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto">
+          <span className="text-[#D4AF37] font-bold uppercase shrink-0">Category:</span>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-[#161B26] border border-[#D4AF37]/30 text-[#FFFFFF] px-3 py-2 rounded-lg focus:outline-none cursor-pointer"
+            className="flex-1 sm:flex-none bg-[#161B26] border border-[#D4AF37]/30 text-[#FFFFFF] px-3 py-2 rounded-lg focus:outline-none cursor-pointer text-xs"
           >
             <option value="All">All Categories</option>
             {categories.map((c) => (
@@ -177,18 +177,18 @@ export default function ManageProducts() {
             <table className="w-full text-left border-collapse text-xs font-sans">
               <thead>
                 <tr className="border-b border-[#D4AF37]/25 text-[#D4AF37] font-bold uppercase tracking-wider bg-[#0A0D14]">
-                  <th className="py-4 px-6">Preview</th>
-                  <th className="py-4 px-6">Name</th>
-                  <th className="py-4 px-6">Category</th>
-                  <th className="py-4 px-6">Price</th>
-                  <th className="py-4 px-6">Stock</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6">Preview</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6 min-w-[140px]">Name</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6">Category</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6">Price</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6">Stock</th>
+                  <th className="py-3.5 sm:py-4 px-3 sm:px-5 lg:px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#D4AF37]/15">
                 {products.map((product) => (
                   <tr key={product.id} className="hover:bg-[#161B26]/60 transition-colors">
-                    <td className="py-4 px-6">
+                    <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6">
                       <div className="w-10 aspect-[3/4] overflow-hidden bg-[#0A0D14] border border-[#D4AF37]/30 rounded">
                         <img
                           src={product.images?.[0] || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=300'}
@@ -197,16 +197,16 @@ export default function ManageProducts() {
                         />
                       </div>
                     </td>
-                    <td className="py-4 px-6 font-semibold text-[#FFFFFF] max-w-xs truncate">
+                    <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6 font-semibold text-[#FFFFFF] max-w-[130px] sm:max-w-xs truncate" title={product.name}>
                       {product.name}
                     </td>
-                    <td className="py-4 px-6 uppercase text-[10px] text-[#A1A1AA] font-bold">
+                    <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6 uppercase text-[10px] text-[#A1A1AA] font-bold whitespace-nowrap">
                       {product.category}
                     </td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6 whitespace-nowrap">
                       <PriceTag price={product.discount_price || product.price} size="sm" />
                     </td>
-                    <td className="py-4 px-6 font-medium text-[#A1A1AA]">
+                    <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6 font-medium text-[#A1A1AA] whitespace-nowrap">
                       {product.stock <= 0 ? (
                         <span className="text-[#F5E6BE] bg-[#161B26] px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-[#D4AF37]/35">
                           Out of Stock
@@ -219,10 +219,10 @@ export default function ManageProducts() {
                         <span>{product.stock} units</span>
                       )}
                     </td>
-                    <td className="py-4 px-6 text-right space-x-2">
+                    <td className="py-3 sm:py-4 px-3 sm:px-5 lg:px-6 text-right space-x-1.5 sm:space-x-2 whitespace-nowrap">
                       <Link
                         to={`/admin/products/edit/${product.id}`}
-                        className="inline-flex p-2 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded"
+                        className="inline-flex p-1.5 sm:p-2 bg-[#161B26] text-[#FFFFFF] hover:bg-[#D4AF37] hover:text-[#090B10] border border-[#D4AF37]/35 transition-all rounded"
                         title="Edit Product"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -230,7 +230,7 @@ export default function ManageProducts() {
                       <button
                         onClick={() => handleDelete(product)}
                         type="button"
-                        className="inline-flex p-2 bg-[#161B26] text-[#A1A1AA] hover:text-white hover:bg-red-900/80 border border-[#D4AF37]/35 transition-all rounded cursor-pointer"
+                        className="inline-flex p-1.5 sm:p-2 bg-[#161B26] text-[#A1A1AA] hover:text-white hover:bg-red-900/80 border border-[#D4AF37]/35 transition-all rounded cursor-pointer"
                         title="Delete Product"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

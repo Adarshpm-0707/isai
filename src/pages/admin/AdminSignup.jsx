@@ -81,7 +81,7 @@ export default function AdminSignup() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-16 relative bg-[#090B10] text-[#FFFFFF] font-sans">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:py-16 relative bg-[#090B10] text-[#FFFFFF] font-sans">
       {/* Decorative Ambient Radial Glow */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#D4AF37]/10 rounded-full blur-[140px] pointer-events-none" />
 
@@ -99,7 +99,7 @@ export default function AdminSignup() {
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[#D4AF37]/35 bg-[#161B26] text-[#D4AF37] text-[10px] font-bold uppercase tracking-widest">
             <Shield className="w-3.5 h-3.5 text-[#D4AF37]" /> Restricted Admin Registration
           </div>
-          <h1 className="text-3xl font-bold tracking-wide text-[#FFFFFF] font-sans">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-wide text-[#FFFFFF] font-sans">
             Admin Sign Up
           </h1>
           <FloralOrnament />
@@ -107,7 +107,7 @@ export default function AdminSignup() {
         </div>
 
         {/* Signup Card Form */}
-        <div className="rounded-2xl p-6 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden text-left bg-[#0F131C] border border-[#D4AF37]/30">
+        <div className="rounded-2xl p-5 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden text-left bg-[#0F131C] border border-[#D4AF37]/30">
           {error && (
             <div className="p-3 rounded-lg flex items-center gap-2 text-xs font-bold text-red-300 border border-red-500/40 bg-red-950/60 shadow-lg">
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />

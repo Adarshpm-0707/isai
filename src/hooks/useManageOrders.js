@@ -42,24 +42,26 @@ export function useManageOrders() {
     fetchOrders();
 
     const handleOrdersUpdated = (e) => {
-      if (Array.isArray(e.detail)) {
+      if (Array.isArray(e.detail) && e.detail.length > 0) {
         setOrders(e.detail);
       } else {
-        setOrders(orderService.getLocalOrders());
+        fetchOrders();
       }
     };
 
     const handleStorageChange = (e) => {
-      if (!e.key || e.key === 'isai_orders' || e.key === 'isai_deleted_order_ids') {
-        setOrders(orderService.getLocalOrders());
+      if (!e.key || e.key === 'isai_orders') {
+        fetchOrders();
       }
     };
 
     window.addEventListener('isai:orders_updated', handleOrdersUpdated);
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', fetchOrders);
     return () => {
       window.removeEventListener('isai:orders_updated', handleOrdersUpdated);
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', fetchOrders);
     };
   }, [fetchOrders]);
 

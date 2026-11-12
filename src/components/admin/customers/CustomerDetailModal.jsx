@@ -19,15 +19,15 @@ export default function CustomerDetailModal({
       onClose={onClose}
       title={`Customer Profile (${customer.name || ''})`}
     >
-      <div className="space-y-6 text-xs font-sans text-[#F5E6BE] p-1 max-h-[80vh] overflow-y-auto pr-1">
+      <div className="space-y-5 sm:space-y-6 text-xs font-sans text-[#F5E6BE]">
         {/* Header info */}
-        <div className="bg-[#161B26] border border-[#D4AF37]/40 p-4 rounded-xl flex items-center gap-4 shadow-lg">
-          <div className="w-12 h-12 rounded-full bg-[#0A0D14] border-2 border-[#D4AF37] flex items-center justify-center text-[#D4AF37] font-bold text-lg shrink-0">
+        <div className="bg-[#161B26] border border-[#D4AF37]/40 p-3.5 sm:p-4 rounded-xl flex items-center gap-3.5 sm:gap-4 shadow-lg">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#0A0D14] border-2 border-[#D4AF37] flex items-center justify-center text-[#D4AF37] font-bold text-base sm:text-lg shrink-0">
             {customer.name?.charAt(0).toUpperCase() || 'C'}
           </div>
-          <div>
-            <h3 className="font-sans text-base font-bold text-[#FFFFFF]">{customer.name}</h3>
-            <p className="font-mono text-[#A1A1AA] text-xs">{customer.email}</p>
+          <div className="min-w-0">
+            <h3 className="font-sans text-sm sm:text-base font-bold text-[#FFFFFF] truncate">{customer.name}</h3>
+            <p className="font-mono text-[#A1A1AA] text-xs truncate">{customer.email}</p>
             <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/40">
               Customer User
             </span>
@@ -35,28 +35,29 @@ export default function CustomerDetailModal({
         </div>
 
         {/* Contact & Address Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-4 rounded-xl space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-3.5 sm:p-4 rounded-xl space-y-2">
             <h4 className="font-sans text-xs font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-1.5">
-              <Phone className="w-3.5 h-3.5" /> Contact Information
+              <Phone className="w-3.5 h-3.5 shrink-0" /> Contact Information
             </h4>
-            <p className="flex items-center gap-2 text-[#A1A1AA]">
-              <Mail className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <p className="flex items-center gap-2 text-[#A1A1AA] break-all">
+              <Mail className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
               <span className="text-[#FFFFFF]">{customer.email}</span>
             </p>
             <p className="flex items-center gap-2 text-[#A1A1AA]">
-              <Phone className="w-3.5 h-3.5 text-[#D4AF37]" />
-              <span className="text-[#FFFFFF]">{customer.phone}</span>
+              <Phone className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
+              <span className="text-[#FFFFFF]">{customer.phone || 'N/A'}</span>
             </p>
           </div>
 
-          <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-4 rounded-xl space-y-2">
+          <div className="bg-[#0A0D14] border border-[#D4AF37]/30 p-3.5 sm:p-4 rounded-xl space-y-2">
             <h4 className="font-sans text-xs font-bold text-[#D4AF37] uppercase tracking-wider flex items-center gap-1.5 border-b border-[#D4AF37]/20 pb-1.5">
-              <MapPin className="w-3.5 h-3.5" /> Primary Address
+              <MapPin className="w-3.5 h-3.5 shrink-0" /> Primary Address
             </h4>
-            <p className="text-[#FFFFFF]">{customer.address}</p>
+            <p className="text-[#FFFFFF] break-words">{customer.address || 'No street address on file'}</p>
             <p className="text-[#A1A1AA]">
-              {customer.city}, <span className="font-bold text-[#D4AF37]">{customer.pincode}</span>
+              {customer.city || ''}{customer.city && customer.pincode ? ', ' : ''}
+              <span className="font-bold text-[#D4AF37]">{customer.pincode || ''}</span>
             </p>
           </div>
         </div>

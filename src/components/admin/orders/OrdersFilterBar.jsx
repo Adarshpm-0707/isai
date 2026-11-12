@@ -21,8 +21,8 @@ export default function OrdersFilterBar({
   filteredCount = 0,
 }) {
   return (
-    <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-4 rounded-2xl space-y-4 shadow-xl font-sans">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="bg-[#0F131C] border border-[#D4AF37]/35 p-3.5 sm:p-4 rounded-2xl space-y-3.5 sm:space-y-4 shadow-xl font-sans">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         {/* Real-time Keyword Search Input Box */}
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-[#D4AF37] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -43,7 +43,7 @@ export default function OrdersFilterBar({
           )}
         </div>
 
-        <div className="text-xs text-[#D4AF37] font-bold flex items-center gap-1.5 shrink-0">
+        <div className="text-xs text-[#D4AF37] font-bold flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
           <Filter className="w-3.5 h-3.5" />
           <span>
             Showing {filteredCount} of {orders.length} orders
@@ -52,7 +52,7 @@ export default function OrdersFilterBar({
       </div>
 
       {/* Status Filter Tabs */}
-      <div className="flex gap-2 border-t border-[#D4AF37]/20 pt-3 overflow-x-auto no-scrollbar">
+      <div className="flex gap-1.5 sm:gap-2 border-t border-[#D4AF37]/20 pt-3 overflow-x-auto pb-1 scrollbar-none">
         {ORDER_TABS.map((t) => {
           const count = orders.filter((o) =>
             t === 'all'
@@ -66,7 +66,7 @@ export default function OrdersFilterBar({
             <button
               key={t}
               onClick={() => setActiveTab(t)}
-              className={`px-3.5 py-1.5 rounded-lg text-xs uppercase font-bold tracking-wider transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 sm:px-3.5 py-1.5 rounded-lg text-xs uppercase font-bold tracking-wider transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
                 isActive
                   ? 'bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#090B10] shadow-md'
                   : 'bg-[#161B26] text-[#A1A1AA] hover:text-[#FFFFFF] border border-[#D4AF37]/25 hover:border-[#D4AF37]'
