@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, ShoppingBag, User, Settings, X } from 'lucide-react';
+import { Link, NavLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Heart, ShoppingBag, User, Settings } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import useCart from '../../hooks/useCart';
 import useWishlist from '../../hooks/useWishlist';
@@ -10,13 +10,10 @@ import MobileMenu from './MobileMenu';
 import navbarBg from '../../assets/navbarbg.png';
 
 export default function Navbar() {
-  const navigate = useNavigate();
   const { user, role, logout } = useAuth();
   const { cartCount } = useCart();
   const { wishlistCount } = useWishlist();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -38,14 +35,6 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchOpen(false);
-    }
-  };
 
   const navItems = [
     { to: '/', label: 'Home' },
@@ -136,22 +125,8 @@ export default function Navbar() {
               />
             </div>
 
-            {/* ── 3. RIGHT: SEARCH, WISHLIST, ACCOUNT, CART, ADMIN ── */}
+            {/* ── 3. RIGHT: WISHLIST, ACCOUNT, CART, ADMIN ── */}
             <div className="flex-1 flex items-center justify-end gap-2 sm:gap-2.5 xl:gap-3 min-w-0">
-              {/* Search Button (Opens Smooth Search Bar) */}
-              <button
-                type="button"
-                onClick={() => setSearchOpen((s) => !s)}
-                className="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl bg-[#1C120E]/85 border border-[#35221B] hover:border-[#DFC18A]/50 flex items-center gap-2 text-white hover:text-[#DFC18A] transition-all cursor-pointer shadow-sm shrink-0"
-                aria-label="Search"
-                title="Search Sarees"
-              >
-                <Search className="w-4 h-4 text-[#DFC18A]" />
-                <span className="hidden xl:inline text-xs text-[#A89689] font-light">
-                  Search...
-                </span>
-              </button>
-
               {/* Wishlist Button (Mobile, Tablet & Desktop) */}
               <Link
                 to="/wishlist"
@@ -207,61 +182,6 @@ export default function Navbar() {
 
           </div>
         </div>
-
-        {/* ── SMOOTH SEARCH SLIDE-DOWN BAR ── */}
-        <AnimatePresence>
-          {searchOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="border-t border-[#2C1B14] bg-[#170E0B] px-4 py-3 overflow-hidden shadow-2xl"
-            >
-              <div className="max-w-3xl mx-auto">
-                <form onSubmit={handleSearchSubmit} className="relative flex items-center mb-2">
-                  <Search className="w-4 h-4 text-[#8E7B6F] absolute left-3.5 pointer-events-none" />
-                  <input
-                    type="text"
-                    placeholder="Search pure silk, banarasi, kanchipuram, soft cotton..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    autoFocus
-                    className="w-full bg-[#110A08] text-white placeholder-[#7E6D62] text-xs pl-10 pr-9 py-2.5 rounded-xl border border-[#35221B] focus:border-[#DFC18A] focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setSearchOpen(false)}
-                    className="absolute right-3 text-[#8E7B6F] hover:text-white cursor-pointer"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </form>
-
-                {/* Quick Filter Tags */}
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
-                  <span className="text-[10px] text-[#A89689] uppercase tracking-wider shrink-0 font-medium">
-                    Trending:
-                  </span>
-                  {['Kanchipuram', 'Banarasi', 'Kerala Cotton', 'Festive', 'Silk'].map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => {
-                        setSearchQuery(tag);
-                        navigate(`/products?search=${encodeURIComponent(tag)}`);
-                        setSearchOpen(false);
-                      }}
-                      className="text-[10px] text-[#DFC18A] bg-[#1E130F] border border-[#35221B] px-2.5 py-0.5 rounded-full shrink-0 hover:bg-[#DFC18A]/10 transition-colors"
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
 
       {/* ── DRAWER MENU (OPENS ON BOTH LAPTOP & MOBILE) ── */}

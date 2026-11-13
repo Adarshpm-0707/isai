@@ -3,41 +3,29 @@ import { Link, useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import { supabase } from '../lib/supabaseClient';
 import { orderService } from '../services/orderService';
-import { User, Mail, Phone, MapPin, ShoppingBag, LogOut, CheckCircle2, ShieldCheck, Save, ArrowRight } from 'lucide-react';
+import { ShoppingBag, LogOut, ShieldCheck, ArrowRight } from 'lucide-react';
 import BrandLogo from '../components/reusable/BrandLogo';
-import { FloralOrnament } from '../components/reusable/FloralOrnament';
 
 export default function CustomerProfile() {
   const navigate = useNavigate();
-  const { user, profile, logout, refreshProfile } = useAuth();
+  const { user, profile, logout } = useAuth();
 
-  const [name, setName] = useState(profile?.name || user?.name || user?.user_metadata?.name || '');
-  const [email, setEmail] = useState(profile?.email || user?.email || '');
-  const [phone, setPhone] = useState(profile?.phone || '');
-  const [address, setAddress] = useState(profile?.address || '');
-  const [city, setCity] = useState(profile?.city || '');
-  const [pincode, setPincode] = useState(profile?.pincode || '');
+  const name = profile?.name || user?.name || user?.user_metadata?.name || '';
+  const email = profile?.email || user?.email || '';
+  const phone = profile?.phone || '';
+  const address = profile?.address || '';
+  const city = profile?.city || '';
+  const pincode = profile?.pincode || '';
 
   const [recentOrders, setRecentOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(null);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!user) {
       navigate('/login');
       return;
     }
-    if (profile) {
-      setName(profile.name || user?.user_metadata?.name || user.email?.split('@')[0] || '');
-      setEmail(profile.email || user.email || '');
-      setPhone(profile.phone || '');
-      setAddress(profile.address || '');
-      setCity(profile.city || '');
-      setPincode(profile.pincode || '');
-    }
     fetchCustomerOrders();
-  }, [user, profile]);
+  }, [user]);
 
   const fetchCustomerOrders = async () => {
     if (!user?.email && !user?.id) return;
@@ -80,36 +68,6 @@ export default function CustomerProfile() {
       if (data && data.length > 0) setRecentOrders(data);
     } catch (err) {
       console.warn('Notice loading customer orders:', err);
-    }
-  };
-
-  const handleSaveProfile = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
-
-    try {
-      const updates = {
-        id: user.id,
-        name,
-        phone,
-        address,
-        city,
-        pincode,
-        updated_at: new Date().toISOString(),
-      };
-
-      const { error: updateErr } = await supabase.from('profiles').upsert(updates);
-      if (updateErr) throw updateErr;
-
-      setSuccess('Account details saved successfully.');
-      if (refreshProfile) await refreshProfile();
-      setTimeout(() => setSuccess(null), 3500);
-    } catch (err) {
-      setError(err.message || 'Failed to update account');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -181,6 +139,14 @@ export default function CustomerProfile() {
                   <span className="text-[#8E7B6F]">Phone:</span>
                   <span className="text-[#FDF8F4]">{phone || 'Not provided'}</span>
                 </div>
+                {(city || address) && (
+                  <div className="flex justify-between">
+                    <span className="text-[#8E7B6F]">Location:</span>
+                    <span className="text-[#FDF8F4] text-right truncate max-w-[180px]">
+                      {[city, pincode].filter(Boolean).join(', ') || address}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -206,115 +172,8 @@ export default function CustomerProfile() {
             </div>
           </div>
 
-          {/* Right Column: Edit Form & Recent Orders */}
+          {/* Right Column: Orders & Activity */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-[#1E130F] border border-[#35221B] p-6 sm:p-8 rounded-2xl shadow-xl space-y-6">
-              <div className="flex items-center gap-3 border-b border-[#2C1C16] pb-4">
-                <User className="w-5 h-5 text-[#DFC18A]" />
-                <div>
-                  <h3 className="font-serif text-base font-semibold text-[#FDF8F4]">
-                    Personal Information & Shipping Address
-                  </h3>
-                  <p className="text-xs text-[#8E7B6F]">Update your delivery details for faster checkout</p>
-                </div>
-              </div>
-
-              {error && (
-                <div className="p-3 rounded-xl text-xs text-red-300 border border-red-500/40 bg-red-950/40">
-                  {error}
-                </div>
-              )}
-
-              {success && (
-                <div className="p-3 rounded-xl flex items-center gap-2 text-xs text-green-300 border border-green-500/40 bg-green-950/40">
-                  <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
-                  <span>{success}</span>
-                </div>
-              )}
-
-              <form onSubmit={handleSaveProfile} className="space-y-4 text-xs font-sans">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block uppercase font-semibold text-[#DFC18A] tracking-wider">Full Name *</label>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl text-xs text-[#FDF8F4] bg-[#160E0B] border border-[#35221B] focus:border-[#DFC18A] focus:outline-none"
-                      placeholder="Radhika Sharma"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block uppercase font-semibold text-[#8E7B6F] tracking-wider">Email (Locked)</label>
-                    <input
-                      type="email"
-                      value={email}
-                      disabled
-                      className="w-full px-4 py-2.5 rounded-xl text-xs text-[#8E7B6F] bg-[#160E0B]/60 border border-[#2A1B15] cursor-not-allowed"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block uppercase font-semibold text-[#DFC18A] tracking-wider">Phone Number *</label>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl text-xs text-[#FDF8F4] bg-[#160E0B] border border-[#35221B] focus:border-[#DFC18A] focus:outline-none"
-                    placeholder="+91 90488 68444"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block uppercase font-semibold text-[#DFC18A] tracking-wider">Street Address</label>
-                  <input
-                    type="text"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl text-xs text-[#FDF8F4] bg-[#160E0B] border border-[#35221B] focus:border-[#DFC18A] focus:outline-none"
-                    placeholder="Door No. 12, Main Street, MG Road"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="block uppercase font-semibold text-[#DFC18A] tracking-wider">City / District</label>
-                    <input
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl text-xs text-[#FDF8F4] bg-[#160E0B] border border-[#35221B] focus:border-[#DFC18A] focus:outline-none"
-                      placeholder="Kannur"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block uppercase font-semibold text-[#DFC18A] tracking-wider">Pincode</label>
-                    <input
-                      type="text"
-                      value={pincode}
-                      onChange={(e) => setPincode(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl text-xs text-[#FDF8F4] bg-[#160E0B] border border-[#35221B] focus:border-[#DFC18A] focus:outline-none"
-                      placeholder="670004"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-3 flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-6 py-2.5 rounded-full font-semibold text-xs uppercase tracking-wider bg-[#C86A27] hover:bg-[#DB7B32] text-white flex items-center gap-2 shadow-lg cursor-pointer transition-all disabled:opacity-50"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>{loading ? 'Saving...' : 'Save Details'}</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-
             {/* Recent Orders Overview */}
             <div className="bg-[#1E130F] border border-[#35221B] p-6 rounded-2xl shadow-xl space-y-4">
               <div className="flex items-center justify-between border-b border-[#2C1C16] pb-3">

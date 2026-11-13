@@ -354,6 +354,118 @@ export default function About() {
         </div>
       </section>
 
+      {/* ── SECTION: ABOUT ISAI TARANG & PLATFORM SERVICES ── */}
+      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 border-t border-[#2A1B15] bg-gradient-to-b from-[#140C0A] via-[#180E0B] to-[#120B09]">
+        <div className="max-w-6xl mx-auto space-y-14">
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-[#DFC18A] text-xs font-semibold tracking-[0.3em] uppercase block">
+              Online Saree Destination
+            </span>
+            <h2
+              className="font-serif text-3xl sm:text-5xl text-[#FDF8F4] tracking-tight"
+              style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
+            >
+              About Isai Tarang
+            </h2>
+            <FloralOrnament className="mt-2" />
+            <p className="font-serif italic text-lg sm:text-xl text-[#DFC18A] pt-2">
+              Welcome to Isai Tarang – Your Destination for Beautiful Sarees.
+            </p>
+            <p className="text-sm sm:text-base text-[#C7B5A7] font-light leading-relaxed pt-1">
+              Isai Tarang is an online saree shopping platform offering a collection of traditional, contemporary and premium sarees. Our platform allows customers to explore saree collections, view product details, create accounts, and conveniently place orders online.
+            </p>
+          </div>
+
+          {/* Our Services */}
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3
+                className="font-serif text-2xl sm:text-3xl text-[#FDF8F4]"
+                style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
+              >
+                Our Services
+              </h3>
+              <p className="text-xs text-[#8E7B6F] uppercase tracking-widest mt-1">
+                Everything you need for an effortless shopping experience
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {[
+                { title: 'Explore Collections', desc: 'Browse and explore saree collections.' },
+                { title: 'Product Details', desc: 'View product descriptions, images and prices.' },
+                { title: 'Customer Accounts', desc: 'Create and manage customer accounts.' },
+                { title: 'Secure Google Sign-In', desc: 'Sign in securely using Google.' },
+                { title: 'Order Management', desc: 'Place and manage online orders.' },
+                { title: 'Customer Support', desc: 'Access customer support and order-related assistance.' },
+              ].map((service, idx) => (
+                <div
+                  key={idx}
+                  className="p-6 rounded-2xl bg-[#1E130F] border border-[#35221B] hover:border-[#DFC18A]/50 transition-all duration-300 shadow-md space-y-2"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-[#DFC18A] shrink-0" />
+                    <h4 className="font-serif text-base font-semibold text-[#FDF8F4]">
+                      {service.title}
+                    </h4>
+                  </div>
+                  <p className="text-xs text-[#A89689] leading-relaxed font-light pl-6">
+                    {service.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Privacy and Customer Security */}
+          <div className="p-8 sm:p-10 rounded-3xl bg-[#1A100C] border border-[#3A241C] shadow-2xl relative overflow-hidden">
+            <div className="relative z-10 max-w-4xl space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#120B09] border border-[#DFC18A]/40 flex items-center justify-center text-[#DFC18A] shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3
+                    className="font-serif text-xl sm:text-2xl text-[#FDF8F4]"
+                    style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
+                  >
+                    Privacy and Customer Security
+                  </h3>
+                  <p className="text-[11px] text-[#DFC18A] uppercase tracking-wider">
+                    Your Trust &amp; Data Protection
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-[#C7B5A7] font-light leading-relaxed">
+                We respect our customers&apos; privacy and are committed to protecting their personal information. Information collected through our website is used to provide account services, process orders, communicate with customers and improve the shopping experience.
+              </p>
+
+              <p className="text-xs sm:text-sm text-[#C7B5A7] font-light leading-relaxed">
+                For details about how we collect, use and protect your information, please read our{' '}
+                <Link
+                  to="/privacy-policy"
+                  className="text-[#DFC18A] font-medium underline underline-offset-4 hover:text-[#FDF8F4] transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+                {' '}(or visit{' '}
+                <a
+                  href="https://isaitarang.com/privacy-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#DFC18A] font-mono text-xs hover:underline"
+                >
+                  https://isaitarang.com/privacy-policy
+                </a>
+                ).
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── SECTION 6: GRAND INVITATION BANNER ── */}
       <section className="relative py-10 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-[#180F0C] via-[#22140F] to-[#180F0C] border-t border-[#35221B] text-center overflow-hidden">
         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 relative z-10">

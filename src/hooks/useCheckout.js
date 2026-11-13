@@ -21,12 +21,8 @@ export default function useCheckout() {
   const {
     cartItems,
     subtotal,
-    discount,
     shippingFee,
     totalAmount,
-    appliedCoupon,
-    applyCoupon,
-    removeCoupon,
     clearCart,
   } = useCart();
 
@@ -129,10 +125,8 @@ export default function useCheckout() {
           const order = await checkoutService.createCodOrder({
             cartItems,
             shippingAddress: formData,
-            coupon: appliedCoupon,
-            coupon_code: appliedCoupon?.code || null,
             subtotal,
-            discount,
+            discount: 0,
             shippingFee,
             codFee,
             totalAmount: finalTotal,
@@ -145,8 +139,7 @@ export default function useCheckout() {
               orderId: order.id || order.order_id,
               totalAmount: finalTotal,
               subtotal,
-              discount,
-              couponCode: appliedCoupon?.code || order.coupon_code || null,
+              discount: 0,
               items: order.items || cartItems,
               shippingAddress: formData,
               paymentMethod: 'Cash on Delivery (COD)',
@@ -239,10 +232,7 @@ export default function useCheckout() {
   return {
     cartItems,
     subtotal,
-    discount,
-    appliedCoupon,
-    applyCoupon,
-    removeCoupon,
+    discount: 0,
     shippingFee,
     totalAmount,
     formData,

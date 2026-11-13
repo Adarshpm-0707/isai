@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useCart from '../hooks/useCart';
 import PriceTag from '../components/reusable/PriceTag';
 import QtySelector from '../components/reusable/QtySelector';
 import EmptyState from '../components/reusable/EmptyState';
-import { Trash2, ArrowRight, ShieldCheck, Tag, X } from 'lucide-react';
+import { Trash2, ArrowRight, ShieldCheck } from 'lucide-react';
 import { getProductImage } from '../utils/productHelpers';
 import { FloralOrnament } from '../components/reusable/FloralOrnament';
 
@@ -15,17 +15,8 @@ export default function Cart() {
     updateQuantity,
     removeFromCart,
     subtotal,
-    discount,
     totalAmount,
-    appliedCoupon,
-    applyCoupon,
-    removeCoupon,
   } = useCart();
-
-  const [couponCode, setCouponCode] = useState('');
-  const [couponError, setCouponError] = useState('');
-  const [couponSuccess, setCouponSuccess] = useState('');
-  const [isApplying, setIsApplying] = useState(false);
 
   if (cartItems.length === 0) {
     return (
@@ -39,23 +30,6 @@ export default function Cart() {
       </div>
     );
   }
-
-  const handleApplyCoupon = async (e) => {
-    e.preventDefault();
-    setCouponError('');
-    setCouponSuccess('');
-    if (!couponCode.trim()) return;
-    setIsApplying(true);
-    try {
-      const res = await applyCoupon(couponCode);
-      setCouponSuccess(res.message);
-      setCouponCode('');
-    } catch (err) {
-      setCouponError(err.message || 'Failed to apply coupon');
-    } finally {
-      setIsApplying(false);
-    }
-  };
 
   return (
     <div className="min-h-screen px-4 sm:px-6 lg:px-8 py-8 sm:py-14 bg-[#120B09] text-[#FDF8F4]">
@@ -169,54 +143,16 @@ export default function Cart() {
                 Order Summary
               </h3>
 
-              {/* Coupon Form */}
-              <form onSubmit={handleApplyCoupon} className="space-y-2">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Coupon code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    className="flex-1 bg-[#160E0B] border border-[#35221B] rounded-xl px-3 py-2 text-xs text-[#FDF8F4] placeholder-[#8E7B6F] focus:border-[#DFC18A] focus:outline-none uppercase"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isApplying}
-                    className="px-4 py-2 bg-[#160E0B] hover:bg-[#261914] border border-[#DFC18A]/40 text-[#DFC18A] rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-50"
-                  >
-                    {isApplying ? '...' : 'Apply'}
-                  </button>
-                </div>
-                {couponError && <p className="text-[11px] text-red-400">{couponError}</p>}
-                {couponSuccess && <p className="text-[11px] text-green-400">{couponSuccess}</p>}
-                {appliedCoupon && (
-                  <div className="flex items-center justify-between bg-[#160E0B] border border-[#DFC18A]/30 px-3 py-1.5 rounded-lg text-xs">
-                    <span className="text-[#DFC18A] font-medium flex items-center gap-1.5">
-                      <Tag className="w-3.5 h-3.5" /> {appliedCoupon.code}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={removeCoupon}
-                      className="text-[#8E7B6F] hover:text-[#FDF8F4]"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-              </form>
-
               {/* Cost Breakdown */}
-              <div className="space-y-2.5 text-xs text-[#C7B5A7] border-t border-[#2C1C16] pt-4">
+              <div className="space-y-2.5 text-xs text-[#C7B5A7] pt-1">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span className="text-[#FDF8F4] font-medium">₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-[#DFC18A]">
-                    <span>Discount</span>
-                    <span>-₹{discount.toLocaleString('en-IN')}</span>
-                  </div>
-                )}
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span className="text-emerald-400 font-medium">FREE</span>
+                </div>
                 <div className="flex justify-between text-base font-bold text-[#FDF8F4] border-t border-[#2C1C16] pt-3">
                   <span>Total</span>
                   <span>₹{totalAmount.toLocaleString('en-IN')}</span>

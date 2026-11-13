@@ -2,9 +2,33 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import nodemailer from 'nodemailer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Automatically load .env into process.env if present
+function loadEnvFile() {
+  const envPath = path.resolve(__dirname, '.env');
+  if (fs.existsSync(envPath)) {
+    try {
+      const lines = fs.readFileSync(envPath, 'utf-8').split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const eqIdx = trimmed.indexOf('=');
+        if (eqIdx > 0) {
+          const key = trimmed.slice(0, eqIdx).trim();
+          const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+          if (!process.env[key]) {
+            process.env[key] = val;
+          }
+        }
+      }
+    } catch {}
+  }
+}
+loadEnvFile();
 
 const PORT = process.env.PORT || 5173;
 const DIST_DIR = path.resolve(__dirname, 'dist');
@@ -231,6 +255,99 @@ const server = http.createServer(async (req, res) => {
         success: true,
         message: `Order #${orderId} deleted successfully`,
         totalOrders: filteredOrders.length,
+      });
+    } catch (err) {
+      return sendJson(res, 500, { success: false, error: err.message });
+    }
+  }
+
+  // POST /api/send-order-email
+  if (pathname === '/api/send-order-email' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const { to, subject, html, type, order } = body;
+      console.log(`[Server API] Order Email (${type || 'notification'}) dispatch to ${to}: ${subject}`);
+
+      const gmailUser = process.env.GMAIL_USER || 'isaitarang9@gmail.com';
+      const gmailAppPassword =
+        process.env.GMAIL_APP_PASSWORD ||
+        process.env.VITE_GMAIL_APP_PASSWORD ||
+        process.env.SMTP_PASS;
+      const resendApiKey = process.env.RESEND_API_KEY || process.env.VITE_RESEND_API_KEY;
+
+      // 1. Try Gmail SMTP with Nodemailer
+      if (gmailAppPassword) {
+        try {
+          const cleanPass = String(gmailAppPassword).replace(/\s+/g, '');
+          const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: gmailUser,
+              pass: cleanPass,
+            },
+          });
+
+          const info = await transporter.sendMail({
+            from: `"Isai Tarang Sarees" <${gmailUser}>`,
+            to: to,
+            subject: subject,
+            html: html,
+          });
+
+          console.log(`[Server API] ✅ Gmail SMTP delivered to ${to} (MessageId: ${info.messageId})`);
+          return sendJson(res, 200, {
+            success: true,
+            provider: 'gmail_smtp',
+            messageId: info.messageId,
+            recipient: to,
+          });
+        } catch (smtpErr) {
+          console.error(`[Server API] ❌ Gmail SMTP error:`, smtpErr.message);
+          return sendJson(res, 500, {
+            success: false,
+            provider: 'gmail_smtp',
+            error: smtpErr.message,
+          });
+        }
+      }
+
+      // 2. Try Resend API
+      if (resendApiKey) {
+        try {
+          const resendResp = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${resendApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              from: 'Isai Tarang Sarees <onboarding@resend.dev>',
+              to: [to],
+              subject,
+              html,
+            }),
+          });
+          const resendData = await resendResp.json();
+          if (resendData.error) {
+            console.error(`[Server API] ❌ Resend error:`, resendData.error);
+            return sendJson(res, 400, { success: false, provider: 'resend', error: resendData.error });
+          }
+          console.log(`[Server API] ✅ Resend delivered to ${to} (ID: ${resendData.id})`);
+          return sendJson(res, 200, { success: true, provider: 'resend', data: resendData });
+        } catch (resendErr) {
+          console.error(`[Server API] ❌ Resend error:`, resendErr.message);
+          return sendJson(res, 500, { success: false, provider: 'resend', error: resendErr.message });
+        }
+      }
+
+      // 3. No credentials configured in .env
+      console.warn(`[Server API] ⚠️ No email credentials found in .env (GMAIL_APP_PASSWORD or RESEND_API_KEY). Real email was not delivered.`);
+      return sendJson(res, 200, {
+        success: false,
+        simulated: true,
+        warning: 'No email service credentials configured in .env. Please configure GMAIL_APP_PASSWORD or RESEND_API_KEY to send real emails.',
+        recipient: to,
+        orderId: order?.order_id || order?.id,
       });
     } catch (err) {
       return sendJson(res, 500, { success: false, error: err.message });

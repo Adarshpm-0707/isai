@@ -1,8 +1,8 @@
 import { supabase } from '../lib/supabaseClient';
-import { syncLocalhostData } from './dataSyncService';
 import { productService } from './productService';
 import { couponService } from './couponService';
 import { orderService } from './orderService';
+import { sendOrderConfirmationEmails } from './emailNotificationService';
 
 function isValidUUID(str) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(str || ''));
@@ -253,7 +253,16 @@ export const checkoutService = {
       console.warn('[Checkout] Supabase orders insert notice:', err?.message);
     }
 
-    // 6. Cache and record order locally
+    // 6. Simultaneously dispatch order emails to both Customer and Admin
+    try {
+      sendOrderConfirmationEmails(orderData).catch((mailErr) => {
+        console.warn('[Checkout] Background email send notice:', mailErr?.message);
+      });
+    } catch (err) {
+      console.warn('[Checkout] Email trigger notice:', err);
+    }
+
+    // 7. Cache and record order locally
     try {
       if (typeof window !== 'undefined') {
         // Cache last order in sessionStorage so reload on OrderSuccess never loses data
@@ -462,7 +471,16 @@ export const checkoutService = {
       console.warn('[Checkout] Supabase orders insert notice:', err?.message);
     }
 
-    // 6. Cache and record order locally
+    // 6. Simultaneously dispatch order emails to both Customer and Admin
+    try {
+      sendOrderConfirmationEmails(orderData).catch((mailErr) => {
+        console.warn('[Checkout] Background email send notice:', mailErr?.message);
+      });
+    } catch (err) {
+      console.warn('[Checkout] Email trigger notice:', err);
+    }
+
+    // 7. Cache and record order locally
     try {
       if (typeof window !== 'undefined') {
         // Cache last order in sessionStorage so reload on OrderSuccess never loses data

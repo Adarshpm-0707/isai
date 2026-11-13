@@ -2,7 +2,6 @@ import React from 'react';
 import useHomeData from '../hooks/useHomeData';
 import HeroSection from '../components/layout/HeroSection';
 import FaqSection from '../components/layout/FaqSection';
-import HomeTrustBadges from '../components/home/HomeTrustBadges';
 import HomeCategoriesCarousel from '../components/home/HomeCategoriesCarousel';
 import HomeNewlyArrived from '../components/home/HomeNewlyArrived';
 import HomeFeaturedProducts from '../components/home/HomeFeaturedProducts';
@@ -24,10 +23,7 @@ export default function Home() {
       {/* ── 1. HERO SECTION ── */}
       <HeroSection />
 
-      {/* ── 2. TRUST / FEATURE BADGES STRIP ── */}
-      <HomeTrustBadges />
-
-      {/* ── 3. CATEGORIES SECTION (3D CIRCULAR CAROUSEL) ── */}
+      {/* ── 2. CATEGORIES SECTION (3D CIRCULAR CAROUSEL) ── */}
       <HomeCategoriesCarousel
         carouselHeight={carouselHeight}
         categoryCarouselItems={categoryCarouselItems}

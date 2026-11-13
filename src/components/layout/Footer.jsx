@@ -7,9 +7,6 @@ import {
   Clock,
   ArrowUp,
   MessageCircle,
-  Sparkles,
-  ShieldCheck,
-  Truck,
   ArrowRight,
 } from 'lucide-react';
 import BrandLogo, { LotusEmblem } from '../reusable/BrandLogo';
@@ -23,61 +20,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-gradient-to-b from-[#140C0A] via-[#0E0705] to-[#080403] text-[#C7B5A7] border-t border-[#2C1B14] font-sans relative overflow-hidden">
-      {/* ── TRUST PILLARS (RESPONSIVE 3-GRID) ── */}
-      <div className="border-b border-[#241510] bg-[#0E0705]/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            
-            {/* Pillar 1 */}
-            <div className="flex items-center sm:justify-center gap-3.5 p-3.5 rounded-2xl bg-[#160E0B]/70 border border-[#281812]">
-              <div className="w-10 h-10 rounded-xl bg-[#221410] border border-[#DFC18A]/30 flex items-center justify-center shrink-0 text-[#DFC18A]">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h4 className="text-xs sm:text-sm font-semibold text-[#FDF8F4] truncate">
-                  100% Tested Pure Silk
-                </h4>
-                <p className="text-[11px] text-[#8E7B6F] font-light truncate">
-                  Certified handloom silk and authentic zari
-                </p>
-              </div>
-            </div>
-
-            {/* Pillar 2 */}
-            <div className="flex items-center sm:justify-center gap-3.5 p-3.5 rounded-2xl bg-[#160E0B]/70 border border-[#281812]">
-              <div className="w-10 h-10 rounded-xl bg-[#221410] border border-[#DFC18A]/30 flex items-center justify-center shrink-0 text-[#DFC18A]">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h4 className="text-xs sm:text-sm font-semibold text-[#FDF8F4] truncate">
-                  Direct Weaver Alliance
-                </h4>
-                <p className="text-[11px] text-[#8E7B6F] font-light truncate">
-                  Preserving generational weaver dignity
-                </p>
-              </div>
-            </div>
-
-            {/* Pillar 3 */}
-            <div className="flex items-center sm:justify-center gap-3.5 p-3.5 rounded-2xl bg-[#160E0B]/70 border border-[#281812]">
-              <div className="w-10 h-10 rounded-xl bg-[#221410] border border-[#DFC18A]/30 flex items-center justify-center shrink-0 text-[#DFC18A]">
-                <Truck className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h4 className="text-xs sm:text-sm font-semibold text-[#FDF8F4] truncate">
-                  Pan India Safe Delivery
-                </h4>
-                <p className="text-[11px] text-[#8E7B6F] font-light truncate">
-                  Insured express transit to your doorstep
-                </p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      {/* ── 3. MAIN FOOTER CONTENT ── */}
+      {/* ── MAIN FOOTER CONTENT ── */}
       <div id="footer-contact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
         
         {/* Mobile Brand Top Strip (< lg only) */}

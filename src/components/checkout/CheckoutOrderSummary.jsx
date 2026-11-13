@@ -5,8 +5,6 @@ import { getProductImage } from '../../utils/productHelpers';
 export default function CheckoutOrderSummary({
   cartItems,
   subtotal,
-  discount = 0,
-  appliedCoupon = null,
   paymentMethod,
   finalTotal,
   submitting,
@@ -66,14 +64,10 @@ export default function CheckoutOrderSummary({
           <span>Subtotal</span>
           <span className="text-[#FDF8F4]">₹{subtotal.toLocaleString('en-IN')}</span>
         </div>
-        {discount > 0 && (
-          <div className="flex justify-between text-emerald-400 font-medium">
-            <span>
-              Coupon Discount {appliedCoupon ? `(${appliedCoupon.code})` : ''}
-            </span>
-            <span>-₹{discount.toLocaleString('en-IN')}</span>
-          </div>
-        )}
+        <div className="flex justify-between">
+          <span>Delivery</span>
+          <span className="text-emerald-400 font-medium">FREE</span>
+        </div>
         <div className="flex justify-between text-base font-bold text-[#FDF8F4] border-t border-[#2C1C16] pt-3">
           <span>Total Payable</span>
           <span className="text-[#DFC18A] font-bold text-lg">
