@@ -21,6 +21,7 @@ import BrandLogo, { LotusEmblem } from '../reusable/BrandLogo';
 const NAV_LINKS = [
   { to: '/', label: 'Home', icon: Home, subtitle: 'Welcome to Isai Tarang' },
   { to: '/products', label: 'Shop Sarees', icon: ShoppingBag, subtitle: 'Pure Silks & Handlooms' },
+  { to: '/wishlist', label: 'My Wishlist', icon: Heart, subtitle: 'Saved Favorites' },
   { to: '/about', label: 'Our Story & Craft', icon: Info, subtitle: 'Heritage from Kuthampully' },
   { to: '/contact', label: 'Contact Us', icon: Phone, subtitle: 'Concierge & Studio' },
 ];

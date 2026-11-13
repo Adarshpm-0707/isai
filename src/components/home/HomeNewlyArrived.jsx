@@ -1,48 +1,32 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { LotusEmblem } from '../reusable/BrandLogo';
-import { FloralOrnament } from '../reusable/FloralOrnament';
 import ProductCard from '../reusable/ProductCard';
+import ProductSectionHeader from '../reusable/ProductSectionHeader';
 
 export default function HomeNewlyArrived({ newlyArrivedProducts }) {
   const navigate = useNavigate();
 
   return (
-    <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-[#23140F]">
-      {/* Header */}
-      <div className="relative flex items-center justify-between mb-8 sm:mb-10">
-        <div className="text-center w-full">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#DFC18A]/25 bg-[#19100D] mb-2.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#DFC18A]" />
-            <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.28em] uppercase text-[#DFC18A]">
-              Fresh Off The Loom
-            </span>
-          </div>
-          <h2
-            className="font-serif text-2xl sm:text-3xl md:text-4xl text-[#FDF8F4] font-normal leading-tight"
-            style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
-          >
-            Newly Arrived
-          </h2>
-          <FloralOrnament className="mt-2" />
-        </div>
+    <section className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-[#23140F] relative">
+      {/* ── TITLES SECTION: Elevated Royal Header ── */}
+      <ProductSectionHeader
+        badge="Fresh Off The Loom • Autumn Drops"
+        badgeIcon={Sparkles}
+        title="Newly Arrived"
+        titleAccent="Treasures"
+        subtitle="Be the first to drape our newest loom creations, showcasing contemporary palettes paired with traditional heritage zari."
+        actionText="Explore All"
+        actionLink="/products?sort=newest"
+      />
 
-        <Link
-          to="/products?sort=newest"
-          className="absolute right-0 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#DFC18A]/40 text-xs font-medium text-[#DFC18A] hover:bg-[#DFC18A]/10 transition-colors"
-        >
-          <span>Show More</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
-
-      {/* Newly Arrived Grid (Exactly 4 Products) */}
+      {/* ── NEW ARRIVALS GRID ── */}
       {newlyArrivedProducts.length === 0 ? (
-        <div className="py-14 px-6 rounded-2xl bg-[#1A100C]/60 border border-[#301F18] text-center max-w-xl mx-auto">
-          <LotusEmblem className="w-8 h-8 text-[#DFC18A] mx-auto mb-3 opacity-80" />
-          <h3 className="font-serif text-lg text-[#FDF8F4]">New Arrivals Coming Soon</h3>
-          <p className="text-xs text-[#A69385] mt-1.5 font-light">
+        <div className="py-16 px-6 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#1A100C]/70 to-[#140C08]/90 border border-[#301F18] text-center max-w-xl mx-auto shadow-xl">
+          <LotusEmblem className="w-9 h-9 text-[#DFC18A] mx-auto mb-3 opacity-80" />
+          <h3 className="font-serif text-lg sm:text-xl text-[#FDF8F4]">New Arrivals Coming Soon</h3>
+          <p className="text-xs sm:text-sm text-[#A69385] mt-2 font-light max-w-md mx-auto">
             Newly created sarees added in the admin dashboard will automatically appear here.
           </p>
         </div>
@@ -62,14 +46,14 @@ export default function HomeNewlyArrived({ newlyArrivedProducts }) {
           </div>
 
           {/* Show More New Arrivals Button */}
-          <div className="mt-8 sm:mt-10 text-center">
+          <div className="mt-10 sm:mt-14 text-center">
             <button
               type="button"
               onClick={() => navigate('/products?sort=newest')}
-              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full border border-[#DFC18A]/50 bg-[#1A100C] hover:bg-[#DFC18A] text-[#DFC18A] hover:text-[#120B09] text-xs font-semibold tracking-wider uppercase transition-all duration-300 shadow-lg group cursor-pointer"
+              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full border border-[#DFC18A]/50 bg-gradient-to-r from-[#1A100C] via-[#221510] to-[#1A100C] hover:border-[#DFC18A] hover:bg-[#DFC18A] text-[#DFC18A] hover:text-[#120B09] text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all duration-300 shadow-[0_6px_20px_rgba(0,0,0,0.5)] group cursor-pointer active:scale-95"
             >
               <span>Show More New Arrivals</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
           </div>
         </>
@@ -77,4 +61,3 @@ export default function HomeNewlyArrived({ newlyArrivedProducts }) {
     </section>
   );
 }
-

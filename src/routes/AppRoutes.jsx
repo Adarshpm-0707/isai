@@ -26,6 +26,7 @@ const Payment = lazy(() => import('../pages/Payment'));
 const OrderSuccess = lazy(() => import('../pages/OrderSuccess'));
 const OrderHistory = lazy(() => import('../pages/OrderHistory'));
 const CustomerProfile = lazy(() => import('../pages/CustomerProfile'));
+const Wishlist = lazy(() => import('../pages/Wishlist'));
 
 // Lazy loaded admin portal pages
 const AdminLogin = lazy(() => import('../pages/admin/AdminLogin'));
@@ -36,8 +37,6 @@ const ManageProducts = lazy(() => import('../pages/admin/ManageProducts'));
 const AddEditProduct = lazy(() => import('../pages/admin/AddEditProduct'));
 const ManageOrders = lazy(() => import('../pages/admin/ManageOrders'));
 const ManageCategories = lazy(() => import('../pages/admin/ManageCategories'));
-const ManageCoupons = lazy(() => import('../pages/admin/ManageCoupons'));
-const ManageAdmins = lazy(() => import('../pages/admin/ManageAdmins'));
 const ManageCustomers = lazy(() => import('../pages/admin/ManageCustomers'));
 const ManageInventory = lazy(() => import('../pages/admin/ManageInventory'));
 const ProfitLoss = lazy(() => import('../pages/admin/ProfitLoss'));
@@ -70,8 +69,6 @@ export default function AppRoutes() {
           <Route path="/admin/inventory" element={<ManageInventory />} />
           <Route path="/admin/profit-loss" element={<ProfitLoss />} />
           <Route path="/admin/categories" element={<ManageCategories />} />
-          <Route path="/admin/coupons" element={<ManageCoupons />} />
-          <Route path="/admin/admins" element={<ManageAdmins />} />
           <Route path="/admin/payment-settings" element={<PaymentSettings />} />
           <Route path="/admin/activity-logs" element={<ActivityLogs />} />
         </Route>
@@ -89,6 +86,7 @@ export default function AppRoutes() {
           <Route path="products/:id" element={<ProductDetails />} />
           <Route path="product/:id" element={<ProductDetails />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="wishlist" element={<Wishlist />} />
 
           {/* Auth Routes */}
           <Route path="login" element={<Login />} />

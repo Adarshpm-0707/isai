@@ -147,7 +147,7 @@ export default function AdminSignup() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#FFFFFF] placeholder:text-[#A1A1AA]/50 bg-[#161B26] border border-[#D4AF37]/30 focus:outline-none focus:border-[#D4AF37]"
-                  placeholder="admin@isaitarang.com"
+                  placeholder="admin@example.com"
                   required
                 />
               </div>

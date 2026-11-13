@@ -4,13 +4,7 @@ const DELETED_CUSTOMER_EMAILS_KEY = 'isai_deleted_customer_emails';
 const DELETED_CUSTOMER_IDS_KEY = 'isai_deleted_customer_ids';
 const DELETED_CUSTOMER_NAMES_KEY = 'isai_deleted_customer_names';
 
-const DEMO_CUSTOMER_EMAILS = new Set([
-  'priya.sharma@example.com',
-  'ananya.ramesh@example.com',
-  'demo@isaitarang.com',
-]);
-
-const withTimeout = (promise, ms = 800) => {
+const withTimeout = (promise, ms = 5000) => {
   let timer;
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error('timeout')), ms);
@@ -56,7 +50,7 @@ export const customerService = {
     const id = cust.id ? String(cust.id) : '';
     const name = cust.name ? String(cust.name).toLowerCase().trim() : '';
 
-    if (email && (deletedEmails.has(email) || DEMO_CUSTOMER_EMAILS.has(email))) return true;
+    if (email && deletedEmails.has(email)) return true;
     if (id && deletedIds.has(id)) return true;
     if (name && deletedNames.has(name)) return true;
 
@@ -64,91 +58,159 @@ export const customerService = {
   },
 
   async getAllCustomers() {
-    const deletedEmails = this.getDeletedEmails();
-    const deletedIds = this.getDeletedIds();
-    const deletedNames = this.getDeletedNames();
-
-    // 1. Fetch Cloud profiles with 800ms timeout
+    // 1. Fetch live profiles from Supabase (order by updated_at or fallback)
     let dbProfiles = [];
     try {
-      const res = await withTimeout(
-        supabase.from('profiles').select('*').order('created_at', { ascending: false }),
-        800
+      let res = await withTimeout(
+        supabase.from('profiles').select('*').order('updated_at', { ascending: false }),
+        5000
       );
-      if (res?.data) dbProfiles = res.data;
+      if (res?.data && Array.isArray(res.data)) {
+        dbProfiles = res.data;
+      } else {
+        // Fallback query without order in case column differences exist
+        const fallback = await withTimeout(supabase.from('profiles').select('*'), 5000);
+        if (fallback?.data && Array.isArray(fallback.data)) {
+          dbProfiles = fallback.data;
+        }
+      }
+    } catch (e) {
+      console.warn('Supabase profiles fetch notice:', e?.message);
+    }
+
+    // 2. Fetch Cloud orders from Supabase for guest/order checkout contacts
+    let dbOrders = [];
+    try {
+      const ordRes = await withTimeout(
+        supabase.from('orders').select('*').order('created_at', { ascending: false }),
+        5000
+      );
+      if (ordRes?.data && Array.isArray(ordRes.data)) dbOrders = ordRes.data;
     } catch (e) {}
 
-    // 2. Fetch local storage users
+    // 3. Local storage fallback (only used if completely offline and database returned nothing)
     let localUsers = [];
     try {
       localUsers = JSON.parse(localStorage.getItem('isai_registered_users') || '[]');
     } catch (e) {}
 
-    // 3. Fetch local & cloud orders for customer contact info
     let localOrders = [];
     try {
       localOrders = JSON.parse(localStorage.getItem('isai_orders') || '[]');
     } catch (e) {}
 
-    let currentUser = null;
-    try {
-      currentUser = JSON.parse(localStorage.getItem('isai_current_user') || 'null');
-    } catch (e) {}
-
     const customerMap = new Map();
 
-    const addCustomer = (u) => {
+    const addCustomer = (u, isFromDatabase = false) => {
       if (!u || (!u.email && !u.name)) return;
-      if (u.role === 'admin' || String(u.email || '').toLowerCase().includes('admin')) return;
+      if (u.role === 'admin' || String(u.email || '').toLowerCase().includes('admin@')) return;
 
       const rawEmail = u.email ? String(u.email).toLowerCase().trim() : '';
       const rawId = u.id ? String(u.id) : '';
-      const rawName = u.name ? String(u.name).toLowerCase().trim() : '';
+      const rawName = u.name ? String(u.name).trim() : '';
 
-      if (rawEmail && (deletedEmails.has(rawEmail) || DEMO_CUSTOMER_EMAILS.has(rawEmail))) return;
-      if (rawId && deletedIds.has(rawId)) return;
-      if (rawName && deletedNames.has(rawName)) return;
+      // Only check deleted cache for local items, never discard real database rows
+      if (!isFromDatabase) {
+        const deletedEmails = this.getDeletedEmails();
+        const deletedIds = this.getDeletedIds();
+        if (rawEmail && deletedEmails.has(rawEmail)) return;
+        if (rawId && deletedIds.has(rawId)) return;
+      }
 
-      const key = rawEmail || `name_${rawName}`;
+      const key = rawEmail || (rawId ? `id_${rawId}` : `name_${rawName.toLowerCase()}`);
       if (!customerMap.has(key)) {
         customerMap.set(key, {
           id: rawId || `usr_${Math.random().toString(36).slice(2, 8)}`,
-          name: u.name || (rawEmail.includes('@') ? rawEmail.split('@')[0] : 'Customer User'),
+          name: rawName || (rawEmail.includes('@') ? rawEmail.split('@')[0] : 'Customer User'),
           email: rawEmail || `${rawName.replace(/\s+/g, '')}@customer.isai`,
           phone: u.phone || u.shipping_address?.phone || '',
-          role: 'user',
+          role: u.role || 'user',
           address: u.address || u.shipping_address?.addressLine1 || u.shipping_address?.street || '',
           city: u.city || u.shipping_address?.city || '',
           pincode: u.pincode || u.shipping_address?.pincode || '',
-          created_at: u.created_at || new Date().toISOString(),
+          avatar_url: u.avatar_url || '',
+          created_at: u.created_at || u.updated_at || new Date().toISOString(),
         });
+      } else {
+        // Enrich existing profile with contact data if missing
+        const existing = customerMap.get(key);
+        if (!existing.name && rawName) existing.name = rawName;
+        if (!existing.phone && (u.phone || u.shipping_address?.phone)) {
+          existing.phone = u.phone || u.shipping_address?.phone;
+        }
+        if (!existing.address && (u.address || u.shipping_address?.addressLine1 || u.shipping_address?.street)) {
+          existing.address = u.address || u.shipping_address?.addressLine1 || u.shipping_address?.street;
+        }
+        if (!existing.city && (u.city || u.shipping_address?.city)) {
+          existing.city = u.city || u.shipping_address?.city;
+        }
+        if (!existing.pincode && (u.pincode || u.shipping_address?.pincode)) {
+          existing.pincode = u.pincode || u.shipping_address?.pincode;
+        }
+        if (!existing.avatar_url && u.avatar_url) {
+          existing.avatar_url = u.avatar_url;
+        }
       }
     };
 
-    if (Array.isArray(dbProfiles)) dbProfiles.forEach(addCustomer);
-    if (currentUser) addCustomer(currentUser);
-    if (Array.isArray(localUsers)) localUsers.forEach(addCustomer);
+    if (Array.isArray(dbProfiles)) {
+      dbProfiles.forEach((p) => addCustomer(p, true));
+    }
 
-    if (Array.isArray(localOrders)) {
-      localOrders.forEach((ord) => {
-        const addr = ord.shipping_address || ord.profiles || {};
-        if (addr.email || addr.name) {
-          addCustomer({
-            id: ord.user_id || ord.id,
-            name: addr.name,
-            email: addr.email,
-            phone: addr.phone,
-            address: addr.addressLine1 || addr.street,
-            city: addr.city,
-            pincode: addr.pincode,
-            role: 'user',
-            created_at: ord.created_at,
-          });
+    if (Array.isArray(dbOrders)) {
+      dbOrders.forEach((ord) => {
+        const addr = ord.shipping_address || {};
+        const custEmail = ord.customer_email || addr.email;
+        const custName = ord.customer_name || addr.name;
+        const custPhone = ord.customer_phone || addr.phone;
+        if (custEmail || custName) {
+          addCustomer(
+            {
+              id: ord.user_id || ord.id,
+              name: custName,
+              email: custEmail,
+              phone: custPhone,
+              address: addr.addressLine1 || addr.street || '',
+              city: addr.city || '',
+              pincode: addr.pincode || '',
+              role: 'user',
+              created_at: ord.created_at,
+            },
+            true
+          );
         }
       });
     }
 
-    return Array.from(customerMap.values());
+    // Only fallback to local storage if database returned zero customers
+    if (dbProfiles.length === 0 && dbOrders.length === 0) {
+      if (Array.isArray(localUsers)) localUsers.forEach((u) => addCustomer(u, false));
+      if (Array.isArray(localOrders)) {
+        localOrders.forEach((ord) => {
+          const addr = ord.shipping_address || ord.profiles || {};
+          if (ord.customer_email || ord.customer_name || addr.email || addr.name) {
+            addCustomer(
+              {
+                id: ord.user_id || ord.id,
+                name: ord.customer_name || addr.name,
+                email: ord.customer_email || addr.email,
+                phone: ord.customer_phone || addr.phone,
+                address: addr.addressLine1 || addr.street,
+                city: addr.city,
+                pincode: addr.pincode,
+                role: 'user',
+                created_at: ord.created_at,
+              },
+              false
+            );
+          }
+        });
+      }
+    }
+
+    return Array.from(customerMap.values()).sort(
+      (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+    );
   },
 
   async deleteCustomer(customer) {

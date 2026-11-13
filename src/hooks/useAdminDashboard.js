@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { productService } from '../services/productService';
 import { orderService } from '../services/orderService';
@@ -25,25 +25,17 @@ export function useAdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('ALL');
+  const isFetchingRef = useRef(false);
 
   const fetchStats = useCallback(async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     setLoading(true);
     try {
-      const fastTimeout = (promise, ms = 2000) => {
-        let t;
-        const timer = new Promise((_, reject) => {
-          t = setTimeout(() => reject(new Error('timeout')), ms);
-        });
-        return Promise.race([promise, timer]).finally(() => clearTimeout(t));
-      };
-
-      const [ordersRes, prodsResult, profilesResult] = await Promise.allSettled([
+      const [ordersRes, prodsResult, customersResult] = await Promise.allSettled([
         orderService.getAllOrders({ status: 'all', limit: 200 }),
-        fastTimeout(supabase.from('products').select('*'), 2000),
-        fastTimeout(
-          supabase.from('profiles').select('*').order('created_at', { ascending: false }),
-          2000
-        ),
+        productService.getProducts(),
+        customerService.getAllCustomers(),
       ]);
 
       const combinedOrders =
@@ -51,60 +43,49 @@ export function useAdminDashboard() {
           ? ordersRes.value.orders
           : orderService.getLocalOrders();
 
-      const dbProducts =
-        prodsResult.status === 'fulfilled' && prodsResult.value?.data
-          ? prodsResult.value.data
+      const combinedProducts =
+        prodsResult.status === 'fulfilled' && Array.isArray(prodsResult.value?.products)
+          ? prodsResult.value.products
+          : prodsResult.status === 'fulfilled' && Array.isArray(prodsResult.value)
+          ? prodsResult.value
+          : productService.getLocalProducts();
+
+      const combinedUsers =
+        customersResult.status === 'fulfilled' && Array.isArray(customersResult.value)
+          ? customersResult.value
           : [];
-      const dbProfiles =
-        profilesResult.status === 'fulfilled' && profilesResult.value?.data
-          ? profilesResult.value.data
-          : [];
-
-      const localProds = productService.getLocalProducts();
-      let localUsers = [];
-      try {
-        localUsers = JSON.parse(localStorage.getItem('isai_registered_users') || '[]');
-      } catch {
-        localUsers = [];
-      }
-
-      const prodMap = new Map();
-      localProds.forEach((p) => prodMap.set(p.id, p));
-      dbProducts.forEach((p) => prodMap.set(p.id, p));
-      const combinedProducts = Array.from(prodMap.values());
-
-      const userMap = new Map();
-      localUsers.forEach((u) => userMap.set(u.email?.toLowerCase() || u.id, u));
-      dbProfiles.forEach((u) => userMap.set(u.email?.toLowerCase() || u.id, u));
-      const combinedUsers = Array.from(userMap.values());
 
       setStats(calculateDashboardStats(combinedOrders, combinedProducts, combinedUsers));
     } catch (err) {
       console.warn('Dashboard sync note:', err.message);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, []);
 
   useEffect(() => {
     fetchStats();
 
+    let debounceTimer = null;
     const handleDataUpdate = () => {
-      fetchStats();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetchStats();
+      }, 400);
     };
 
     window.addEventListener('isai:orders_updated', handleDataUpdate);
     window.addEventListener('isai:products_updated', handleDataUpdate);
     window.addEventListener('isai:customers_updated', handleDataUpdate);
     window.addEventListener('storage', handleDataUpdate);
-    window.addEventListener('focus', fetchStats);
 
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
       window.removeEventListener('isai:orders_updated', handleDataUpdate);
       window.removeEventListener('isai:products_updated', handleDataUpdate);
       window.removeEventListener('isai:customers_updated', handleDataUpdate);
       window.removeEventListener('storage', handleDataUpdate);
-      window.removeEventListener('focus', fetchStats);
     };
   }, [fetchStats]);
 

@@ -2,8 +2,6 @@
  * Centralized Order & Item parsing helpers to eliminate duplicate code across admin & customer pages.
  */
 
-import bundledCatalog from '../data/catalog.json';
-
 const DEFAULT_ITEM_IMAGE =
   'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=600';
 
@@ -30,17 +28,19 @@ export function getItemDetails(item) {
   let prod = item.product || {};
   const rawName = item.name || item.title || prod.name || prod.title || 'Handcrafted Heritage Saree';
 
-  // If prod is incomplete or missing discount_price, look up product in bundled catalog
-  if (!prod.discount_price) {
-    const catalogProducts = Array.isArray(bundledCatalog?.products) ? bundledCatalog.products : [];
-    const matched = catalogProducts.find(
-      (p) =>
-        (p.id && (p.id === item.product_id || p.id === item.id)) ||
-        (p.name && p.name.toLowerCase() === rawName.toLowerCase())
-    );
-    if (matched) {
-      prod = { ...matched, ...prod };
-    }
+  // If prod is incomplete or missing discount_price, look up product in cached storage
+  if (!prod.discount_price && typeof window !== 'undefined') {
+    try {
+      const cached = JSON.parse(localStorage.getItem('isai_products') || '[]');
+      const matched = Array.isArray(cached) && cached.find(
+        (p) =>
+          (p.id && (p.id === item.product_id || p.id === item.id)) ||
+          (p.name && p.name.toLowerCase() === rawName.toLowerCase())
+      );
+      if (matched) {
+        prod = { ...matched, ...prod };
+      }
+    } catch (_) {}
   }
 
   const name = prod.name || rawName;

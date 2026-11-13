@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabaseClient';
 
 const COUPONS_STORAGE_KEY = 'isai_store_coupons';
 
-const withTimeout = (promise, ms = 800) => {
+const withTimeout = (promise, ms = 5000) => {
   let timer;
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error('timeout')), ms);
@@ -10,79 +10,40 @@ const withTimeout = (promise, ms = 800) => {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 };
 
-const DEFAULT_COUPONS = [
-  {
-    id: 'coup_welcome_10',
-    code: 'WELCOME10',
-    type: 'percentage',
-    value: 10,
-    min_order_amount: 0,
-    max_uses: 500,
-    used_count: 0,
-    is_active: true,
-    expires_at: null,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'coup_festive_500',
-    code: 'ISAI500',
-    type: 'fixed',
-    value: 500,
-    min_order_amount: 1000,
-    max_uses: 100,
-    used_count: 0,
-    is_active: true,
-    expires_at: null,
-    created_at: new Date().toISOString(),
-  },
-];
-
 const getLocalCoupons = () => {
   try {
     const raw = localStorage.getItem(COUPONS_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch {}
-  try {
-    localStorage.setItem(COUPONS_STORAGE_KEY, JSON.stringify(DEFAULT_COUPONS));
-  } catch {}
-  return DEFAULT_COUPONS;
+  return [];
 };
 
 const saveLocalCoupons = (coupons) => {
   try {
-    localStorage.setItem(COUPONS_STORAGE_KEY, JSON.stringify(coupons));
+    localStorage.setItem(COUPONS_STORAGE_KEY, JSON.stringify(coupons || []));
   } catch {}
 };
 
 export const couponService = {
   async getAllCoupons() {
-    let dbCoupons = [];
     try {
       const res = await withTimeout(
         supabase
           .from('coupons')
           .select('*')
           .order('expires_at', { ascending: true }),
-        800
+        1200
       );
-      if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-        dbCoupons = res.data;
+      if (res?.data && Array.isArray(res.data)) {
+        saveLocalCoupons(res.data);
+        return res.data;
       }
     } catch (e) {}
 
-    const local = getLocalCoupons();
-    if (dbCoupons.length > 0) {
-      const map = new Map();
-      local.forEach(c => map.set(c.code.toUpperCase(), c));
-      dbCoupons.forEach(c => map.set(c.code.toUpperCase(), c));
-      const merged = Array.from(map.values());
-      saveLocalCoupons(merged);
-      return merged;
-    }
-    return local;
+    return getLocalCoupons();
   },
 
   async createCoupon(couponData) {

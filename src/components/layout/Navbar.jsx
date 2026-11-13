@@ -152,10 +152,10 @@ export default function Navbar() {
                 </span>
               </button>
 
-              {/* Wishlist Button (Tablet & Desktop) */}
+              {/* Wishlist Button (Mobile, Tablet & Desktop) */}
               <Link
-                to="/cart"
-                className="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1C120E]/85 border border-[#35221B] hover:border-[#DFC18A]/50 items-center justify-center text-white hover:text-[#DFC18A] transition-all cursor-pointer relative shrink-0 shadow-sm"
+                to="/wishlist"
+                className="flex w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1C120E]/85 border border-[#35221B] hover:border-[#DFC18A]/50 items-center justify-center text-white hover:text-[#DFC18A] transition-all cursor-pointer relative shrink-0 shadow-sm"
                 aria-label="Wishlist"
                 title="Wishlist"
               >

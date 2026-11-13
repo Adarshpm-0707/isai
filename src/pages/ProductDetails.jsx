@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, ArrowLeft, Zap } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Zap, Sparkles } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
 import { useProductDetails } from '../hooks/useProductDetails';
 import ProductImageGallery from '../components/product/ProductImageGallery';
 import ProductBuyBox from '../components/product/ProductBuyBox';
 import ProductTabs from '../components/product/ProductTabs';
 import ProductCard from '../components/reusable/ProductCard';
+import ProductSectionHeader from '../components/reusable/ProductSectionHeader';
 import { FloralOrnament } from '../components/reusable/FloralOrnament';
 
 export default function ProductDetails() {
@@ -151,22 +152,15 @@ export default function ProductDetails() {
 
         {/* Related Products Section */}
         {relatedItems.length > 0 && (
-          <section className="mt-6 pt-10 border-t border-[#2A1B15]">
-            <div className="text-center mb-10">
-              <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-[#DFC18A] mb-2">
-                You May Also Love
-              </p>
-              <h3
-                className="font-serif text-2xl sm:text-3xl text-[#FDF8F4] font-normal"
-                style={{
-                  fontFamily: "'Playfair Display', 'Cormorant Garamond', serif",
-                }}
-              >
-                Similar Sarees
-              </h3>
-              <FloralOrnament className="mt-2" />
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
+          <section className="mt-10 sm:mt-14 pt-10 sm:pt-14 border-t border-[#2A1B15] relative">
+            <ProductSectionHeader
+              badge="Curated Pairings • Matching Drapes"
+              badgeIcon={Sparkles}
+              title="Similar"
+              titleAccent="Sarees"
+              subtitle="Handcrafted sarees echoing complementary weaving traditions, color palettes, and celebratory grace."
+            />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-5 lg:gap-6">
               {relatedItems.map((item) => (
                 <ProductCard key={item.id} product={item} />
               ))}

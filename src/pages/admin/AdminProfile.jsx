@@ -8,9 +8,9 @@ export default function AdminProfile() {
   const { user, profile, refreshProfile } = useAuth();
 
   // Admin Profile Details State
-  const [name, setName] = useState(profile?.name || user?.user_metadata?.name || "System Admin");
+  const [name, setName] = useState(profile?.name || user?.user_metadata?.name || "");
   const [phone, setPhone] = useState(profile?.phone || "");
-  const [email, setEmail] = useState(profile?.email || user?.email || "admin@isaitarang.com");
+  const [email, setEmail] = useState(profile?.email || user?.email || "");
   
   // Password Change State
   const [currentPassword, setCurrentPassword] = useState("");
@@ -25,9 +25,9 @@ export default function AdminProfile() {
 
   useEffect(() => {
     if (profile) {
-      setName(profile.name || "System Admin");
+      setName(profile.name || user?.user_metadata?.name || "");
       setPhone(profile.phone || "");
-      setEmail(profile.email || user?.email || "admin@isaitarang.com");
+      setEmail(profile.email || user?.email || "");
     }
   }, [profile, user]);
 

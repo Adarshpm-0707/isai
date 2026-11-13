@@ -22,8 +22,12 @@ export default function CustomerDetailModal({
       <div className="space-y-5 sm:space-y-6 text-xs font-sans text-[#F5E6BE]">
         {/* Header info */}
         <div className="bg-[#161B26] border border-[#D4AF37]/40 p-3.5 sm:p-4 rounded-xl flex items-center gap-3.5 sm:gap-4 shadow-lg">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#0A0D14] border-2 border-[#D4AF37] flex items-center justify-center text-[#D4AF37] font-bold text-base sm:text-lg shrink-0">
-            {customer.name?.charAt(0).toUpperCase() || 'C'}
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#0A0D14] border-2 border-[#D4AF37] flex items-center justify-center text-[#D4AF37] font-bold text-base sm:text-lg shrink-0 overflow-hidden">
+            {customer.avatar_url ? (
+              <img src={customer.avatar_url} alt={customer.name} className="w-full h-full object-cover" />
+            ) : (
+              customer.name?.charAt(0).toUpperCase() || 'C'
+            )}
           </div>
           <div className="min-w-0">
             <h3 className="font-sans text-sm sm:text-base font-bold text-[#FFFFFF] truncate">{customer.name}</h3>

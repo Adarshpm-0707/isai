@@ -182,14 +182,12 @@ export function useProductDetails() {
 
   const originalPrice = hasDiscount
     ? Number(product.price)
-    : Number(
-        product?.original_price ||
-          product?.originalPrice ||
-          Math.round(displayPrice * 1.3)
-      );
+    : (product?.original_price || product?.originalPrice
+        ? Number(product.original_price || product.originalPrice)
+        : null);
 
   const discountPct =
-    hasDiscount && originalPrice > 0
+    originalPrice && originalPrice > displayPrice
       ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100)
       : null;
 

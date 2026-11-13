@@ -12,7 +12,7 @@ export default function AdminLogin() {
   const location = useLocation();
   const { login, user, role } = useAuth();
 
-  const [email, setEmail] = useState("admin@isaitarang.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -96,7 +96,7 @@ export default function AdminLogin() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium text-[#FFFFFF] placeholder:text-[#A1A1AA]/50 bg-[#161B26] border border-[#D4AF37]/30 focus:outline-none focus:border-[#D4AF37] transition-colors"
-                placeholder="admin@isaitarang.com"
+                placeholder="admin@example.com"
                 required
               />
             </div>

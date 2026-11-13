@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { orderService } from '../services/orderService';
 import { adminLogService } from '../services/adminLogService';
 import {
@@ -12,6 +12,7 @@ export function useManageOrders() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const isFetchingRef = useRef(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -25,6 +26,8 @@ export function useManageOrders() {
   }, []);
 
   const fetchOrders = useCallback(async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     setLoading(true);
     try {
       const res = await orderService.getAllOrders({ status: 'all', limit: 200 });
@@ -35,6 +38,7 @@ export function useManageOrders() {
       console.warn('Notice loading orders:', err);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, []);
 

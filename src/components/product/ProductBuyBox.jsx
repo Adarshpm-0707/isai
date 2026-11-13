@@ -64,8 +64,8 @@ export default function ProductBuyBox({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => wishlist?.toggleWishlist?.(product.id).catch(() => {})}
-            className={`p-2 rounded-full border transition-all ${
+            onClick={() => wishlist?.toggleWishlist?.(product).catch(() => {})}
+            className={`p-2 rounded-full border transition-all cursor-pointer ${
               inWishlist
                 ? 'bg-[#C86A27]/15 border-[#C86A27] text-[#C86A27]'
                 : 'bg-[#1E130F] border-[#35221B] text-[#8E7B6F] hover:border-[#DFC18A] hover:text-[#DFC18A]'

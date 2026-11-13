@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 
-function withTimeout(promise, ms = 1200) {
+function withTimeout(promise, ms = 5000) {
   let timer;
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error('Network request timed out')), ms);

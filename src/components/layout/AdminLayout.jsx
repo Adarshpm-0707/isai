@@ -6,7 +6,6 @@ import {
   ShoppingBag,
   Package,
   FolderTree,
-  Tag,
   Users,
   ExternalLink,
   LogOut,
@@ -14,7 +13,6 @@ import {
   X,
   Shield,
   User,
-  UserCheck,
   Boxes,
   TrendingUp,
 } from "lucide-react";
@@ -42,8 +40,6 @@ export default function AdminLayout() {
     { name: "Inventory & Stock", path: "/admin/inventory", icon: Boxes },
     { name: "Profit & Loss", path: "/admin/profit-loss", icon: TrendingUp },
     { name: "Categories", path: "/admin/categories", icon: FolderTree },
-    { name: "Coupons & Offers", path: "/admin/coupons", icon: Tag },
-    { name: "Admin Team", path: "/admin/admins", icon: UserCheck },
   ];
 
   const handleLogout = async () => {

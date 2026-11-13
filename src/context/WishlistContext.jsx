@@ -1,63 +1,87 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { AuthContext } from './AuthContext';
-import { wishlistService } from '../services/wishlistService';
+import { wishlistService, getLocalWishlist } from '../services/wishlistService';
 
 export const WishlistContext = createContext();
 
 export default function WishlistProvider({ children }) {
   const { user } = useContext(AuthContext);
-  const [wishlistItems, setWishlistItems] = useState([]);
-  const [loading, setLoading] = useState(true);
 
+  // Synchronous immediate initialization (0 ms wait on page load or refresh!)
+  const [wishlistItems, setWishlistItems] = useState(() => getLocalWishlist());
+  const [loading, setLoading] = useState(false);
+
+  // Sync with cloud when user logs in
   useEffect(() => {
-    const loadWishlist = async () => {
-      if (user) {
+    let isMounted = true;
+    const syncWishlist = async () => {
+      if (!user) return;
+      try {
         setLoading(true);
-        try {
-          const items = await wishlistService.getWishlist(user.id);
-          setWishlistItems(items);
-        } catch (err) {
-          console.error('Error fetching wishlist:', err);
-        } finally {
-          setLoading(false);
+        const remoteItems = await wishlistService.getWishlist(user.id);
+        if (isMounted && Array.isArray(remoteItems)) {
+          setWishlistItems(remoteItems);
         }
-      } else {
-        setWishlistItems([]);
-        setLoading(false);
+      } catch (err) {
+        console.warn('Wishlist cloud sync notice:', err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
-    loadWishlist();
+    syncWishlist();
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
-  const toggleWishlist = async (productId) => {
-    if (!user) {
-      throw new Error('Please login to add items to your wishlist');
-    }
-    setLoading(true);
-    try {
-      const res = await wishlistService.toggleWishlist(user.id, productId);
-      const updated = await wishlistService.getWishlist(user.id);
-      setWishlistItems(updated);
-      return res;
-    } catch (err) {
-      console.error('Error toggling wishlist:', err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Toggle Wishlist (supports both full product object and ID)
+  const toggleWishlist = useCallback(
+    async (productOrId) => {
+      if (!productOrId) return { added: false };
 
-  const isInWishlist = (productId) => {
-    return wishlistItems.some(
-      (item) => item.product_id === productId || item.product?.id === productId
-    );
-  };
+      try {
+        const result = await wishlistService.toggleWishlist(productOrId, user?.id || null);
+        if (result?.items && Array.isArray(result.items)) {
+          setWishlistItems([...result.items]);
+        } else {
+          setWishlistItems(getLocalWishlist());
+        }
+        return result;
+      } catch (err) {
+        console.error('Error toggling wishlist:', err);
+        return { added: false };
+      }
+    },
+    [user]
+  );
 
-  const removeFromWishlist = async (productId) => {
-    if (!user) return;
-    return toggleWishlist(productId);
-  };
+  // Check if a product is in the wishlist
+  const isInWishlist = useCallback(
+    (productId) => {
+      if (!productId) return false;
+      const targetId = String(productId).trim();
+      return wishlistItems.some((item) => {
+        const itemPid = String(item.product_id || item.product?.id || item.id || '').trim();
+        return itemPid === targetId;
+      });
+    },
+    [wishlistItems]
+  );
+
+  // Remove from wishlist
+  const removeFromWishlist = useCallback(
+    async (productId) => {
+      return toggleWishlist(productId);
+    },
+    [toggleWishlist]
+  );
+
+  // Clear all wishlist
+  const clearWishlist = useCallback(() => {
+    wishlistService.clearWishlist();
+    setWishlistItems([]);
+  }, []);
 
   const value = {
     wishlistItems,
@@ -66,6 +90,7 @@ export default function WishlistProvider({ children }) {
     toggleWishlist,
     isInWishlist,
     removeFromWishlist,
+    clearWishlist,
   };
 
   return <WishlistContext.Provider value={value}>{children}</WishlistContext.Provider>;

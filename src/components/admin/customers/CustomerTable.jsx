@@ -38,9 +38,13 @@ export default function CustomerTable({
                 return (
                   <tr key={cust.id} className="hover:bg-[#161B26]/60 transition-colors">
                     <td className="py-3 sm:py-4 px-3 sm:px-4 lg:px-6 font-bold text-[#FFFFFF]">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-[#161B26] border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37] font-bold text-xs shrink-0">
-                          {cust.name?.charAt(0).toUpperCase() || 'C'}
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-[#161B26] border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37] font-bold text-xs shrink-0 overflow-hidden">
+                          {cust.avatar_url ? (
+                            <img src={cust.avatar_url} alt={cust.name} className="w-full h-full object-cover" />
+                          ) : (
+                            cust.name?.charAt(0).toUpperCase() || 'C'
+                          )}
                         </div>
                         <span className="truncate max-w-[130px] sm:max-w-none">{cust.name}</span>
                       </div>

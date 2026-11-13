@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, MessageCircle, Phone, Mail, HelpCircle } from 'lucide-react';
-import { FloralOrnament } from '../reusable/FloralOrnament';
+import { ChevronDown, MessageCircle, Phone, HelpCircle } from 'lucide-react';
+import { RoyalHeaderOrnament } from '../reusable/FloralOrnament';
 import { LotusEmblem } from '../reusable/BrandLogo';
 
 export const FAQ_DATA = [
@@ -173,7 +173,7 @@ export default function FaqSection({ isFullPage = false }) {
             </span>
           </h2>
 
-          <FloralOrnament className="mt-2" />
+          <RoyalHeaderOrnament className="mt-2.5 mb-1" />
 
           <p className="text-xs sm:text-sm text-[#C7B5A7] mt-3 font-light leading-relaxed">
             Everything you need to know about our handcrafted sarees, ordering, shipping timelines, and care policies.

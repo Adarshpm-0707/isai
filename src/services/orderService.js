@@ -1,15 +1,8 @@
 import { supabase } from '../lib/supabaseClient';
-import bundledOrders from '../data/orders.json';
 import { syncLocalhostData } from './dataSyncService';
 import { productService } from './productService';
 
-const DEMO_ORDER_IDS = new Set([
-  '6f52a1b0-4a89-4e78-98e2-b0113c490a01',
-  '7a83b2c1-5b90-4f89-89f3-c1224d501b02',
-  '8b94c3d2-6c01-409a-90a4-d2335e612c03',
-]);
-
-const withTimeout = (promise, ms = 3000) => {
+const withTimeout = (promise, ms = 5000) => {
   let timer;
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error('timeout')), ms);
@@ -17,27 +10,13 @@ const withTimeout = (promise, ms = 3000) => {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 };
 
-function cleanDemoOrders(list) {
+function cleanOrders(list) {
   if (!Array.isArray(list)) return [];
   return list.filter((o) => {
     if (!o) return false;
     const idKey = String(o.id || '').toLowerCase().trim();
     const orderIdKey = String(o.order_id || o.orderId || '').toLowerCase().trim();
     if (!idKey && !orderIdKey) return false;
-
-    // Filter out only ancient hardcoded mock IDs
-    if (idKey && DEMO_ORDER_IDS.has(idKey)) return false;
-    if (orderIdKey && DEMO_ORDER_IDS.has(orderIdKey)) return false;
-
-    const custName = String(o.customer_name || o.shipping_address?.name || '').toLowerCase();
-    if (
-      custName.includes('priya sundaram') ||
-      custName.includes('meenakshi ramanathan') ||
-      custName.includes('ananya iyer') ||
-      custName.includes('deepika natarajan')
-    ) {
-      return false;
-    }
     return true;
   });
 }
@@ -54,45 +33,22 @@ export function getLocalOrders() {
     }
   } catch {}
 
-  // Merge bundled orders from codebase with localStorage orders
-  const bundled = Array.isArray(bundledOrders) ? bundledOrders : [];
-  const map = new Map();
-
-  // 1. Seed with bundled orders
-  bundled.forEach((o) => {
-    const key = o.id || o.order_id || o.orderId;
-    if (key) map.set(String(key), o);
-  });
-
-  // 2. Layer on top current localStorage orders (preserving newer status/data)
-  list.forEach((o) => {
-    const key = o.id || o.order_id || o.orderId;
-    if (key) {
-      const existing = map.get(String(key));
-      map.set(String(key), { ...existing, ...o });
-    }
-  });
-
-  const merged = Array.from(map.values());
-  const cleaned = cleanDemoOrders(merged);
+  const cleaned = cleanOrders(list);
   cleaned.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
-  // Seed back to localStorage if it was empty
-  try {
-    if (typeof localStorage !== 'undefined' && list.length === 0 && cleaned.length > 0) {
-      localStorage.setItem('isai_orders', JSON.stringify(cleaned));
-    }
-  } catch {}
-
   return cleaned;
 }
 
 export function saveLocalOrders(orders, replaceAll = false) {
-  const cleaned = cleanDemoOrders(orders);
+  const cleaned = cleanOrders(orders);
   cleaned.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('isai_orders', JSON.stringify(cleaned));
+      const prev = localStorage.getItem('isai_orders');
+      const next = JSON.stringify(cleaned);
+      if (prev === next) {
+        return; // Data has not changed; prevent infinite dispatch and re-render loops
+      }
+      localStorage.setItem('isai_orders', next);
     }
   } catch (err) {
     console.warn('LocalStorage orders quota notice:', err);
@@ -101,9 +57,6 @@ export function saveLocalOrders(orders, replaceAll = false) {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('isai:orders_updated', { detail: cleaned }));
   }
-
-  // Auto-sync to disk when running on localhost
-  syncLocalhostData({ orders: cleaned, replaceAll });
 }
 
 // Fetch orders from the unified backend server API
@@ -127,31 +80,25 @@ export const orderService = {
   },
 
   async getUserOrders(userId = null, userEmail = null, queryOrderId = null) {
-    // 1. Fetch from all sources (Server API, Supabase, Local Store)
-    const [allOrdersData, serverOrders] = await Promise.allSettled([
-      this.getAllOrders({ status: 'all', limit: 200 }),
-      fetchServerOrders(),
-    ]);
+    let allOrders = [];
 
-    const combined = [];
-    const map = new Map();
-
-    const addOrder = (o) => {
-      if (!o) return;
-      const key = o.id || o.order_id || o.orderId;
-      if (key && !map.has(String(key))) {
-        map.set(String(key), o);
-        combined.push(o);
+    // 1. Fetch live orders from Supabase
+    try {
+      const res = await withTimeout(
+        supabase.from('orders').select('*').order('created_at', { ascending: false }),
+        5000
+      );
+      if (res?.data && Array.isArray(res.data)) {
+        allOrders = cleanOrders(res.data);
+        saveLocalOrders(allOrders);
       }
-    };
+    } catch (e) {
+      console.warn('Supabase user orders fetch notice:', e?.message);
+    }
 
-    if (allOrdersData.status === 'fulfilled' && allOrdersData.value?.orders) {
-      allOrdersData.value.orders.forEach(addOrder);
+    if (allOrders.length === 0) {
+      allOrders = getLocalOrders();
     }
-    if (serverOrders.status === 'fulfilled' && Array.isArray(serverOrders.value)) {
-      serverOrders.value.forEach(addOrder);
-    }
-    getLocalOrders().forEach(addOrder);
 
     const uEmail = userEmail ? userEmail.toLowerCase().trim() : null;
     const uId = userId ? String(userId).toLowerCase().trim() : null;
@@ -166,7 +113,7 @@ export const orderService = {
       }
     } catch {}
 
-    const matched = combined.filter((lo) => {
+    const matched = allOrders.filter((lo) => {
       const loId = String(lo.id || '').toLowerCase().trim();
       const loOrderId = String(lo.order_id || lo.orderId || '').toLowerCase().trim();
       const loUserId = lo.user_id ? String(lo.user_id).toLowerCase().trim() : null;
@@ -198,10 +145,7 @@ export const orderService = {
   },
 
   async getAllOrders({ status = null, page = 1, limit = 100 } = {}) {
-    let dbOrders = [];
-    let count = 0;
-
-    // 1. Fetch from Supabase
+    // 1. Fetch live orders from Supabase
     try {
       let query = supabase.from('orders').select('*', { count: 'exact' });
       if (status && status !== 'all') {
@@ -211,27 +155,22 @@ export const orderService = {
       const to = from + limit - 1;
       query = query.order('created_at', { ascending: false }).range(from, to);
 
-      const res = await withTimeout(query, 2500);
+      const res = await withTimeout(query, 5000);
       if (res?.data && Array.isArray(res.data)) {
-        dbOrders = cleanDemoOrders(res.data);
-        count = res.count || dbOrders.length;
+        const cloudOrders = cleanOrders(res.data);
+        saveLocalOrders(cloudOrders);
+        return {
+          orders: cloudOrders,
+          total: res.count !== null && res.count !== undefined ? res.count : cloudOrders.length,
+          page,
+          totalPages: Math.ceil((res.count || cloudOrders.length) / limit) || 1,
+        };
       }
     } catch (e) {
-      // Supabase timeout or offline
+      console.warn('Supabase orders fetch notice:', e?.message);
     }
 
-    // 2. Fetch from Unified Server API
-    let serverOrders = [];
-    try {
-      serverOrders = await fetchServerOrders();
-      if (status && status !== 'all') {
-        serverOrders = serverOrders.filter(
-          (o) => (o.status || 'pending').toLowerCase() === status.toLowerCase()
-        );
-      }
-    } catch {}
-
-    // 3. Local orders
+    // 2. Offline fallback to local orders
     let localOrders = getLocalOrders();
     if (status && status !== 'all') {
       localOrders = localOrders.filter(
@@ -239,46 +178,8 @@ export const orderService = {
       );
     }
 
-    // Merge and deduplicate by key
-    const map = new Map();
-    const findExistingKey = (o) => {
-      const oId = String(o.id || '').toLowerCase().trim();
-      const oOrdId = String(o.order_id || o.orderId || '').toLowerCase().trim();
-      for (const [k, v] of map.entries()) {
-        const vId = String(v.id || '').toLowerCase().trim();
-        const vOrdId = String(v.order_id || v.orderId || '').toLowerCase().trim();
-        if (oId && (vId === oId || vOrdId === oId)) return k;
-        if (oOrdId && (vId === oOrdId || vOrdId === oOrdId)) return k;
-      }
-      return null;
-    };
-
-    const addOrder = (o) => {
-      if (!o) return;
-      const matchKey = findExistingKey(o);
-      const key = matchKey || o.id || o.order_id || o.orderId;
-      if (key) {
-        const existing = map.get(String(key));
-        map.set(String(key), { ...existing, ...o });
-      }
-    };
-
-    localOrders.forEach(addOrder);
-    serverOrders.forEach(addOrder);
-    dbOrders.forEach(addOrder);
-
-    const combined = Array.from(map.values());
-    combined.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-
-    // Cache merged orders to localStorage
-    try {
-      if (typeof localStorage !== 'undefined' && combined.length > 0) {
-        localStorage.setItem('isai_orders', JSON.stringify(combined));
-      }
-    } catch {}
-
-    const total = Math.max(count, combined.length);
-    const paginated = combined.slice((page - 1) * limit, page * limit);
+    const total = localOrders.length;
+    const paginated = localOrders.slice((page - 1) * limit, page * limit);
 
     return {
       orders: paginated,
@@ -300,7 +201,20 @@ export const orderService = {
       updates.shiprocket_order_id = trackingId;
     }
 
-    // 1. Update local storage and dispatch event immediately
+    // 1. Update Supabase
+    try {
+      await withTimeout(
+        supabase
+          .from('orders')
+          .update(updates)
+          .or(`id.eq.${orderId},order_id.eq.${orderId}`),
+        5000
+      );
+    } catch (e) {
+      console.warn('Supabase update order status error:', e?.message);
+    }
+
+    // 2. Update local storage and dispatch event immediately
     const local = getLocalOrders();
     let prevStatus = null;
     let targetOrder = null;
@@ -327,28 +241,6 @@ export const orderService = {
       }
     }
 
-    // 2. Push update to unified server API
-    try {
-      fetch(`/api/orders/${orderId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      }).catch(() => {});
-    } catch {}
-
-    // 3. Update Supabase
-    try {
-      withTimeout(
-        supabase
-          .from('orders')
-          .update(updates)
-          .or(`id.eq.${orderId},order_id.eq.${orderId}`)
-          .select()
-          .maybeSingle(),
-        2000
-      ).catch(() => {});
-    } catch (e) {}
-
     return { id: orderId, ...updates };
   },
 
@@ -361,19 +253,21 @@ export const orderService = {
     const id = typeof orderOrId === 'object' ? orderOrId.id : orderOrId;
     const order_id = typeof orderOrId === 'object' ? (orderOrId.order_id || orderOrId.orderId) : null;
 
-    // 1. Mark in deleted order ids
+    // 1. Delete from Supabase
     try {
-      const deletedRaw = localStorage.getItem('isai_deleted_order_ids') || '[]';
-      const deletedList = JSON.parse(deletedRaw);
-      const addId = (val) => {
-        if (!val) return;
-        const s = String(val).toLowerCase().trim();
-        if (s && !deletedList.includes(s)) deletedList.push(s);
-      };
-      addId(id);
-      addId(order_id);
-      localStorage.setItem('isai_deleted_order_ids', JSON.stringify(deletedList));
-    } catch (e) {}
+      const targetQuery = id && order_id
+        ? `id.eq.${id},order_id.eq.${order_id}`
+        : id
+        ? `id.eq.${id}`
+        : `order_id.eq.${order_id}`;
+
+      await withTimeout(
+        supabase.from('orders').delete().or(targetQuery),
+        5000
+      );
+    } catch (err) {
+      console.warn('Supabase order delete error:', err?.message);
+    }
 
     // 2. Remove from local storage
     const local = getLocalOrders();
@@ -383,26 +277,6 @@ export const orderService = {
       return true;
     });
     saveLocalOrders(updated, true);
-
-    // 3. Delete from Unified Server API
-    try {
-      const deleteKey = id || order_id;
-      fetch(`/api/orders/${deleteKey}`, { method: 'DELETE' }).catch(() => {});
-    } catch {}
-
-    // 4. Delete from Supabase in background
-    try {
-      const targetQuery = id && order_id
-        ? `id.eq.${id},order_id.eq.${order_id}`
-        : id
-        ? `id.eq.${id}`
-        : `order_id.eq.${order_id}`;
-
-      withTimeout(
-        supabase.from('orders').delete().or(targetQuery),
-        3000
-      ).catch(() => {});
-    } catch (err) {}
 
     return true;
   },

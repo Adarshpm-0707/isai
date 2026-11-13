@@ -68,11 +68,17 @@ export default async function handler(req, res) {
     try {
       const dbPayload = {
         id: order.id,
+        order_id: order.order_id || order.id,
         user_id: order.user_id || null,
+        customer_name: order.customer_name || order.shipping_address?.name || null,
+        customer_email: order.customer_email || order.shipping_address?.email || null,
+        customer_phone: order.customer_phone || order.shipping_address?.phone || null,
         items: order.items || [],
         subtotal: order.subtotal || 0,
         shipping_fee: order.shipping_fee || 0,
         discount_amount: order.discount_amount || order.discount || 0,
+        discount: order.discount || order.discount_amount || 0,
+        coupon_code: order.coupon_code || null,
         cod_fee: order.cod_fee || 0,
         total: order.total || order.total_amount || 0,
         payment_method: order.payment_method || 'cod',

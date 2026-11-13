@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabaseClient';
 const LOCAL_USERS_KEY = 'isai_registered_users';
 const CURRENT_USER_KEY = 'isai_current_user';
 
-const withTimeout = (promise, ms = 800) => {
+const withTimeout = (promise, ms = 5000) => {
   let timer;
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error('Supabase request timeout')), ms);
@@ -11,28 +11,11 @@ const withTimeout = (promise, ms = 800) => {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 };
 
-const DEFAULT_ADMIN = {
-  id: 'adm_isai_default',
-  name: 'System Administrator',
-  email: 'admin@isaitarang.com',
-  phone: '+91 90488 68444',
-  role: 'admin',
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-};
-
 const getLocalUsers = () => {
   try {
-    const users = JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '[]');
-    if (!users.some(u => u.email?.toLowerCase() === 'admin@isaitarang.com')) {
-      users.unshift(DEFAULT_ADMIN);
-      try {
-        localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
-      } catch {}
-    }
-    return users;
+    return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '[]');
   } catch (e) {
-    return [DEFAULT_ADMIN];
+    return [];
   }
 };
 
@@ -84,10 +67,10 @@ export const authService = {
             data: { name, phone, role },
           },
         }),
-        800
+        5000
       );
-      authData = res.data;
-      authError = res.error;
+      authData = res?.data;
+      authError = res?.error;
     } catch (err) {
       console.warn('Supabase Auth signUp network attempt notice:', err.message);
     }
@@ -95,26 +78,22 @@ export const authService = {
     const userId = authData?.user?.id || `usr_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     const userProfile = {
       id: userId,
-      email,
-      name,
-      phone,
-      role,
+      email: email.toLowerCase().trim(),
+      name: name || email.split('@')[0],
+      phone: phone || '',
+      role: role || 'user',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
 
-    // Save directly into Supabase database tables (profiles, users, customers) asynchronously
+    // Save directly into Supabase database profiles table
     try {
-      withTimeout(
-        Promise.allSettled([
-          supabase.from('profiles').upsert(userProfile),
-          supabase.from('users').upsert({ id: userId, email, name, phone, role, created_at: userProfile.created_at }),
-          supabase.from('customers').upsert({ id: userId, email, name, phone, created_at: userProfile.created_at }),
-        ]),
-        800
-      ).catch(() => {});
+      await withTimeout(
+        supabase.from('profiles').upsert(userProfile),
+        5000
+      );
     } catch (dbErr) {
-      console.warn('Supabase database upsert info:', dbErr);
+      console.warn('Supabase profiles upsert notice:', dbErr?.message);
     }
 
     saveLocalUser({ ...userProfile, password });
@@ -126,8 +105,7 @@ export const authService = {
     let authData = null;
     const isAdminAttempt =
       roleHint === 'admin' ||
-      email?.toLowerCase().includes('admin') ||
-      email?.toLowerCase() === 'admin@isaitarang.com';
+      email?.toLowerCase().includes('admin');
 
     try {
       const res = await withTimeout(
@@ -135,7 +113,7 @@ export const authService = {
           email,
           password,
         }),
-        800
+        5000
       );
       authData = res?.data;
     } catch (err) {
@@ -153,14 +131,7 @@ export const authService = {
       };
 
       try {
-        withTimeout(
-          Promise.allSettled([
-            supabase.from('profiles').upsert(prof),
-            supabase.from('users').upsert({ id: prof.id, email: prof.email, name: prof.name, phone: prof.phone, role: prof.role }),
-            supabase.from('customers').upsert({ id: prof.id, email: prof.email, name: prof.name, phone: prof.phone }),
-          ]),
-          800
-        ).catch(() => {});
+        await withTimeout(supabase.from('profiles').upsert(prof), 5000);
       } catch (e) {}
 
       saveLocalUser(prof);
@@ -181,7 +152,7 @@ export const authService = {
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(found));
 
       try {
-        withTimeout(supabase.from('profiles').upsert(found), 800).catch(() => {});
+        withTimeout(supabase.from('profiles').upsert(found), 5000).catch(() => {});
       } catch (e) {}
 
       return { user: found, profile: found };
@@ -198,7 +169,7 @@ export const authService = {
     };
 
     try {
-      withTimeout(supabase.from('profiles').upsert(fallbackUser), 800).catch(() => {});
+      withTimeout(supabase.from('profiles').upsert(fallbackUser), 5000).catch(() => {});
     } catch (e) {}
 
     saveLocalUser(fallbackUser);
@@ -207,7 +178,7 @@ export const authService = {
 
   async signOut() {
     try {
-      await withTimeout(supabase.auth.signOut(), 600);
+      await withTimeout(supabase.auth.signOut(), 3000);
     } catch (err) {
       console.warn('Supabase signOut error notice:', err);
     }
@@ -221,9 +192,9 @@ export const authService = {
       if (local) return local;
     } catch (e) {}
 
-    // 2. Try Supabase user & profiles table with strict 800ms timeout
+    // 2. Try Supabase user & profiles table
     try {
-      const res = await withTimeout(supabase.auth.getUser(), 800);
+      const res = await withTimeout(supabase.auth.getUser(), 4000);
       const user = res?.data?.user;
       if (user) {
         const { data } = await withTimeout(
@@ -232,7 +203,7 @@ export const authService = {
             .select('*')
             .eq('id', user.id)
             .single(),
-          800
+          4000
         );
 
         const prof = data || {
@@ -261,7 +232,7 @@ export const authService = {
           .eq('id', userId)
           .select()
           .single(),
-        800
+        5000
       );
 
       if (!error && data) updated = data;

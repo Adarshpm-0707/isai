@@ -1,46 +1,49 @@
 import { supabase } from '../lib/supabaseClient';
 import { compressImage } from '../utils/imageCompressor';
-import bundledCatalog from '../data/catalog.json';
-import { syncLocalhostData } from './dataSyncService';
 
 const CATEGORIES_STORAGE_KEY = 'isai_tarang_categories';
 const DELETED_CATEGORIES_KEY = 'isai_deleted_category_ids';
 
-// Identifiers of previous demo categories to purge from storage
-const DEMO_CATEGORY_IDS = new Set([
-  'cat-kanchi-01',
-  'cat-banarasi-02',
-  'cat-kasavu-03',
-  'cat-chanderi-04',
-  'cat-tussar-05',
-  'cat-organza-06',
-  'cat-softsilk-07',
-  'cat-cotton-08',
-]);
-
 function getDeletedCategoryIds() {
   try {
     const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_CATEGORIES_KEY) : null;
-    return new Set(raw ? JSON.parse(raw).map(id => String(id).toLowerCase().trim()) : []);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    // Only valid UUID IDs should be treated as deleted IDs
+    const validIds = (Array.isArray(parsed) ? parsed : []).filter(id => uuidRegex.test(String(id)));
+    if (validIds.length !== (Array.isArray(parsed) ? parsed.length : 0) && typeof localStorage !== 'undefined') {
+      localStorage.setItem(DELETED_CATEGORIES_KEY, JSON.stringify(validIds));
+    }
+    return new Set(validIds.map(id => String(id).toLowerCase().trim()));
   } catch {
     return new Set();
   }
 }
 
-function saveDeletedCategoryId(id, name = null, slug = null) {
+function saveDeletedCategoryId(id) {
   try {
+    if (!id) return;
     const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_CATEGORIES_KEY) : null;
     const list = raw ? JSON.parse(raw) : [];
-    const addIfNew = (val) => {
-      if (!val) return;
-      const str = String(val).toLowerCase().trim();
-      if (!list.includes(str)) list.push(str);
-      if (!list.includes(String(val))) list.push(String(val));
-    };
-    addIfNew(id);
-    addIfNew(name);
-    addIfNew(slug);
+    const str = String(id).toLowerCase().trim();
+    if (!list.includes(str)) list.push(str);
     localStorage.setItem(DELETED_CATEGORIES_KEY, JSON.stringify(list));
+  } catch {}
+}
+
+function unmarkDeletedCategory(id = null, name = null, slug = null) {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_CATEGORIES_KEY) : null;
+    if (!raw) return;
+    const list = JSON.parse(raw);
+    const keysToRemove = new Set([
+      id ? String(id).toLowerCase().trim() : '',
+      name ? String(name).toLowerCase().trim() : '',
+      slug ? String(slug).toLowerCase().trim() : '',
+    ].filter(Boolean));
+    const updated = list.filter((item) => !keysToRemove.has(String(item).toLowerCase().trim()));
+    localStorage.setItem(DELETED_CATEGORIES_KEY, JSON.stringify(updated));
   } catch {}
 }
 
@@ -48,9 +51,7 @@ function generateUUID() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     try {
       return crypto.randomUUID();
-    } catch {
-      // fallback below
-    }
+    } catch {}
   }
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
@@ -59,7 +60,7 @@ function generateUUID() {
   });
 }
 
-function withTimeout(promise, ms = 1000) {
+function withTimeout(promise, ms = 5000) {
   let timer;
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error('Network request timed out')), ms);
@@ -67,21 +68,16 @@ function withTimeout(promise, ms = 1000) {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
-function cleanDemoCategories(list) {
+function cleanCategories(list) {
   if (!Array.isArray(list)) return [];
   const deleted = getDeletedCategoryIds();
   return list.filter((c) => {
     if (!c) return false;
     const id = c.id ? String(c.id).toLowerCase().trim() : '';
     const rawId = c.id ? String(c.id) : '';
-    const name = c.name ? String(c.name).toLowerCase().trim() : '';
-    const slug = c.slug ? String(c.slug).toLowerCase().trim() : '';
 
-    if (DEMO_CATEGORY_IDS.has(rawId) || DEMO_CATEGORY_IDS.has(id)) return false;
     if (id && deleted.has(id)) return false;
     if (rawId && deleted.has(rawId)) return false;
-    if (name && deleted.has(name)) return false;
-    if (slug && deleted.has(slug)) return false;
     return true;
   });
 }
@@ -96,36 +92,22 @@ function getLocalCategories() {
         list = parsed;
       }
     }
-
-    // Merge bundled categories from codebase so localhost additions deploy to Vercel and Netlify
-    const bundled = Array.isArray(bundledCatalog?.categories) ? bundledCatalog.categories : [];
-    if (bundled.length > 0) {
-      const map = new Map();
-      bundled.forEach((c) => {
-        if (c && c.name) map.set(c.name.toLowerCase(), c);
-      });
-      list.forEach((c) => {
-        if (c && c.name) {
-          const key = c.name.toLowerCase();
-          const existing = map.get(key);
-          map.set(key, { ...existing, ...c });
-        }
-      });
-      list = Array.from(map.values());
-    }
-
-    const cleaned = cleanDemoCategories(list);
-    return cleaned;
+    return cleanCategories(list);
   } catch {
-    return cleanDemoCategories(bundledCatalog?.categories || []);
+    return [];
   }
 }
 
 function saveLocalCategories(cats) {
-  const cleaned = cleanDemoCategories(cats);
+  const cleaned = cleanCategories(cats);
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(cleaned));
+      const prev = localStorage.getItem(CATEGORIES_STORAGE_KEY);
+      const next = JSON.stringify(cleaned);
+      if (prev === next) {
+        return; // Data has not changed; prevent infinite dispatch and re-render loops
+      }
+      localStorage.setItem(CATEGORIES_STORAGE_KEY, next);
     }
   } catch (err) {
     console.warn('LocalStorage categories quota notice:', err);
@@ -134,24 +116,6 @@ function saveLocalCategories(cats) {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('isai:categories_updated', { detail: cleaned }));
   }
-
-  // Auto-sync to disk when running on localhost so changes are committed to Git
-  try {
-    const rawProds = typeof localStorage !== 'undefined' ? localStorage.getItem('isai_tarang_products') : null;
-    let prods = [];
-    if (rawProds) {
-      try { prods = JSON.parse(rawProds); } catch {}
-    }
-    if (!Array.isArray(prods) || prods.length === 0) {
-      prods = Array.isArray(bundledCatalog?.products) ? bundledCatalog.products : [];
-    }
-    syncLocalhostData({
-      catalog: {
-        products: prods,
-        categories: cleaned,
-      },
-    });
-  } catch {}
 }
 
 export const categoryService = {
@@ -160,44 +124,26 @@ export const categoryService = {
   },
 
   async getCategories() {
-    const local = getLocalCategories();
-
+    // 1. Fetch live categories from Supabase
     try {
       const { data, error } = await withTimeout(
         supabase
           .from('categories')
           .select('*')
           .order('name', { ascending: true }),
-        1000
+        5000
       );
 
       if (!error && Array.isArray(data)) {
-        const cleanedCloud = cleanDemoCategories(data);
-        const map = new Map();
-        local.forEach((c) => {
-          if (c && c.name) map.set(c.name.toLowerCase(), c);
-        });
-        cleanedCloud.forEach((c) => {
-          if (c && c.name) {
-            const existing = map.get(c.name.toLowerCase());
-            map.set(c.name.toLowerCase(), {
-              ...existing,
-              ...c,
-              image_url: c.image_url || c.image || existing?.image_url || existing?.image || '',
-            });
-          }
-        });
-        const merged = Array.from(map.values()).sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        saveLocalCategories(merged);
-        return merged;
+        saveLocalCategories(data);
+        return data;
       }
-    } catch {
-      // Offline or network timeout, fall through to instant local categories
+    } catch (e) {
+      console.warn('Supabase categories fetch notice:', e?.message);
     }
 
-    return local;
+    // 2. Offline fallback
+    return getLocalCategories();
   },
 
   async createCategory({ name, slug, image_url, image }) {
@@ -212,19 +158,39 @@ export const categoryService = {
 
     const cleanImg = image_url || image || '';
 
-    const local = getLocalCategories();
-    const existing = local.find(
-      (c) =>
-        c.name.toLowerCase() === cleanName.toLowerCase() ||
-        c.slug.toLowerCase() === cleanSlug.toLowerCase()
-    );
+    // Unmark any previous deleted record matching name or slug
+    unmarkDeletedCategory(null, cleanName, cleanSlug);
 
-    if (existing) {
-      if (cleanImg && !existing.image_url) {
-        existing.image_url = cleanImg;
-        saveLocalCategories(local);
+    // 1. Check if category already exists in Supabase (e.g. Traditional Kerala Saree)
+    try {
+      const { data: existing } = await withTimeout(
+        supabase
+          .from('categories')
+          .select('*')
+          .or(`name.ilike."${cleanName}",slug.eq."${cleanSlug}"`)
+          .maybeSingle(),
+        3000
+      ).catch(() => ({ data: null }));
+
+      if (existing) {
+        unmarkDeletedCategory(existing.id, existing.name, existing.slug);
+        if (cleanImg && cleanImg !== existing.image_url) {
+          await withTimeout(
+            supabase.from('categories').update({ image_url: cleanImg }).eq('id', existing.id),
+            3000
+          ).catch(() => {});
+          existing.image_url = cleanImg;
+        }
+        const local = getLocalCategories();
+        const updated = [
+          ...local.filter((c) => c.id !== existing.id && c.name.toLowerCase() !== cleanName.toLowerCase()),
+          existing,
+        ].sort((a, b) => a.name.localeCompare(b.name));
+        saveLocalCategories(updated);
+        return existing;
       }
-      return existing;
+    } catch (e) {
+      console.warn('Check existing category note:', e?.message);
     }
 
     const id = generateUUID();
@@ -236,48 +202,44 @@ export const categoryService = {
       created_at: new Date().toISOString(),
     };
 
-    // 1. Save locally immediately (0 ms response time)
-    const updated = [...local, newCategory].sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
-    saveLocalCategories(updated);
+    // 2. Save directly into Supabase
+    try {
+      const payload = {
+        id: newCategory.id,
+        name: newCategory.name,
+        slug: newCategory.slug,
+      };
+      if (cleanImg) payload.image_url = cleanImg;
 
-    // 2. Background attempt to sync to Supabase without blocking UI
-    (async () => {
-      try {
-        const payload = {
-          id: newCategory.id,
-          name: newCategory.name,
-          slug: newCategory.slug,
-        };
-        if (cleanImg) {
-          payload.image_url = cleanImg;
-        }
-
-        let res = await withTimeout(
+      const { data, error } = await withTimeout(
+        supabase.from('categories').insert(payload).select().maybeSingle(),
+        5000
+      );
+      if (!error && data) {
+        Object.assign(newCategory, data);
+      } else if (error && error.code === '23505') {
+        // Unique slug collision: retry with safe suffix
+        payload.slug = `${cleanSlug}-${Date.now().toString(36).slice(-4)}`;
+        newCategory.slug = payload.slug;
+        const retryRes = await withTimeout(
           supabase.from('categories').insert(payload).select().maybeSingle(),
-          1500
-        );
-
-        if (res && res.error && res.error.message?.includes('image_url')) {
-          delete payload.image_url;
-          res = await withTimeout(
-            supabase.from('categories').insert(payload).select().maybeSingle(),
-            1500
-          );
+          5000
+        ).catch(() => null);
+        if (retryRes?.data) {
+          Object.assign(newCategory, retryRes.data);
         }
-
-        if (res && !res.error && res.data) {
-          const currentLocal = getLocalCategories();
-          const synced = currentLocal.map((c) =>
-            c.id === newCategory.id ? { ...res.data, image_url: cleanImg } : c
-          );
-          saveLocalCategories(synced);
-        }
-      } catch (err) {
-        console.warn('Background category cloud sync notice:', err.message);
       }
-    })();
+    } catch (err) {
+      console.warn('Supabase category insert notice:', err.message);
+    }
+
+    // 3. Commit to local storage so UI updates instantly
+    const local = getLocalCategories();
+    const updated = [
+      ...local.filter((c) => c.id !== newCategory.id && c.name.toLowerCase() !== cleanName.toLowerCase()),
+      newCategory,
+    ].sort((a, b) => a.name.localeCompare(b.name));
+    saveLocalCategories(updated);
 
     return newCategory;
   },
@@ -293,7 +255,22 @@ export const categoryService = {
         .replace(/(^-|-$)+/g, '') || `cat-${Date.now()}`;
 
     const cleanImg = image_url || image || '';
+    unmarkDeletedCategory(id, cleanName, cleanSlug);
 
+    // 1. Update Supabase
+    try {
+      const updates = { name: cleanName, slug: cleanSlug };
+      if (cleanImg) updates.image_url = cleanImg;
+
+      await withTimeout(
+        supabase.from('categories').update(updates).eq('id', id).select().maybeSingle(),
+        5000
+      );
+    } catch (err) {
+      console.warn('Supabase category update notice:', err.message);
+    }
+
+    // 2. Update local storage
     const local = getLocalCategories();
     const updated = local.map((c) => {
       if (c.id === id || String(c.id) === String(id)) {
@@ -309,34 +286,6 @@ export const categoryService = {
     });
 
     saveLocalCategories(updated);
-
-    (async () => {
-      try {
-        const updates = {
-          name: cleanName,
-          slug: cleanSlug,
-        };
-        if (cleanImg) {
-          updates.image_url = cleanImg;
-        }
-
-        let res = await withTimeout(
-          supabase.from('categories').update(updates).eq('id', id).select().maybeSingle(),
-          1500
-        );
-
-        if (res && res.error && res.error.message?.includes('image_url')) {
-          delete updates.image_url;
-          await withTimeout(
-            supabase.from('categories').update(updates).eq('id', id),
-            1500
-          );
-        }
-      } catch (err) {
-        console.warn('Background category update cloud notice:', err.message);
-      }
-    })();
-
     return { id, name: cleanName, slug: cleanSlug, image_url: cleanImg };
   },
 
@@ -347,22 +296,22 @@ export const categoryService = {
       local.find((c) => c.id === id || String(c.id) === String(id)) ||
       (typeof idOrCategory === 'object' ? idOrCategory : null);
 
-    saveDeletedCategoryId(id, target?.name, target?.slug);
+    saveDeletedCategoryId(id);
 
+    // 1. Delete from Supabase
+    try {
+      await withTimeout(supabase.from('categories').delete().eq('id', id), 5000);
+    } catch (err) {
+      console.warn('Supabase category delete notice:', err.message);
+    }
+
+    // 2. Remove from local storage
     const updated = local.filter((c) => {
       if (c.id === id || String(c.id) === String(id)) return false;
-      if (target?.name && c.name && c.name.toLowerCase().trim() === target.name.toLowerCase().trim()) return false;
-      if (target?.slug && c.slug && c.slug.toLowerCase().trim() === target.slug.toLowerCase().trim()) return false;
       return true;
     });
 
     saveLocalCategories(updated);
-
-    try {
-      withTimeout(supabase.from('categories').delete().eq('id', id), 800).catch(() => {});
-    } catch (err) {
-      console.warn('Background category delete cloud notice:', err.message);
-    }
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('isai:categories_updated', { detail: updated }));
@@ -388,7 +337,7 @@ export const categoryService = {
 
       const { error: uploadError } = await withTimeout(
         supabase.storage.from('products').upload(filePath, file),
-        1500
+        5000
       );
 
       if (!uploadError) {

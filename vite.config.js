@@ -23,20 +23,9 @@ function isaiApiPlugin() {
     return fallback;
   };
 
-  const writeOrders = (orders) => {
-    try {
-      fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2), 'utf-8');
-      try {
-        if (!fs.existsSync(path.dirname(PUBLIC_ORDERS_FILE))) {
-          fs.mkdirSync(path.dirname(PUBLIC_ORDERS_FILE), { recursive: true });
-        }
-        fs.writeFileSync(PUBLIC_ORDERS_FILE, JSON.stringify(orders, null, 2), 'utf-8');
-      } catch {}
-      return true;
-    } catch (e) {
-      console.error('[Vite API] Error writing orders:', e.message);
-      return false;
-    }
+  const writeOrders = (_orders) => {
+    // Disabled disk writes to prevent Vite HMR auto-refresh loops in the browser
+    return true;
   };
 
   const parseBody = (req) =>
@@ -158,38 +147,11 @@ function isaiApiPlugin() {
           const list = cat.products || [];
           const id = prod.id || `prod_${Date.now()}`;
           prod.id = id;
-          const filtered = list.filter((p) => p.id !== id);
-          cat.products = [prod, ...filtered];
-          fs.writeFileSync(CATALOG_FILE, JSON.stringify(cat, null, 2), 'utf-8');
           return sendJson(res, 201, { success: true, product: prod });
         }
 
         // POST /api/sync-data (Legacy compatibility)
         if (pathname === '/api/sync-data' && req.method === 'POST') {
-          const data = await parseBody(req);
-          if (data.catalog) {
-            fs.writeFileSync(CATALOG_FILE, JSON.stringify(data.catalog, null, 2), 'utf-8');
-          }
-          if (data.orders) {
-            let finalOrders = data.orders;
-            if (!data.replaceAll) {
-              const existing = readJson(ORDERS_FILE, []);
-              const map = new Map();
-              existing.forEach((o) => {
-                const k = o.id || o.order_id || o.orderId;
-                if (k) map.set(String(k), o);
-              });
-              data.orders.forEach((o) => {
-                const k = o.id || o.order_id || o.orderId;
-                if (k) {
-                  const prev = map.get(String(k));
-                  map.set(String(k), { ...prev, ...o });
-                }
-              });
-              finalOrders = Array.from(map.values());
-            }
-            writeOrders(finalOrders);
-          }
           return sendJson(res, 200, { success: true });
         }
 
@@ -202,4 +164,18 @@ function isaiApiPlugin() {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss(), isaiApiPlugin()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  server: {
+    watch: {
+      ignored: [
+        '**/src/data/**',
+        '**/public/data/**',
+        '**/*.json',
+      ],
+    },
+  },
 });

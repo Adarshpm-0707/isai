@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import useProducts from '../hooks/useProducts';
 import ProductCard from '../components/reusable/ProductCard';
 import EmptyState from '../components/reusable/EmptyState';
-import { FloralOrnament } from '../components/reusable/FloralOrnament';
-import { SlidersHorizontal, Search, RefreshCw, ChevronRight } from 'lucide-react';
+import { RoyalHeaderOrnament } from '../components/reusable/FloralOrnament';
+import { LotusEmblem } from '../components/reusable/BrandLogo';
+import { SlidersHorizontal, Search, RefreshCw, ChevronRight, ShieldCheck, Sparkles, Award } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -88,54 +89,80 @@ export default function Products() {
 
   return (
     <div className="min-h-screen pb-24 bg-[#120B09] text-[#FDF8F4]">
-      {/* ── HEADER ── */}
-      <header className="relative pt-10 sm:pt-16 px-4 sm:px-6 max-w-7xl mx-auto text-center">
-        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}>
-          <p className="text-[#DFC18A] text-xs font-semibold tracking-[0.28em] uppercase mb-1.5">
-            Handcrafted Drapery
-          </p>
+      {/* ── HEADER (Elevated Royal Title Section) ── */}
+      <header className="relative pt-12 sm:pt-20 px-4 sm:px-6 max-w-7xl mx-auto text-center">
+        {/* Soft background ambient bloom */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 sm:w-[600px] h-36 bg-[#DFC18A]/[0.08] rounded-full blur-3xl pointer-events-none"
+          aria-hidden="true"
+        />
+
+        <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#DFC18A]/30 bg-gradient-to-r from-[#1E130F]/90 via-[#261712]/90 to-[#1E130F]/90 backdrop-blur-md shadow-[0_2px_12px_rgba(0,0,0,0.4)] mb-3 transition-transform hover:scale-105 duration-300">
+            <LotusEmblem className="w-3.5 h-3.5 text-[#DFC18A]" />
+            <span className="text-[10px] sm:text-xs font-semibold tracking-[0.26em] uppercase text-[#DFC18A]">
+              Handcrafted Drapery • Master Loom Weaves
+            </span>
+          </div>
+
           <h1
             className="font-serif text-3xl sm:text-5xl md:text-6xl font-normal text-[#FDF8F4] tracking-tight leading-tight"
             style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
           >
-            The Saree <span className="italic text-[#DFC18A]">Anthology</span>
+            The Saree{' '}
+            <span className="italic font-normal font-serif text-transparent bg-clip-text bg-gradient-to-r from-[#FFF0D4] via-[#DFC18A] to-[#C59B27]">
+              Anthology
+            </span>
           </h1>
-          <FloralOrnament className="mt-2" />
-          <p className="text-xs sm:text-sm text-[#C7B5A7] max-w-lg mx-auto font-light mt-3 leading-relaxed">
-            Curated pure silks, Kanchipuram weaves, soft handlooms, and lightweight georgettes crafted for every occasion.
+
+          <RoyalHeaderOrnament className="mt-3 mb-1.5" />
+
+          <p className="text-xs sm:text-sm text-[#C7B5A7] max-w-xl mx-auto font-light mt-3 leading-relaxed px-2">
+            Curated pure silks, Kanchipuram bridal drapes, Banarasi brocades, and lightweight artisanal handlooms crafted for every celebration.
           </p>
+
+          {/* Luxury Trust Micro-Badges Strip */}
+          <div className="flex items-center justify-center gap-3 sm:gap-6 mt-5 flex-wrap text-[10px] sm:text-xs text-[#DFC18A]/90">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A100C]/70 border border-[#35221B]">
+              <Award className="w-3.5 h-3.5 text-[#DFC18A]" />
+              <span>100% Pure Certified Silk</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A100C]/70 border border-[#35221B]">
+              <Sparkles className="w-3.5 h-3.5 text-[#DFC18A]" />
+              <span>Artisan Loom Craft</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1A100C]/70 border border-[#35221B]">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#DFC18A]" />
+              <span>Direct Weaver Value</span>
+            </span>
+          </div>
         </motion.div>
       </header>
 
       {/* ── CATEGORY TABS & CONTROLS ── */}
-      <section className="mt-8 sm:mt-12 px-4 sm:px-6 max-w-7xl mx-auto space-y-5">
+      <section className="mt-10 sm:mt-14 px-4 sm:px-6 max-w-7xl mx-auto space-y-6">
         {/* Category Horizontal Bar */}
-        <div className="flex items-center gap-3 sm:gap-6 pb-2 overflow-x-auto no-scrollbar border-b border-[#2C1C16]">
+        <div className="flex items-center gap-2 sm:gap-3 pb-3 overflow-x-auto no-scrollbar border-b border-[#2C1C16]">
           {categoriesList.map((cat) => {
             const isSelected = selectedCategory.toLowerCase() === cat.toLowerCase();
             return (
               <button
                 key={cat}
+                type="button"
                 onClick={() => {
                   setSelectedCategory(cat);
                   setCurrentPage(1);
                 }}
-                className={`relative whitespace-nowrap text-xs font-medium tracking-wider uppercase py-2 px-1 transition-all ${
+                className={`relative whitespace-nowrap text-xs font-semibold tracking-wider uppercase py-2 px-3.5 sm:px-4 rounded-full transition-all duration-300 cursor-pointer flex items-center gap-1.5 shrink-0 ${
                   isSelected
-                    ? 'text-[#DFC18A] font-semibold'
-                    : 'text-[#8E7B6F] hover:text-[#C7B5A7]'
+                    ? 'bg-gradient-to-r from-[#DFC18A] via-[#E8CD9B] to-[#DFC18A] text-[#120B09] font-bold shadow-[0_3px_14px_rgba(223,193,138,0.35)] scale-105'
+                    : 'bg-[#180F0C] text-[#C7B5A7] hover:text-[#FDF8F4] border border-[#2F1D16] hover:border-[#DFC18A]/40'
                 }`}
               >
                 <span>{cat}</span>
-                <span className="text-[9px] opacity-60 ml-1">
-                  ({categoryCounts[cat] || 0})
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-[#120B09]/20 text-[#120B09]' : 'bg-[#261712] text-[#8E7B6F]'}`}>
+                  {categoryCounts[cat] || 0}
                 </span>
-                {isSelected && (
-                  <motion.div
-                    layoutId="categoryUnderline"
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#C86A27]"
-                  />
-                )}
               </button>
             );
           })}

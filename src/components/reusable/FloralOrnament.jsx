@@ -1,6 +1,47 @@
 import React from 'react';
 
 /**
+ * Royal header ornament with glowing lotus, diamond jewels, and tapering golden filigree lines
+ */
+export function RoyalHeaderOrnament({ className = "my-3" }) {
+  return (
+    <div className={`flex items-center justify-center gap-2 sm:gap-3.5 select-none ${className}`}>
+      {/* Left tapering line */}
+      <span className="w-8 sm:w-20 md:w-28 h-px bg-gradient-to-r from-transparent via-[#DFC18A]/40 to-[#DFC18A]" />
+      
+      {/* Left diamond dot */}
+      <span className="w-1.5 h-1.5 rotate-45 bg-[#DFC18A]/80 shadow-[0_0_6px_rgba(223,193,138,0.7)] shrink-0" />
+      
+      {/* Center lotus icon */}
+      <div className="relative flex items-center justify-center shrink-0">
+        <svg width="24" height="14" viewBox="0 0 24 14" fill="none" className="text-[#DFC18A] drop-shadow-[0_0_8px_rgba(223,193,138,0.4)]">
+          <path
+            d="M12 0.5C10.8 4.5 9.2 8.5 12 13.5C14.8 8.5 13.2 4.5 12 0.5Z"
+            fill="#DFC18A"
+          />
+          <path
+            d="M12 13.5C8.8 10.2 5.2 9 1 8.5C4.8 10.5 9 12.5 12 13.5Z"
+            fill="#C86A27"
+            opacity="0.9"
+          />
+          <path
+            d="M12 13.5C15.2 10.2 18.8 9 23 8.5C19.2 10.5 15 12.5 12 13.5Z"
+            fill="#C86A27"
+            opacity="0.9"
+          />
+        </svg>
+      </div>
+
+      {/* Right diamond dot */}
+      <span className="w-1.5 h-1.5 rotate-45 bg-[#DFC18A]/80 shadow-[0_0_6px_rgba(223,193,138,0.7)] shrink-0" />
+
+      {/* Right tapering line */}
+      <span className="w-8 sm:w-20 md:w-28 h-px bg-gradient-to-l from-transparent via-[#DFC18A]/40 to-[#DFC18A]" />
+    </div>
+  );
+}
+
+/**
  * Delicate golden lotus ornament divider seen in headings and section titles
  */
 export function FloralOrnament({ className = "my-2" }) {

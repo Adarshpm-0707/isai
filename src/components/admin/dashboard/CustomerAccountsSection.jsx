@@ -58,8 +58,12 @@ export default function CustomerAccountsSection({ customers = [], handleDeleteCu
                     {/* Customer Full Name */}
                     <td className="py-3.5 px-3 sm:px-4 font-bold text-[#FFFFFF]">
                       <div className="flex items-center gap-2.5 sm:gap-3">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#D4AF37] text-[#090B10] font-black flex items-center justify-center text-xs shrink-0">
-                          {initials}
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#D4AF37] text-[#090B10] font-black flex items-center justify-center text-xs shrink-0 overflow-hidden">
+                          {c.avatar_url ? (
+                            <img src={c.avatar_url} alt={c.name} className="w-full h-full object-cover" />
+                          ) : (
+                            initials
+                          )}
                         </div>
                         <span className="break-words truncate max-w-[140px] sm:max-w-none">{c.name || 'Customer User'}</span>
                       </div>

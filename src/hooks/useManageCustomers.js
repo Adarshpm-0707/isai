@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { customerService } from '../services/customerService';
 import { orderService } from '../services/orderService';
 
@@ -7,6 +7,7 @@ export default function useManageCustomers() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const isFetchingRef = useRef(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -18,6 +19,8 @@ export default function useManageCustomers() {
   }, []);
 
   const fetchCustomersAndOrders = useCallback(async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     try {
       const [custList, orderRes] = await Promise.all([
         customerService.getAllCustomers(),
@@ -29,19 +32,25 @@ export default function useManageCustomers() {
       console.error('Error fetching customers:', err);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, []);
 
   useEffect(() => {
     fetchCustomersAndOrders();
 
+    let debounceTimer = null;
     const handleUpdate = () => {
-      fetchCustomersAndOrders();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetchCustomersAndOrders();
+      }, 400);
     };
 
     window.addEventListener('isai:orders_updated', handleUpdate);
     window.addEventListener('isai:customers_updated', handleUpdate);
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
       window.removeEventListener('isai:orders_updated', handleUpdate);
       window.removeEventListener('isai:customers_updated', handleUpdate);
     };
@@ -106,7 +115,7 @@ export default function useManageCustomers() {
   const getCustomerOrderStats = useCallback(
     (email, customerId) => {
       const custOrders = orders.filter((o) => {
-        const ordEmail = o.shipping_address?.email || o.profiles?.email || o.email;
+        const ordEmail = o.customer_email || o.shipping_address?.email || o.profiles?.email || o.email;
         const ordUserId = o.user_id || o.id;
         return (
           (ordEmail && ordEmail.toLowerCase() === email?.toLowerCase()) ||

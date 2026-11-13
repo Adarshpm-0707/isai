@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 
-const withTimeout = (promise, ms = 800) => {
+const withTimeout = (promise, ms = 5000) => {
   let timer;
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error('timeout')), ms);
@@ -20,7 +20,7 @@ export const adminLogService = {
       target_id: String(targetId),
       details,
       created_at: new Date().toISOString(),
-      actor: { name: 'System Administrator', email: 'admin@isaitarang.com' },
+      actor: { name: 'Admin', email: '' },
     };
 
     // Save locally
@@ -108,23 +108,6 @@ export const adminLogService = {
         combinedMap.set(adm.email.toLowerCase(), adm);
       }
     });
-
-    if (combinedMap.size === 0) {
-      const defaultAdmin = {
-        id: 'sys_admin_1',
-        name: 'System Administrator',
-        email: 'admin@isaitarang.com',
-        phone: '+91 90488 68444',
-        role: 'admin',
-        is_active: true,
-        created_at: new Date().toISOString(),
-      };
-      combinedMap.set(defaultAdmin.email, defaultAdmin);
-
-      try {
-        withTimeout(supabase.from('profiles').upsert(defaultAdmin), 600).catch(() => {});
-      } catch (e) {}
-    }
 
     return Array.from(combinedMap.values());
   },

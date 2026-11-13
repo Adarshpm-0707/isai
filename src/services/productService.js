@@ -1,46 +1,48 @@
 import { supabase } from '../lib/supabaseClient';
 import { compressImage } from '../utils/imageCompressor';
-import bundledCatalog from '../data/catalog.json';
-import { syncLocalhostData } from './dataSyncService';
 
 const PRODUCTS_STORAGE_KEY = 'isai_tarang_products';
 const DELETED_PRODUCTS_KEY = 'isai_deleted_product_ids';
 
-// Identifiers of previous demo sarees to purge from existing storage
-const DEMO_PRODUCT_IDS = new Set([
-  'prod-kanchi-01',
-  'prod-banarasi-02',
-  'prod-kasavu-03',
-  'prod-chanderi-04',
-  'prod-tussar-05',
-  'prod-organza-06',
-  'prod-softsilk-07',
-  'prod-cotton-08',
-]);
-
 function getDeletedProductIds() {
   try {
     const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_PRODUCTS_KEY) : null;
-    return new Set(raw ? JSON.parse(raw).map(id => String(id).toLowerCase().trim()) : []);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const validIds = (Array.isArray(parsed) ? parsed : []).filter(id => uuidRegex.test(String(id)));
+    if (validIds.length !== (Array.isArray(parsed) ? parsed.length : 0) && typeof localStorage !== 'undefined') {
+      localStorage.setItem(DELETED_PRODUCTS_KEY, JSON.stringify(validIds));
+    }
+    return new Set(validIds.map(id => String(id).toLowerCase().trim()));
   } catch {
     return new Set();
   }
 }
 
-function saveDeletedProductId(id, slug = null, name = null) {
+function saveDeletedProductId(id) {
   try {
+    if (!id) return;
     const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_PRODUCTS_KEY) : null;
     const list = raw ? JSON.parse(raw) : [];
-    const addIfNew = (val) => {
-      if (!val) return;
-      const str = String(val).toLowerCase().trim();
-      if (!list.includes(str)) list.push(str);
-      if (!list.includes(String(val))) list.push(String(val));
-    };
-    addIfNew(id);
-    addIfNew(slug);
-    addIfNew(name);
+    const str = String(id).toLowerCase().trim();
+    if (!list.includes(str)) list.push(str);
     localStorage.setItem(DELETED_PRODUCTS_KEY, JSON.stringify(list));
+  } catch {}
+}
+
+function unmarkDeletedProduct(id = null, name = null, slug = null) {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DELETED_PRODUCTS_KEY) : null;
+    if (!raw) return;
+    const list = JSON.parse(raw);
+    const keysToRemove = new Set([
+      id ? String(id).toLowerCase().trim() : '',
+      name ? String(name).toLowerCase().trim() : '',
+      slug ? String(slug).toLowerCase().trim() : '',
+    ].filter(Boolean));
+    const updated = list.filter((item) => !keysToRemove.has(String(item).toLowerCase().trim()));
+    localStorage.setItem(DELETED_PRODUCTS_KEY, JSON.stringify(updated));
   } catch {}
 }
 
@@ -48,9 +50,7 @@ function generateUUID() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     try {
       return crypto.randomUUID();
-    } catch {
-      // fallback below
-    }
+    } catch {}
   }
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
@@ -59,7 +59,7 @@ function generateUUID() {
   });
 }
 
-function withTimeout(promise, ms = 1000) {
+function withTimeout(promise, ms = 5000) {
   let timer;
   const timeout = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error('Network request timed out')), ms);
@@ -74,14 +74,9 @@ function cleanDemoProducts(list) {
     if (!p) return false;
     const id = p.id ? String(p.id).toLowerCase().trim() : '';
     const rawId = p.id ? String(p.id) : '';
-    const slug = p.slug ? String(p.slug).toLowerCase().trim() : '';
-    const name = p.name ? String(p.name).toLowerCase().trim() : '';
 
-    if (DEMO_PRODUCT_IDS.has(rawId) || DEMO_PRODUCT_IDS.has(id)) return false;
     if (id && deleted.has(id)) return false;
     if (rawId && deleted.has(rawId)) return false;
-    if (slug && deleted.has(slug)) return false;
-    if (name && deleted.has(name)) return false;
     return true;
   });
 }
@@ -96,27 +91,9 @@ function getLocalProducts() {
         list = parsed;
       }
     }
-
-    // Merge bundled catalog from codebase so localhost additions deploy to Vercel and Netlify
-    const bundled = Array.isArray(bundledCatalog?.products) ? bundledCatalog.products : [];
-    if (bundled.length > 0) {
-      const map = new Map();
-      bundled.forEach((p) => {
-        if (p && p.id) map.set(p.id, p);
-      });
-      list.forEach((p) => {
-        if (p && p.id) {
-          const existing = map.get(p.id);
-          map.set(p.id, { ...existing, ...p });
-        }
-      });
-      list = Array.from(map.values());
-    }
-
-    const cleaned = cleanDemoProducts(list);
-    return cleaned;
+    return cleanDemoProducts(list);
   } catch {
-    return cleanDemoProducts(bundledCatalog?.products || []);
+    return [];
   }
 }
 
@@ -124,7 +101,12 @@ function saveLocalProducts(prods) {
   const cleaned = cleanDemoProducts(prods);
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(cleaned));
+      const prev = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+      const next = JSON.stringify(cleaned);
+      if (prev === next) {
+        return; // Data has not changed; prevent infinite dispatch and re-render loops
+      }
+      localStorage.setItem(PRODUCTS_STORAGE_KEY, next);
     }
   } catch (err) {
     console.warn('LocalStorage products quota notice:', err);
@@ -133,24 +115,6 @@ function saveLocalProducts(prods) {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('isai:products_updated', { detail: cleaned }));
   }
-
-  // Auto-sync to disk when running on localhost so changes are committed to Git
-  try {
-    const rawCats = typeof localStorage !== 'undefined' ? localStorage.getItem('isai_tarang_categories') : null;
-    let cats = [];
-    if (rawCats) {
-      try { cats = JSON.parse(rawCats); } catch {}
-    }
-    if (!Array.isArray(cats) || cats.length === 0) {
-      cats = Array.isArray(bundledCatalog?.categories) ? bundledCatalog.categories : [];
-    }
-    syncLocalhostData({
-      catalog: {
-        products: cleaned,
-        categories: cats,
-      },
-    });
-  } catch {}
 }
 
 function filterAndSortProducts(
@@ -220,16 +184,7 @@ export const productService = {
     page = 1,
     limit = 100,
   } = {}) {
-    const local = getLocalProducts();
-    const localFiltered = filterAndSortProducts(local, {
-      category,
-      search,
-      minPrice,
-      maxPrice,
-      sortBy,
-    });
-
-    // Background sync with Supabase (strict 1s timeout to keep app instant)
+    // 1. Fetch live products directly from Supabase
     try {
       let query = supabase.from('products').select('*', { count: 'exact' });
 
@@ -268,27 +223,40 @@ export const productService = {
       const to = from + limit - 1;
       query = query.range(from, to);
 
-      const { data, count, error } = await withTimeout(query, 1000);
+      const { data, count, error } = await withTimeout(query, 5000);
       if (!error && Array.isArray(data)) {
-        // Sync cloud items to local
-        const cleanedCloud = cleanDemoProducts(data);
-        const map = new Map();
-        local.forEach((p) => map.set(p.id, p));
-        cleanedCloud.forEach((p) => map.set(p.id, p));
-        const merged = Array.from(map.values());
-        saveLocalProducts(merged);
+        // Direct database data from Supabase - authoritative single source of truth
+        saveLocalProducts(data);
 
-        const paginatedCloud = cleanedCloud.slice(0, limit);
+        const filtered = filterAndSortProducts(data, {
+          category,
+          search,
+          minPrice,
+          maxPrice,
+          sortBy,
+        });
+
+        const paginated = filtered.slice(from, to + 1);
         return {
-          products: paginatedCloud,
-          total: typeof count === 'number' ? count : paginatedCloud.length,
+          products: paginated,
+          total: filtered.length,
           page,
-          totalPages: Math.ceil((count || paginatedCloud.length) / limit) || 1,
+          totalPages: Math.ceil(filtered.length / limit) || 1,
         };
       }
-    } catch {
-      // Offline or network timeout, fall through to instant local products
+    } catch (e) {
+      console.warn('Supabase products fetch notice:', e?.message);
     }
+
+    // 2. Offline fallback to local storage
+    const local = getLocalProducts();
+    const localFiltered = filterAndSortProducts(local, {
+      category,
+      search,
+      minPrice,
+      maxPrice,
+      sortBy,
+    });
 
     const paginated = localFiltered.slice((page - 1) * limit, page * limit);
     return {
@@ -301,42 +269,34 @@ export const productService = {
 
   async getProductBySlug(slug) {
     if (!slug) return null;
-    const local = getLocalProducts();
-    const found = local.find((p) => p.slug === slug);
-    if (found) return found;
-
     try {
       const { data, error } = await withTimeout(
         supabase.from('products').select('*').eq('slug', slug).maybeSingle(),
-        1000
+        4000
       );
       if (!error && data) return data;
-    } catch {
-      // ignore
-    }
+    } catch {}
 
-    return null;
+    const local = getLocalProducts();
+    return local.find((p) => p.slug === slug) || null;
   },
 
   async getProductById(id) {
     if (!id) return null;
-    const local = getLocalProducts();
-    const found = local.find(
-      (p) => p.id === id || String(p.id) === String(id) || p.slug === id
-    );
-    if (found) return found;
-
     try {
       const { data, error } = await withTimeout(
         supabase.from('products').select('*').eq('id', id).maybeSingle(),
-        1000
+        4000
       );
       if (!error && data) return data;
-    } catch {
-      // ignore
-    }
+    } catch {}
 
-    return null;
+    const local = getLocalProducts();
+    return (
+      local.find(
+        (p) => p.id === id || String(p.id) === String(id) || p.slug === id
+      ) || null
+    );
   },
 
   async createProduct(productData) {
@@ -347,6 +307,8 @@ export const productService = {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '') + `-${Date.now().toString(36)}`;
 
+    unmarkDeletedProduct(id, productData.name, slug);
+
     const newProd = {
       ...productData,
       id,
@@ -354,53 +316,67 @@ export const productService = {
       created_at: new Date().toISOString(),
     };
 
-    // 1. Immediately commit to local persistent store so UI is 100% responsive
-    const local = getLocalProducts();
-    const updated = [newProd, ...local];
-    saveLocalProducts(updated);
+    const payload = {
+      id: newProd.id,
+      name: newProd.name,
+      slug: newProd.slug,
+      description: newProd.description || null,
+      price: Number(newProd.price || 0),
+      discount_price: newProd.discount_price ? Number(newProd.discount_price) : null,
+      stock: Number(newProd.stock || 0),
+      category: newProd.category || null,
+      images: Array.isArray(newProd.images) ? newProd.images : null,
+      cost: Number(newProd.cost || 0),
+      created_at: newProd.created_at,
+    };
 
-    // 2. Asynchronously attempt cloud sync without blocking
-    (async () => {
-      try {
-        const payload = {
-          id: newProd.id,
-          name: newProd.name,
-          slug: newProd.slug,
-          description: newProd.description || null,
-          price: Number(newProd.price || 0),
-          discount_price: newProd.discount_price ? Number(newProd.discount_price) : null,
-          stock: Number(newProd.stock || 0),
-          category: newProd.category || null,
-          images: Array.isArray(newProd.images) ? newProd.images : null,
-          cost: Number(newProd.cost || 0),
-          created_at: newProd.created_at,
-        };
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (newProd.category_id && uuidRegex.test(newProd.category_id)) {
+      payload.category_id = newProd.category_id;
+    } else {
+      payload.category_id = null;
+    }
 
-        // Only pass category_id if it is a valid UUID
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (newProd.category_id && uuidRegex.test(newProd.category_id)) {
-          payload.category_id = newProd.category_id;
-        }
-
-        const { data, error } = await withTimeout(
-          supabase.from('products').insert(payload).select().maybeSingle(),
-          1500
-        );
-
-        if (!error && data) {
-          const currentLocal = getLocalProducts();
-          const synced = currentLocal.map((p) => (p.id === newProd.id ? { ...p, ...data } : p));
-          saveLocalProducts(synced);
-        }
-      } catch (err) {
-        console.warn('Background product cloud sync notice:', err.message);
+    // 1. Save directly into Supabase database
+    try {
+      const { data, error } = await withTimeout(
+        supabase.from('products').insert(payload).select().maybeSingle(),
+        5000
+      );
+      if (!error && data) {
+        Object.assign(newProd, data);
+      } else if (error) {
+        console.warn('Supabase product insert notice:', error.message);
       }
-    })();
+    } catch (err) {
+      console.warn('Supabase product insert timeout:', err.message);
+    }
+
+    // 2. Commit to persistent local storage so UI updates instantly
+    const local = getLocalProducts();
+    const updated = [newProd, ...local.filter((p) => p.id !== newProd.id)];
+    saveLocalProducts(updated);
 
     return newProd;
   },
 
   async updateProduct(id, updates) {
+    const payload = { ...updates };
+    delete payload.id;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (payload.category_id && !uuidRegex.test(payload.category_id)) {
+      payload.category_id = null;
+    }
+
+    try {
+      await withTimeout(
+        supabase.from('products').update(payload).eq('id', id).select().maybeSingle(),
+        5000
+      );
+    } catch (err) {
+      console.warn('Supabase product update notice:', err.message);
+    }
+
     const local = getLocalProducts();
     const updated = local.map((p) => {
       if (p.id === id || String(p.id) === String(id)) {
@@ -409,24 +385,6 @@ export const productService = {
       return p;
     });
     saveLocalProducts(updated);
-
-    (async () => {
-      try {
-        const payload = { ...updates };
-        delete payload.id;
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (payload.category_id && !uuidRegex.test(payload.category_id)) {
-          delete payload.category_id;
-        }
-
-        await withTimeout(
-          supabase.from('products').update(payload).eq('id', id).select().maybeSingle(),
-          1500
-        );
-      } catch (err) {
-        console.warn('Background product update cloud notice:', err.message);
-      }
-    })();
 
     return { id, ...updates };
   },
@@ -438,7 +396,13 @@ export const productService = {
       local.find((p) => p.id === id || String(p.id) === String(id)) ||
       (typeof idOrProduct === 'object' ? idOrProduct : null);
 
-    saveDeletedProductId(id, target?.slug, target?.name);
+    saveDeletedProductId(id);
+
+    try {
+      await withTimeout(supabase.from('products').delete().eq('id', id), 5000);
+    } catch (err) {
+      console.warn('Supabase product delete notice:', err.message);
+    }
 
     const updated = local.filter((p) => {
       if (p.id === id || String(p.id) === String(id)) return false;
@@ -448,12 +412,6 @@ export const productService = {
     });
 
     saveLocalProducts(updated);
-
-    try {
-      withTimeout(supabase.from('products').delete().eq('id', id), 800).catch(() => {});
-    } catch (err) {
-      console.warn('Background product delete cloud notice:', err.message);
-    }
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('isai:products_updated', { detail: updated }));
@@ -592,7 +550,7 @@ export const productService = {
 
       const { error: uploadError } = await withTimeout(
         supabase.storage.from('products').upload(filePath, file),
-        1500
+        5000
       );
 
       if (!uploadError) {

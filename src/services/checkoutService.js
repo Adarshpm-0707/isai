@@ -162,13 +162,20 @@ export const checkoutService = {
     // Database record matching Supabase schema.sql exactly
     const dbInsertPayload = {
       id: orderUuid,
+      order_id: readableOrderId,
       user_id: userId,
+      customer_name: shipping.name || '',
+      customer_email: shipping.email || '',
+      customer_phone: shipping.phone || '',
       items,
       subtotal: subtotal,
       shipping_fee: 0,
       discount_amount: discount,
+      discount: discount,
+      coupon_code: couponCode,
       cod_fee: 0,
       total: total,
+      total_amount: total,
       payment_method: 'cod',
       status: 'pending',
       shipping_address: shipping,
@@ -221,27 +228,34 @@ export const checkoutService = {
       couponService.recordCouponUsage(couponCode).catch(() => {});
     }
 
-    // 5. Cloud sync to Supabase orders table in background (non-blocking)
+    // 5. Cloud sync to Supabase orders table & profiles table
     try {
-      supabase
-        .from('orders')
-        .insert(dbInsertPayload)
-        .select()
-        .maybeSingle()
-        .catch((err) => {
-          console.warn('[Checkout] Supabase background sync notice:', err?.message);
-        });
-    } catch {}
+      const { data: dbData, error: dbErr } = await withTimeout(
+        supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
+        5000
+      );
+      if (dbErr) {
+        console.warn('[Checkout] Supabase orders insert error:', dbErr.message);
+      }
+      if (shipping.email) {
+        const custProf = {
+          name: shipping.name || 'Customer',
+          email: shipping.email.toLowerCase().trim(),
+          phone: shipping.phone || '',
+          address: shipping,
+          role: 'user',
+          updated_at: new Date().toISOString(),
+        };
+        if (userId) custProf.id = userId;
+        supabase.from('profiles').upsert(custProf).catch(() => {});
+      }
+    } catch (err) {
+      console.warn('[Checkout] Supabase orders insert notice:', err?.message);
+    }
 
-    // 6. Push to unified server API
+    // 6. Cache and record order locally
     try {
       if (typeof window !== 'undefined') {
-        fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData),
-        }).catch(() => {});
-
         // Cache last order in sessionStorage so reload on OrderSuccess never loses data
         try {
           sessionStorage.setItem('isai_last_order', JSON.stringify(orderData));
@@ -357,13 +371,20 @@ export const checkoutService = {
     // Database record matching Supabase schema.sql exactly
     const dbInsertPayload = {
       id: orderUuid,
+      order_id: readableOrderId,
       user_id: userId,
+      customer_name: shipping.name || '',
+      customer_email: shipping.email || '',
+      customer_phone: shipping.phone || '',
       items,
       subtotal: subtotal,
       shipping_fee: Number(payload.shippingFee || 0),
       discount_amount: discount,
+      discount: discount,
+      coupon_code: couponCode,
       cod_fee: 0,
       total: total,
+      total_amount: total,
       payment_method: 'prepaid',
       status: 'paid',
       shipping_address: shipping,
@@ -416,27 +437,34 @@ export const checkoutService = {
       couponService.recordCouponUsage(couponCode).catch(() => {});
     }
 
-    // 5. Cloud sync to Supabase orders table in background (non-blocking)
+    // 5. Cloud sync to Supabase orders table & profiles table
     try {
-      supabase
-        .from('orders')
-        .insert(dbInsertPayload)
-        .select()
-        .maybeSingle()
-        .catch((err) => {
-          console.warn('[Checkout] Supabase background sync notice:', err?.message);
-        });
-    } catch {}
+      const { data: dbData, error: dbErr } = await withTimeout(
+        supabase.from('orders').insert(dbInsertPayload).select().maybeSingle(),
+        5000
+      );
+      if (dbErr) {
+        console.warn('[Checkout] Supabase orders insert error:', dbErr.message);
+      }
+      if (shipping.email) {
+        const custProf = {
+          name: shipping.name || 'Customer',
+          email: shipping.email.toLowerCase().trim(),
+          phone: shipping.phone || '',
+          address: shipping,
+          role: 'user',
+          updated_at: new Date().toISOString(),
+        };
+        if (userId) custProf.id = userId;
+        supabase.from('profiles').upsert(custProf).catch(() => {});
+      }
+    } catch (err) {
+      console.warn('[Checkout] Supabase orders insert notice:', err?.message);
+    }
 
-    // 6. Push to unified server API
+    // 6. Cache and record order locally
     try {
       if (typeof window !== 'undefined') {
-        fetch('/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData),
-        }).catch(() => {});
-
         // Cache last order in sessionStorage so reload on OrderSuccess never loses data
         try {
           sessionStorage.setItem('isai_last_order', JSON.stringify(orderData));
