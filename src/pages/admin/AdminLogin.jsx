@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { validateEmail, validateRequired } from "../../utils/validators";
-import { AlertCircle, Lock, Mail, Shield, ArrowRight } from "lucide-react";
+import { AlertCircle, Lock, Mail, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import BrandLogo from "../../components/reusable/BrandLogo";
 import { FloralOrnament } from "../../components/reusable/FloralOrnament";
@@ -125,21 +125,6 @@ export default function AdminLogin() {
             >
               {loading ? "Authenticating Admin..." : "Sign In to Admin Portal"}
             </button>
-          </div>
-
-          <div className="pt-3 border-t border-[#D4AF37]/20 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-center sm:text-left text-xs">
-            <Link
-              to="/admin/signup"
-              className="text-[#D4AF37] font-medium hover:underline"
-            >
-              Need Admin Account? Register →
-            </Link>
-            <Link
-              to="/login"
-              className="text-[#A1A1AA] font-medium hover:text-[#D4AF37] hover:underline flex items-center gap-1"
-            >
-              Customer Portal <ArrowRight size={12} />
-            </Link>
           </div>
         </form>
       </motion.div>

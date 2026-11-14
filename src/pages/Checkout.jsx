@@ -9,6 +9,8 @@ export default function Checkout() {
   const {
     cartItems,
     subtotal,
+    discount,
+    appliedCoupon,
     formData,
     paymentMethod,
     setPaymentMethod,
@@ -76,6 +78,8 @@ export default function Checkout() {
             <CheckoutOrderSummary
               cartItems={cartItems}
               subtotal={subtotal}
+              discount={discount}
+              appliedCoupon={appliedCoupon}
               paymentMethod={paymentMethod}
               finalTotal={finalTotal}
               submitting={submitting}

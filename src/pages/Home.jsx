@@ -29,10 +29,10 @@ export default function Home() {
         categoryCarouselItems={categoryCarouselItems}
       />
 
-      {/* ── 4. NEWLY ARRIVED SECTION ── */}
+      {/* ── 3. NEWLY ARRIVED SECTION ── */}
       <HomeNewlyArrived newlyArrivedProducts={newlyArrivedProducts} />
 
-      {/* ── 5. FEATURED PRODUCTS SECTION ── */}
+      {/* ── 4. FEATURED PRODUCTS SECTION ── */}
       <HomeFeaturedProducts
         products={products}
         featuredProducts={featuredProducts}
@@ -41,7 +41,7 @@ export default function Home() {
         setActiveFilter={setActiveFilter}
       />
 
-      {/* ── 6. FREQUENTLY ASKED QUESTIONS (FAQ) ── */}
+      {/* ── 5. FREQUENTLY ASKED QUESTIONS (FAQ) ── */}
       <FaqSection />
     </div>
   );

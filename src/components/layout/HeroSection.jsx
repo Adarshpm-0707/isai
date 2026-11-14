@@ -1,12 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import heroLaptopBg from '../../assets/hero_laptop_bg.jpg';
 import heroModelImg from '../../assets/hero_saree_model.jpg';
+import HomeSplitText from '../home/HomeSplitText';
 
 export default function HeroSection() {
   const navigate = useNavigate();
+
+  // Track whether the initial SareeLoader has unveiled the home page
+  const [isLoaderDone, setIsLoaderDone] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return Boolean(window.__sareeLoaderDone);
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    if (isLoaderDone) return;
+
+    const handleLoaderComplete = () => {
+      setIsLoaderDone(true);
+    };
+
+    window.addEventListener('saree-loader-complete', handleLoaderComplete);
+
+    // Fast fallback timer so hero content always displays immediately
+    const fallbackTimer = setTimeout(() => {
+      setIsLoaderDone(true);
+    }, 2400);
+
+    return () => {
+      window.removeEventListener('saree-loader-complete', handleLoaderComplete);
+      clearTimeout(fallbackTimer);
+    };
+  }, [isLoaderDone]);
 
   return (
     <section className="relative w-full overflow-hidden bg-[#0E0705] border-b border-[#2A1B15]">
@@ -30,7 +59,7 @@ export default function HeroSection() {
             {/* Eyebrow / Collection Label */}
             <motion.div
               initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
+              animate={isLoaderDone ? { opacity: 1, x: 0 } : { opacity: 0, x: -16 }}
               transition={{ duration: 0.6, delay: 0.05 }}
               className="flex items-center gap-3"
             >
@@ -39,26 +68,14 @@ export default function HeroSection() {
               </span>
             </motion.div>
 
-            {/* Main Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.12 }}
-              className="font-serif text-5xl xl:text-6xl 2xl:text-7xl font-normal text-[#FDF8F4] leading-[1.1] drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)]"
-              style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
-            >
-              Woven in Heritage.
-              <br />
-              <span className="italic font-light text-[#D4855A]">
-                Worn with Grace.
-              </span>
-            </motion.h1>
+            {/* Main Headline with GSAP SplitText Characters Animation */}
+            <HomeSplitText variant="desktop" />
 
             {/* Subtitle */}
             <motion.p
               initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.22 }}
+              animate={isLoaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+              transition={{ duration: 0.7, delay: 0.45 }}
               className="text-[#EADFC9] text-base xl:text-lg leading-relaxed max-w-lg font-light drop-shadow-sm"
             >
               Timeless sarees, thoughtfully chosen for every story you carry.
@@ -67,8 +84,8 @@ export default function HeroSection() {
             {/* CTA Buttons — Side by Side */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.28 }}
+              animate={isLoaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+              transition={{ duration: 0.7, delay: 0.55 }}
               className="pt-2 flex flex-row items-center gap-4"
             >
               <button
@@ -111,7 +128,7 @@ export default function HeroSection() {
             decoding="async"
             className="w-full h-full object-cover object-center sm:object-top"
           />
-          {/* Layered gradients for depth & text legibility matching reference */}
+          {/* Layered gradients for depth & text legibility */}
           <div
             className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0E0705] via-[#0E0705]/85 via-50% to-transparent pointer-events-none"
             style={{ height: '62%' }}
@@ -125,8 +142,8 @@ export default function HeroSection() {
           {/* Eyebrow line */}
           <motion.div
             initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            animate={isLoaderDone ? { opacity: 1, x: 0 } : { opacity: 0, x: -12 }}
+            transition={{ duration: 0.6, delay: 0.05 }}
             className="flex items-center gap-2 mb-2 sm:mb-2.5"
           >
             <span className="text-[10px] sm:text-[11px] font-semibold tracking-[0.28em] uppercase text-[#DFC18A]">
@@ -134,26 +151,14 @@ export default function HeroSection() {
             </span>
           </motion.div>
 
-          {/* Main Headline — clean two-line luxury serif */}
-          <motion.h1
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.18 }}
-            className="font-serif leading-[1.1] mb-2 sm:mb-2.5 drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)]"
-            style={{
-              fontFamily: "'Playfair Display', 'Cormorant Garamond', serif",
-              fontSize: 'clamp(1.95rem, 8.5vw, 2.75rem)',
-            }}
-          >
-            <span className="block text-[#FDF8F4] font-normal">Woven in Heritage.</span>
-            <span className="block italic font-light text-[#D4855A] mt-0.5">Worn with Grace.</span>
-          </motion.h1>
+          {/* Main Headline with GSAP SplitText Characters Animation */}
+          <HomeSplitText variant="mobile" />
 
           {/* Subtitle — airy, light */}
           <motion.p
             initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: 0.35 }}
+            animate={isLoaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+            transition={{ duration: 0.65, delay: 0.4 }}
             className="text-[#D6C9B8] text-xs sm:text-[13.5px] leading-relaxed font-light mb-4 sm:mb-5 max-w-[320px] drop-shadow-sm"
           >
             Timeless sarees, thoughtfully chosen for every story you carry.
@@ -162,8 +167,8 @@ export default function HeroSection() {
           {/* CTA Button Row — side by side */}
           <motion.div
             initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: 0.45 }}
+            animate={isLoaderDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+            transition={{ duration: 0.65, delay: 0.5 }}
             className="flex items-center gap-2.5 sm:gap-3.5"
           >
             {/* Primary — filled forest green pill */}

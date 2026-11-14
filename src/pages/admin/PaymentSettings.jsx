@@ -45,6 +45,17 @@ export default function PaymentSettings() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 text-[#F5E6BE] font-sans">
+        <SectionHeading title="Payment Gateway Settings" subtitle="Configure Razorpay merchant keys and checkout status" align="left" />
+        <div className="flex items-center justify-center p-12 bg-[#0F131C] border border-[#D4AF37]/30 rounded-2xl">
+          <div className="w-8 h-8 rounded-full border-2 border-[#D4AF37]/30 border-t-[#D4AF37] animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 text-[#F5E6BE] font-sans">
       <SectionHeading title="Payment Gateway Settings" subtitle="Configure Razorpay merchant keys and checkout status" align="left" />

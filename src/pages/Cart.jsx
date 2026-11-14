@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useCart from '../hooks/useCart';
-import PriceTag from '../components/reusable/PriceTag';
 import QtySelector from '../components/reusable/QtySelector';
 import EmptyState from '../components/reusable/EmptyState';
 import { Trash2, ArrowRight, ShieldCheck } from 'lucide-react';
@@ -132,7 +131,7 @@ export default function Cart() {
             {/* Reassurance */}
             <div className="flex items-center gap-2 text-xs text-[#8E7B6F] px-2">
               <ShieldCheck className="w-4 h-4 text-[#DFC18A] shrink-0" />
-              <span>Complimentary insured shipping & easy 7-day returns included.</span>
+              <span>Complimentary insured shipping • Silk Mark Certified Pure Handlooms.</span>
             </div>
           </div>
 

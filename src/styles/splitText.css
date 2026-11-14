@@ -1,0 +1,55 @@
+/* =========================================================================
+   GSAP SplitText Animation Styles - Isai Tarang Luxury Responsive Text
+   ========================================================================= */
+
+.split-text-container {
+  perspective: 600px;
+  -webkit-perspective: 600px;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+/* 3D Line Animation Container */
+.split-line {
+  display: block;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Words Animation Container */
+.split-word {
+  display: inline-block;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform, opacity;
+  white-space: pre;
+}
+
+/* Characters Animation Container */
+.split-char {
+  display: inline-block;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+/* Button Wrapper */
+.button-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Text Container with 3D Perspective */
+.text-split-animated {
+  perspective: 500px;
+  -webkit-perspective: 500px;
+  box-sizing: border-box;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+

@@ -8,7 +8,8 @@ export default function AdminRoute({ children }) {
 
   // Instant local check fallback
   const getIsAdmin = () => {
-    if (role === 'admin') return true;
+    if (role === 'admin' || role === 'superadmin') return true;
+    if (user && (user.role === 'admin' || user.email?.toLowerCase().includes('admin'))) return true;
     try {
       const local = JSON.parse(localStorage.getItem('isai_current_user') || 'null');
       if (local && (local.role === 'admin' || local.email?.toLowerCase().includes('admin'))) {

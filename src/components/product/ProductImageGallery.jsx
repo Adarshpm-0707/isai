@@ -79,13 +79,6 @@ export default function ProductImageGallery({ images = [] }) {
             </div>
           </>
         )}
-
-        {/* Handloom Badge */}
-        <div className="absolute top-3 left-3 pointer-events-none">
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#C86A27] text-white shadow">
-            Handloom
-          </span>
-        </div>
       </div>
 
       {/* Thumbnails */}

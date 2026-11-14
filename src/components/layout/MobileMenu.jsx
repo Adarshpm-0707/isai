@@ -13,8 +13,9 @@ import {
   User, 
   MessageCircle, 
   ArrowRight,
-  ShieldCheck,
-  MapPin
+  MapPin,
+  Sparkles,
+  Settings
 } from 'lucide-react';
 import BrandLogo, { LotusEmblem } from '../reusable/BrandLogo';
 
@@ -153,6 +154,17 @@ export default function MobileMenu({ isOpen, onClose, user, role, cartCount, log
                     </div>
                     <span className="text-xs text-[#EADFC9] truncate font-medium">{user.email}</span>
                   </div>
+
+                  {(role === 'admin' || role === 'superadmin') && (
+                    <Link
+                      to="/admin"
+                      onClick={onClose}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[#DFC18A]/40 bg-[#1F1410] text-[#DFC18A] hover:bg-[#DFC18A]/10 text-xs font-semibold uppercase tracking-wider transition-colors"
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                      <span>Admin Dashboard</span>
+                    </Link>
+                  )}
 
                   <div className="grid grid-cols-2 gap-2">
                     <Link

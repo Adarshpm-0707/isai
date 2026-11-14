@@ -9,7 +9,6 @@ import ProductBuyBox from '../components/product/ProductBuyBox';
 import ProductTabs from '../components/product/ProductTabs';
 import ProductCard from '../components/reusable/ProductCard';
 import ProductSectionHeader from '../components/reusable/ProductSectionHeader';
-import { FloralOrnament } from '../components/reusable/FloralOrnament';
 
 export default function ProductDetails() {
   const { user } = useAuth();

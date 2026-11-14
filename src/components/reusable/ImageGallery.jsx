@@ -13,8 +13,9 @@ export default function ImageGallery({ images = [] }) {
 
   // Sync state if images array updates (e.g. switching product detail pages)
   useEffect(() => {
-    if (list.length > 0) {
-      setActive(list[0]);
+    const validList = (images && images.length > 0 ? images : fallbackImages).filter(Boolean);
+    if (validList.length > 0) {
+      setActive(validList[0]);
     }
   }, [images]);
 

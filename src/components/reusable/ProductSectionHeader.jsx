@@ -15,6 +15,7 @@ export default function ProductSectionHeader({
   onAction = null,
   align = 'center',
   className = '',
+  hideMobileAction = false,
 }) {
   const isCenter = align === 'center';
 
@@ -62,8 +63,8 @@ export default function ProductSectionHeader({
           </p>
         )}
 
-        {/* Action Button for Desktop (if action provided and align is center with desktop positioning, or below) */}
-        {(actionLink || onAction) && actionText && (
+        {/* Action Button for Mobile (hidden if hideMobileAction is true) */}
+        {!hideMobileAction && (actionLink || onAction) && actionText && (
           <div className="mt-4 sm:hidden">
             {actionLink ? (
               <Link

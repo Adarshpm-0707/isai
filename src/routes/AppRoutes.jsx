@@ -27,6 +27,7 @@ const OrderSuccess = lazy(() => import('../pages/OrderSuccess'));
 const OrderHistory = lazy(() => import('../pages/OrderHistory'));
 const CustomerProfile = lazy(() => import('../pages/CustomerProfile'));
 const Wishlist = lazy(() => import('../pages/Wishlist'));
+const BoutiqueRailPage = lazy(() => import('../pages/BoutiqueRailPage'));
 
 // Lazy loaded admin portal pages
 const AdminLogin = lazy(() => import('../pages/admin/AdminLogin'));
@@ -85,6 +86,7 @@ export default function AppRoutes() {
           <Route path="products" element={<Products />} />
           <Route path="products/:id" element={<ProductDetails />} />
           <Route path="product/:id" element={<ProductDetails />} />
+          <Route path="rail" element={<BoutiqueRailPage />} />
           <Route path="cart" element={<Cart />} />
           <Route path="wishlist" element={<Wishlist />} />
 

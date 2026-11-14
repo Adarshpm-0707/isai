@@ -140,7 +140,7 @@ export default function Products() {
       </header>
 
       {/* ── CATEGORY TABS & CONTROLS ── */}
-      <section className="mt-10 sm:mt-14 px-4 sm:px-6 max-w-7xl mx-auto space-y-6">
+      <section id="catalog-grid-start" className="mt-8 sm:mt-12 px-4 sm:px-6 max-w-7xl mx-auto space-y-6">
         {/* Category Horizontal Bar */}
         <div className="flex items-center gap-2 sm:gap-3 pb-3 overflow-x-auto no-scrollbar border-b border-[#2C1C16]">
           {categoriesList.map((cat) => {

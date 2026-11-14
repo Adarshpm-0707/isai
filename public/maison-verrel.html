@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="en" class="is-loading">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Maison Verrel — The Rail</title>
+  <link rel="preconnect" href="https://images.higgs.ai">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url('https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Cormorant Garamond';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url('https://fonts.gstatic.com/s/cormorantgaramond/v21/co3umX5slCNuHLi8bLeY9MK7whWMhyjypVO7abI26QOD_s06KnTOig.woff2') format('woff2');
+    }
+
+    :root {
+      --bg: #FAF7F2;
+      --bar: #EFEBE4;
+      --ink: #1A1716;
+      --muted: #746A5E;
+      --hairline: #DDD5C9;
+      --search-pill: #EDE8DF;
+      --tag: #F6F1E7;
+      --near-black: #0E0D0C;
+      --u: 1px;
+      /* Desktop defaults */
+      --rail-top: 270;
+      --rail-sag: 74;
+      --gap: 121;
+      --gs: 0.455;
+      --start: 113;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Page container */
+    .page {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      transition: right 0.6s cubic-bezier(.22,1,.36,1);
+      overflow: hidden;
+    }
+
+    body.drawer-open .page {
+      right: calc(560 * var(--u));
+    }
+
+    .stage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transition: opacity 0.45s ease, filter 0.45s ease;
+    }
+
+    body.qv-open .stage {
+      opacity: 0;
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    /* Utility Bar */
+    .util-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(31 * var(--u));
+      background: var(--bar);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: calc(48 * var(--u));
+      z-index: 20;
+    }
+
+    .util-links {
+      display: flex;
+      align-items: center;
+      font-size: calc(13.5 * var(--u));
+      color: #6B655D;
+    }
+
+    .util-links a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .util-links a:hover {
+      color: var(--ink);
+    }
+
+    .util-links a + a::before {
+      content: '|';
+      margin: 0 calc(15 * var(--u));
+      color: #A39C92;
+    }
+
+    /* Nav row */
+    .nav-row {
+      position: absolute;
+      top: calc(31 * var(--u));
+      left: 0;
+      width: 100%;
+      height: calc(72 * var(--u));
+      display: flex;
+      align-items: center;
+      z-index: 20;
+    }
+
+    .wordmark {
+      position: absolute;
+      left: calc(47 * var(--u));
+      top: calc(20 * var(--u));
+      font-family: "Cormorant Garamond", serif;
+      font-weight: 500;
+      font-size: calc(23.6 * var(--u));
+      letter-spacing: 0.075em;
+      line-height: 1;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      top: calc(25 * var(--u));
+      transform: translate(-50%, 0) translateX(calc(-8 * var(--u)));
+      display: flex;
+      align-items: center;
+      gap: calc(42 * var(--u));
+      font-weight: 500;
+      font-size: calc(15.5 * var(--u));
+      color: var(--ink);
+      transition: left 0.6s cubic-bezier(.22,1,.36,1);
+    }
+
+    body.drawer-open .nav-links {
+      left: calc(50% + calc(24 * var(--u)));
+    }
+
+    .nav-links a {
+      color: inherit;
+      text-decoration: none;
+      position: relative;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover {
+      opacity: 0.7;
+    }
+
+    .nav-tools {
+      position: absolute;
+      right: calc(64 * var(--u));
+      top: calc(16 * var(--u));
+      display: flex;
+      align-items: center;
+      gap: calc(26 * var(--u));
+    }
+
+    .search-pill {
+      width: calc(150 * var(--u));
+      height: calc(40 * var(--u));
+      border-radius: calc(20 * var(--u));
+      background: var(--search-pill);
+      display: flex;
+      align-items: center;
+      padding-left: calc(29 * var(--u));
+      gap: calc(14 * var(--u));
+      cursor: pointer;
+      transition: width 0.6s cubic-bezier(.22,1,.36,1), padding 0.6s cubic-bezier(.22,1,.36,1);
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    body.drawer-open .search-pill {
+      width: calc(40 * var(--u));
+      padding-left: calc(10.5 * var(--u));
+    }
+
+    .search-pill svg {
+      width: calc(19 * var(--u));
+      height: calc(19 * var(--u));
+      stroke: #2A2420;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    .search-text {
+      font-size: calc(15 * var(--u));
+      color: #8B857C;
+    }
+
+    .account-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink);
+      padding: 0;
+    }
+
+    .account-btn svg {
+      width: calc(22 * var(--u));
+      height: calc(22 * var(--u));
+      stroke: var(--ink);
+      stroke-width: 1.6;
+      fill: none;
+    }
+
+    .bag-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: calc(6 * var(--u));
+      padding: 0;
+    }
+
+    .bag-icon-svg {
+      width: calc(22 * var(--u));
+      height: calc(22 * var(--u));
+      stroke: var(--ink);
+      stroke-width: 1.6;
+      fill: none;
+      transform-origin: 50% 50%;
+    }
+
+    .bag-badge {
+      position: absolute;
+      top: calc(-9 * var(--u));
+      left: calc(12 * var(--u));
+      height: calc(18 * var(--u));
+      min-width: calc(18 * var(--u));
+      border-radius: calc(9 * var(--u));
+      background: var(--near-black);
+      color: #FFFFFF;
+      font-size: calc(10.5 * var(--u));
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 calc(4 * var(--u));
+      transform-origin: 50% 50%;
+    }
+
+    /* Eyebrow */
+    .eyebrow {
+      position: absolute;
+      top: calc(144 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: calc(17 * var(--u));
+      font-weight: 600;
+      font-size: calc(12.4 * var(--u));
+      z-index: 10;
+      white-space: nowrap;
+    }
+
+    .eyebrow-part1 {
+      letter-spacing: 0.18em;
+      color: #5A5148;
+    }
+
+    .eyebrow-div {
+      width: calc(1 * var(--u));
+      height: calc(13 * var(--u));
+      background: #C9C0B3;
+    }
+
+    .eyebrow-part2 {
+      letter-spacing: 0.213em;
+      color: #8A7F72;
+    }
+
+    /* Headline */
+    .headline {
+      position: absolute;
+      top: calc(176 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 600;
+      font-size: calc(62 * var(--u));
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      white-space: nowrap;
+      z-index: 10;
+      text-align: center;
+    }
+
+    .headline span {
+      display: inline-block;
+      margin-right: 0.24em;
+    }
+    .headline span:last-child {
+      margin-right: 0;
+    }
+
+    .hw-0 { color: #141210; }
+    .hw-1 { color: #54493F; }
+    .hw-2 { color: #75675A; }
+    .hw-3 {
+      background: linear-gradient(90deg, #A6968A, #C6B8A9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Rail Zone */
+    .rail-zone {
+      position: absolute;
+      top: calc(230 * var(--u));
+      bottom: calc(120 * var(--u));
+      left: 0;
+      width: 100%;
+      touch-action: pan-y;
+      cursor: grab;
+      overflow: visible;
+      z-index: 5;
+    }
+
+    .rail-zone.dragging {
+      cursor: grabbing;
+    }
+
+    .rail-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* Garments */
+    .garments-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .g {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      will-change: transform;
+      z-index: 2;
+    }
+
+    .g.hov {
+      z-index: 5 !important;
+    }
+
+    .drop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      will-change: transform, opacity, filter;
+    }
+
+    .sway {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    .lift {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      perspective: calc(700 * var(--u));
+      transition: transform 0.42s cubic-bezier(.22,1,.36,1);
+    }
+
+    .g.hov .lift {
+      transform: translateY(calc(12 * var(--u))) scale(1.2);
+    }
+
+    .face {
+      position: absolute;
+      top: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform-origin: 50% 0;
+      pointer-events: none;
+    }
+
+    .face.side {
+      transform: rotateY(0deg);
+      transition: transform 0.15s cubic-bezier(.5,0,1,1) 0.15s;
+    }
+
+    .face.front {
+      transform: rotateY(90deg);
+      transition: transform 0.15s cubic-bezier(0,0,.3,1);
+    }
+
+    .face.back-view {
+      transform: rotateY(90deg);
+      transition: transform 0.15s cubic-bezier(0,0,.3,1);
+    }
+
+    .g.hov .face.side {
+      transform: rotateY(-90deg);
+      transition: transform 0.15s cubic-bezier(.5,0,1,1);
+    }
+
+    .g.hov .face.front {
+      transform: rotateY(0deg);
+      transition: transform 0.15s cubic-bezier(0,0,.3,1) 0.15s;
+    }
+
+    /* Price tag */
+    .tag {
+      position: absolute;
+      width: calc(35 * var(--u));
+      height: calc(19 * var(--u));
+      background: var(--tag);
+      border-radius: calc(2 * var(--u));
+      box-shadow: 0 calc(1 * var(--u)) calc(3 * var(--u)) rgba(60,45,30,.18);
+      left: calc(-6 * var(--u));
+      top: calc(52 * var(--u));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: calc(9.6 * var(--u));
+      color: #2A2420;
+      pointer-events: none;
+      z-index: 4;
+      transform-origin: 50% 0;
+    }
+
+    .tag::before {
+      content: '';
+      position: absolute;
+      top: calc(2.2 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(2.4 * var(--u));
+      height: calc(2.4 * var(--u));
+      background: #B9AE9C;
+      border-radius: 50%;
+    }
+
+    /* Floor shadow */
+    .shadow {
+      position: absolute;
+      height: calc(16 * var(--u));
+      border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(70,52,34,.13), transparent);
+      pointer-events: none;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    /* Hit area */
+    .hit {
+      position: absolute;
+      top: 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      pointer-events: auto;
+      transform: translateX(-50%);
+      z-index: 6;
+      outline: none;
+    }
+
+    /* Footer */
+    .footer-left {
+      position: absolute;
+      left: calc(47 * var(--u));
+      bottom: calc(58 * var(--u));
+      width: calc(420 * var(--u));
+      height: calc(40 * var(--u));
+      display: flex;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .footer-rule {
+      width: calc(27 * var(--u));
+      height: calc(1 * var(--u));
+      background: #8E857A;
+      margin-right: calc(13 * var(--u));
+      flex-shrink: 0;
+    }
+
+    .footer-hint {
+      font-size: calc(14.6 * var(--u));
+      color: #776D63;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .footer-active-label {
+      position: absolute;
+      left: calc(40 * var(--u));
+      display: flex;
+      flex-direction: column;
+      gap: calc(2 * var(--u));
+      opacity: 0;
+      transform: translateY(calc(6 * var(--u)));
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+
+    .footer-active-label.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .footer-left.has-hover .footer-hint {
+      opacity: 0;
+      transform: translateY(calc(-6 * var(--u)));
+    }
+
+    .active-name {
+      font-weight: 600;
+      font-size: calc(13 * var(--u));
+      color: var(--ink);
+    }
+
+    .active-price {
+      font-size: calc(13 * var(--u));
+      color: var(--ink);
+    }
+
+    /* Progress bar */
+    .progress-track {
+      position: absolute;
+      left: 50%;
+      bottom: calc(64 * var(--u));
+      transform: translateX(-50%);
+      width: calc(140 * var(--u));
+      height: calc(2 * var(--u));
+      background: #DCD4C8;
+      border-radius: calc(1 * var(--u));
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .progress-thumb {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 58%;
+      height: 100%;
+      background: var(--ink);
+      border-radius: calc(1 * var(--u));
+      will-change: left;
+    }
+
+    /* Footer right */
+    .footer-right {
+      position: absolute;
+      right: calc(48 * var(--u));
+      bottom: calc(46 * var(--u));
+      text-align: right;
+      z-index: 10;
+    }
+
+    .footer-right-copy {
+      font-weight: 600;
+      font-size: calc(15.6 * var(--u));
+      line-height: 1.24;
+      letter-spacing: -0.005em;
+      color: var(--ink);
+    }
+
+    .footer-right-link {
+      margin-top: calc(14 * var(--u));
+      display: inline-flex;
+      align-items: center;
+      gap: calc(9 * var(--u));
+      font-weight: 500;
+      font-size: calc(13.4 * var(--u));
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: calc(5 * var(--u));
+      transition: opacity 0.2s;
+    }
+
+    .footer-right-link:hover {
+      opacity: 0.7;
+    }
+
+    .footer-right-link svg {
+      width: calc(15 * var(--u));
+      height: calc(10 * var(--u));
+      stroke: var(--ink);
+      stroke-width: 1.3;
+      fill: none;
+    }
+
+    /* Quick-View Layer */
+    .qv {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+
+    body.qv-open .qv {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .qv-rod {
+      position: absolute;
+      top: 0;
+      left: calc(440 * var(--u));
+      width: 1.5px;
+      height: calc(62 * var(--u));
+      background: #3B3631;
+      opacity: 0;
+      transition: opacity 0.3s ease 0.45s;
+    }
+
+    body.qv-open .qv-rod {
+      opacity: 1;
+    }
+
+    .qv-img-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .qv-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+
+    .qv-info {
+      position: absolute;
+      left: calc(972 * var(--u));
+      top: 50%;
+      width: calc(430 * var(--u));
+      transform: translateY(-42%);
+      display: flex;
+      flex-direction: column;
+      gap: calc(16 * var(--u));
+      z-index: 55;
+    }
+
+    .qv-item {
+      opacity: 0;
+      transform: translateY(calc(10 * var(--u)));
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    body.qv-open .qv-item {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .qv-counter {
+      font-size: calc(12 * var(--u));
+      letter-spacing: 0.12em;
+      color: #8A7F72;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .qv-name {
+      font-size: calc(23 * var(--u));
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    .qv-price {
+      font-size: calc(15.5 * var(--u));
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .qv-tabs {
+      display: flex;
+      align-items: center;
+      gap: calc(32 * var(--u));
+      border-bottom: 1px solid var(--hairline);
+      padding-bottom: calc(2 * var(--u));
+    }
+
+    .qv-tab {
+      background: none;
+      border: none;
+      font-size: calc(15 * var(--u));
+      font-weight: 500;
+      color: #8A7F72;
+      cursor: pointer;
+      padding-bottom: calc(6 * var(--u));
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .qv-tab.active {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .qv-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--ink);
+    }
+
+    .qv-size-label {
+      font-size: calc(11 * var(--u));
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .qv-sizes {
+      display: flex;
+      align-items: center;
+      gap: calc(10 * var(--u));
+    }
+
+    .size-pill {
+      width: calc(52 * var(--u));
+      height: calc(44 * var(--u));
+      border-radius: calc(22 * var(--u));
+      border: 1.5px solid var(--hairline);
+      background: transparent;
+      font-size: calc(14 * var(--u));
+      font-weight: 500;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .size-pill.active {
+      background: var(--near-black);
+      border-color: var(--near-black);
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    .qv-add-btn {
+      width: 100%;
+      height: calc(58 * var(--u));
+      border-radius: calc(29 * var(--u));
+      background: var(--near-black);
+      color: #FFFFFF;
+      font-size: calc(16 * var(--u));
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: calc(10 * var(--u));
+      transition: background-color 0.2s;
+      margin-top: calc(8 * var(--u));
+    }
+
+    .qv-add-btn.adding {
+      background: #8D8780;
+      cursor: wait;
+    }
+
+    .btn-spinner {
+      width: calc(16 * var(--u));
+      height: calc(16 * var(--u));
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #FFFFFF;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .qv-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--hairline);
+      padding-top: calc(14 * var(--u));
+      font-size: calc(13.5 * var(--u));
+      color: var(--muted);
+    }
+
+    .qv-meta-link {
+      color: var(--ink);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .qv-close-btn {
+      position: absolute;
+      right: calc(28 * var(--u));
+      top: calc(22 * var(--u));
+      height: calc(32 * var(--u));
+      padding: 0 calc(14 * var(--u));
+      border: 1.5px solid var(--ink);
+      border-radius: calc(16 * var(--u));
+      background: #FAF7F2;
+      color: var(--ink);
+      font-size: calc(14 * var(--u));
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      transition: background-color 0.2s;
+    }
+    .qv-close-btn:hover {
+      background: #EDE8DF;
+    }
+
+    /* Cart Drawer */
+    aside.drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: calc(560 * var(--u));
+      height: 100%;
+      background: #FDFBF7;
+      border-left: 1px solid var(--hairline);
+      transform: translateX(100%);
+      transition: transform 0.6s cubic-bezier(.22,1,.36,1);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      padding: calc(32 * var(--u));
+      box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+    }
+
+    body.drawer-open aside.drawer {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: calc(24 * var(--u));
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    .drawer-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: calc(12 * var(--u));
+    }
+
+    .drawer-title {
+      font-size: calc(27 * var(--u));
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .count-chip {
+      height: calc(24 * var(--u));
+      min-width: calc(24 * var(--u));
+      padding: 0 calc(8 * var(--u));
+      border-radius: calc(12 * var(--u));
+      background: #E9E3DA;
+      font-size: calc(12.5 * var(--u));
+      font-weight: 600;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drawer-close-btn {
+      width: calc(40 * var(--u));
+      height: calc(40 * var(--u));
+      border-radius: 50%;
+      background: #EFEAE2;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(18 * var(--u));
+      color: var(--ink);
+      transition: background 0.2s;
+    }
+    .drawer-close-btn:hover {
+      background: #E0D9CE;
+    }
+
+    .drawer-items {
+      flex: 1;
+      overflow-y: auto;
+      margin: calc(16 * var(--u)) 0;
+      padding-right: calc(6 * var(--u));
+    }
+
+    .drawer-row {
+      display: grid;
+      grid-template-columns: calc(76 * var(--u)) 1fr auto;
+      gap: calc(18 * var(--u));
+      padding: calc(16 * var(--u)) 0 calc(18 * var(--u)) 0;
+      border-bottom: 1px solid #ECE6DC;
+      align-items: center;
+      animation: slideInRow 0.6s cubic-bezier(.22,1,.36,1) forwards;
+    }
+
+    @keyframes slideInRow {
+      from {
+        opacity: 0;
+        transform: translateX(calc(30 * var(--u)));
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .drawer-thumb {
+      width: calc(76 * var(--u));
+      height: calc(96 * var(--u));
+      background: #F4EFEB;
+      border-radius: calc(4 * var(--u));
+      overflow: hidden;
+      position: relative;
+    }
+
+    .drawer-thumb-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+    }
+
+    .drawer-details {
+      display: flex;
+      flex-direction: column;
+      gap: calc(4 * var(--u));
+    }
+
+    .drawer-item-name {
+      font-size: calc(17 * var(--u));
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .drawer-item-sub {
+      font-size: calc(14 * var(--u));
+      color: #6F665C;
+      line-height: 1.5;
+    }
+
+    .drawer-stepper-wrap {
+      display: flex;
+      align-items: center;
+      gap: calc(12 * var(--u));
+      margin-top: calc(8 * var(--u));
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      height: calc(40 * var(--u));
+      border: 1px solid #DCD4C8;
+      border-radius: calc(4 * var(--u));
+      overflow: hidden;
+    }
+
+    .stepper-btn {
+      width: calc(36 * var(--u));
+      height: 100%;
+      background: transparent;
+      border: none;
+      font-size: calc(16 * var(--u));
+      cursor: pointer;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stepper-btn:hover {
+      background: #ECE6DC;
+    }
+
+    .stepper-val {
+      min-width: calc(32 * var(--u));
+      text-align: center;
+      font-size: calc(14 * var(--u));
+      font-weight: 500;
+    }
+
+    .trash-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #8E7B6F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(4 * var(--u));
+    }
+    .trash-btn:hover {
+      color: #BA3329;
+    }
+
+    .drawer-line-total {
+      font-size: calc(16 * var(--u));
+      font-weight: 600;
+      color: var(--ink);
+      text-align: right;
+    }
+
+    .drawer-footer {
+      border-top: 1px solid var(--hairline);
+      padding-top: calc(20 * var(--u));
+      display: flex;
+      flex-direction: column;
+      gap: calc(12 * var(--u));
+    }
+
+    .drawer-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: calc(16 * var(--u));
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .drawer-total-sum {
+      font-size: calc(20 * var(--u));
+      font-weight: 700;
+    }
+
+    .drawer-note {
+      font-size: calc(12.5 * var(--u));
+      color: #8A7F72;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      height: calc(52 * var(--u));
+      background: var(--near-black);
+      color: #FFFFFF;
+      font-size: calc(15 * var(--u));
+      font-weight: 600;
+      border: none;
+      border-radius: calc(3 * var(--u));
+      cursor: pointer;
+      margin-top: calc(6 * var(--u));
+      transition: opacity 0.2s;
+    }
+    .checkout-btn:hover {
+      opacity: 0.9;
+    }
+
+    /* Fly-to-bag clone */
+    .fly-clone {
+      position: fixed;
+      z-index: 200;
+      pointer-events: none;
+      will-change: transform, opacity;
+      transform-origin: 50% 42%;
+    }
+
+    /* Loading state */
+    html.is-loading .drop,
+    html.is-loading .headline span,
+    html.is-loading .footer-left,
+    html.is-loading .progress-track,
+    html.is-loading .footer-right {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* Mobile / Tablet Responsive overrides (width <= 820) */
+    @media (max-width: 820px) {
+      .util-bar, .nav-links, .search-pill, .account-btn {
+        display: none !important;
+      }
+
+      .wordmark {
+        left: calc(20 * var(--u));
+        top: calc(26 * var(--u));
+        font-size: calc(20 * var(--u));
+      }
+
+      .nav-tools {
+        right: calc(30 * var(--u));
+        top: calc(24 * var(--u));
+        gap: 0;
+      }
+
+      .eyebrow {
+        top: calc(104 * var(--u));
+        font-size: calc(9.5 * var(--u));
+        gap: calc(10 * var(--u));
+      }
+
+      .headline {
+        top: calc(130 * var(--u));
+        font-size: calc(40 * var(--u));
+        width: calc(330 * var(--u));
+        white-space: normal;
+        line-height: 1.08;
+      }
+
+      .rail-zone {
+        top: calc(260 * var(--u));
+        bottom: calc(150 * var(--u));
+      }
+
+      .footer-left {
+        left: calc(20 * var(--u));
+        bottom: calc(150 * var(--u));
+      }
+
+      .progress-track {
+        bottom: calc(128 * var(--u));
+        width: calc(110 * var(--u));
+      }
+
+      .footer-right {
+        right: calc(20 * var(--u));
+        bottom: calc(30 * var(--u));
+      }
+      .footer-right-copy {
+        font-size: calc(13 * var(--u));
+      }
+      .footer-right-link {
+        font-size: calc(12 * var(--u));
+      }
+
+      /* Quick view mobile layout */
+      .qv-rod {
+        display: none;
+      }
+
+      .qv-info {
+        left: calc(20 * var(--u));
+        bottom: calc(24 * var(--u));
+        top: auto;
+        transform: none;
+        width: calc(350 * var(--u));
+        background: rgba(250, 247, 242, 0.94);
+        padding: calc(16 * var(--u));
+        border-radius: calc(16 * var(--u));
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        backdrop-filter: blur(8px);
+      }
+
+      aside.drawer {
+        width: 100%;
+      }
+      body.drawer-open .page {
+        right: 0;
+      }
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+      .sway {
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page" id="page">
+    <div class="stage" id="stage">
+      <!-- Utility Bar -->
+      <div class="util-bar">
+        <div class="util-links">
+          <a href="#">Our Ateliers</a>
+          <a href="#">Care</a>
+          <a href="#">Journal</a>
+          <a href="#">Sign In</a>
+        </div>
+      </div>
+
+      <!-- Nav Row -->
+      <div class="nav-row">
+        <a href="#" class="wordmark">MAISON VERREL</a>
+        <nav class="nav-links">
+          <a href="#">Home</a>
+          <a href="#">Atelier</a>
+          <a href="#">The Rail</a>
+          <a href="#">Contact</a>
+        </nav>
+        <div class="nav-tools">
+          <div class="search-pill" id="searchPill">
+            <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="7"/><line x1="15.5" y1="15.5" x2="21" y2="21"/></svg>
+            <span class="search-text">Search</span>
+          </div>
+          <button class="account-btn" aria-label="Account">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+          </button>
+          <button class="bag-btn" id="bagBtn" aria-label="Bag">
+            <svg class="bag-icon-svg" id="bagSvg" viewBox="0 0 24 24">
+              <path d="M6 7 L4 21 L20 21 L18 7 Z"/>
+              <path d="M9 7 C9 3.5 15 3.5 15 7"/>
+            </svg>
+            <div class="bag-badge" id="bagBadge">3</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Eyebrow -->
+      <div class="eyebrow">
+        <span class="eyebrow-part1">NEW COLLECTION</span>
+        <span class="eyebrow-div"></span>
+        <span class="eyebrow-part2">EVENING &amp; TAILORING</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="headline" id="headline">
+        <span class="hw-0">Silhouettes</span><span class="hw-1">that</span><span class="hw-2">hang</span><span class="hw-3">right.</span>
+      </h1>
+
+      <!-- Rail Zone -->
+      <div class="rail-zone" id="railZone">
+        <svg class="rail-svg" id="railSvg">
+          <defs>
+            <linearGradient id="goldTubeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#E9DCBC"/>
+              <stop offset="45%" stop-color="#C2A877"/>
+              <stop offset="100%" stop-color="#7F6743"/>
+            </linearGradient>
+          </defs>
+          <path id="railShadow" fill="none"/>
+          <path id="railTube" fill="none" stroke="url(#goldTubeGrad)"/>
+          <path id="railHighlight" fill="none"/>
+        </svg>
+
+        <div class="garments-layer" id="garmentsLayer"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer-left" id="footerLeft">
+        <div class="footer-rule"></div>
+        <div class="footer-hint" id="footerHint">Hover a piece · click to look closer</div>
+        <div class="footer-active-label" id="footerActiveLabel">
+          <div class="active-name" id="activeName">Noir Tailored Blazer</div>
+          <div class="active-price">$690.00</div>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-thumb" id="progressThumb"></div>
+      </div>
+
+      <div class="footer-right" id="footerRight">
+        <div class="footer-right-copy">
+          Cut from Italian silk and wool.<br>Tailored to order. Made to last.
+        </div>
+        <a href="#" class="footer-right-link">
+          <span>Shop the Collection</span>
+          <svg viewBox="0 0 15 10"><line x1="0" y1="5" x2="13" y2="5"/><polyline points="9 1 13 5 9 9"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick-View Layer -->
+    <div class="qv" id="qv">
+      <div class="qv-rod" id="qvRod"></div>
+      <div class="qv-img-container">
+        <div class="qv-img" id="qvImg"></div>
+      </div>
+      <button class="qv-close-btn" id="qvCloseBtn">Close ×</button>
+
+      <div class="qv-info">
+        <div class="qv-item qv-counter" id="qvCounter">1 / 20</div>
+        <div class="qv-item qv-name" id="qvName">Noir Tailored Blazer</div>
+        <div class="qv-item qv-price">$690.00</div>
+        <div class="qv-item qv-tabs">
+          <button class="qv-tab active" id="tabFront">Front</button>
+          <button class="qv-tab" id="tabBack">Back</button>
+        </div>
+        <div class="qv-item qv-size-label">SIZE</div>
+        <div class="qv-item qv-sizes" id="sizeSelector">
+          <button class="size-pill active" data-size="S">S</button>
+          <button class="size-pill" data-size="M">M</button>
+          <button class="size-pill" data-size="L">L</button>
+          <button class="size-pill" data-size="XL">XL</button>
+        </div>
+        <button class="qv-item qv-add-btn" id="qvAddBtn">
+          <span>Add to cart</span>
+        </button>
+        <div class="qv-item qv-meta-row">
+          <span id="qvMetaName">Noir Tailored Blazer</span>
+          <span class="qv-meta-link">View product page</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Drawer -->
+  <aside class="drawer" id="cartDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title-wrap">
+        <div class="drawer-title">Cart</div>
+        <div class="count-chip" id="drawerCountChip">3</div>
+      </div>
+      <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close cart">×</button>
+    </div>
+
+    <div class="drawer-items" id="drawerItems"></div>
+
+    <div class="drawer-footer">
+      <div class="drawer-total-row">
+        <span>Estimated total</span>
+        <span class="drawer-total-sum" id="drawerTotalSum">$2,070.00</span>
+      </div>
+      <div class="drawer-note">Taxes and shipping calculated at checkout.</div>
+      <button class="checkout-btn">Checkout</button>
+    </div>
+  </aside>
+
+  <script>
+    (function() {
+      // 1. Assets and Specs
+      const RAW_SHEETS = {
+        side: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261113_115504_3ab92758-5854-4a1c-85db-ff8efd929e86.png",
+        front: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261113_115743_54dc8c72-0be0-4858-bd0c-10ecb399c16c.png",
+        back: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261113_115613_7d45aea6-1bea-41ff-b878-72d7c8bcb9da.png"
+      };
+
+      const SHEET_URLS = {
+        side: `https://images.higgs.ai/?default=1&output=webp&url=${encodeURIComponent(RAW_SHEETS.side)}&w=1360&q=85`,
+        front: `https://images.higgs.ai/?default=1&output=webp&url=${encodeURIComponent(RAW_SHEETS.front)}&w=1360&q=85`,
+        back: `https://images.higgs.ai/?default=1&output=webp&url=${encodeURIComponent(RAW_SHEETS.back)}&w=1360&q=85`
+      };
+
+      const GARMENTS = [
+        { k: 0, name: "Noir Tailored Blazer", desc: "black single-breasted blazer" },
+        { k: 1, name: "Ivory Belted Trench", desc: "long ivory trench" },
+        { k: 2, name: "Oxblood Silk Slip", desc: "ankle-length slip, thin straps" },
+        { k: 3, name: "Taupe Wool Blazer", desc: "tailored taupe blazer" },
+        { k: 4, name: "Champagne Bias Slip", desc: "ankle length bias slip" },
+        { k: 5, name: "Pearl Silk Slip", desc: "ivory silk slip" },
+        { k: 6, name: "Taupe Belted Trench", desc: "belted taupe trench" },
+        { k: 7, name: "Oxblood Satin Gown", desc: "floor length, fuller skirt" }
+      ];
+
+      const CROPS = {
+        0: { side: [44, 619, 185], front: [79, 552, 175], back: [76, 515, 176] },
+        1: { side: [45, 860, 514], front: [76, 900, 511], back: [60, 890, 508] },
+        2: { side: [45, 876, 834], front: [76, 913, 848], back: [60, 901, 845] },
+        3: { side: [45, 606, 1169], front: [80, 550, 1179], back: [76, 520, 1180] },
+        4: { side: [1024, 937, 177], front: [1024, 936, 177], back: [1026, 931, 175] },
+        5: { side: [1024, 936, 511], front: [1024, 940, 513], back: [1026, 929, 508] },
+        6: { side: [1024, 907, 825], front: [1024, 894, 851], back: [1024, 901, 845] },
+        7: { side: [1024, 962, 1166], front: [1024, 938, 1185], back: [1024, 934, 1184] }
+      };
+
+      const ORDER = [0, 1, 2, 3, 4, 0, 5, 6, 7, 0, 4, 1, 2, 3, 5, 6, 7, 1, 4, 3];
+      const TAG_ANGLES = [-5, 4, -3, 6, -4, 3, -6, 4, -3, 5];
+
+      // Cart State
+      let cart = [
+        { id: 'start-1', k: 3, name: "Taupe Wool Blazer", size: "M", price: 690, qty: 1 },
+        { id: 'start-2', k: 4, name: "Champagne Bias Slip", size: "S", price: 690, qty: 1 },
+        { id: 'start-3', k: 1, name: "Ivory Belted Trench", size: "M", price: 690, qty: 1 }
+      ];
+
+      // DOM elements
+      const docHtml = document.documentElement;
+      const body = document.body;
+      const garmentsLayer = document.getElementById('garmentsLayer');
+      const railSvg = document.getElementById('railSvg');
+      const railShadow = document.getElementById('railShadow');
+      const railTube = document.getElementById('railTube');
+      const railHighlight = document.getElementById('railHighlight');
+      const railZone = document.getElementById('railZone');
+      const progressThumb = document.getElementById('progressThumb');
+      const footerLeft = document.getElementById('footerLeft');
+      const footerHint = document.getElementById('footerHint');
+      const footerActiveLabel = document.getElementById('footerActiveLabel');
+      const activeName = document.getElementById('activeName');
+      const qv = document.getElementById('qv');
+      const qvImg = document.getElementById('qvImg');
+      const qvCounter = document.getElementById('qvCounter');
+      const qvName = document.getElementById('qvName');
+      const qvMetaName = document.getElementById('qvMetaName');
+      const tabFront = document.getElementById('tabFront');
+      const tabBack = document.getElementById('tabBack');
+      const sizeSelector = document.getElementById('sizeSelector');
+      const qvAddBtn = document.getElementById('qvAddBtn');
+      const qvCloseBtn = document.getElementById('qvCloseBtn');
+      const bagBtn = document.getElementById('bagBtn');
+      const bagSvg = document.getElementById('bagSvg');
+      const bagBadge = document.getElementById('bagBadge');
+      const cartDrawer = document.getElementById('cartDrawer');
+      const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+      const drawerItems = document.getElementById('drawerItems');
+      const drawerCountChip = document.getElementById('drawerCountChip');
+      const drawerTotalSum = document.getElementById('drawerTotalSum');
+
+      // Layout & scaling state
+      let u = 1;
+      let isPhone = false;
+      let railTop = 270;
+      let railSag = 74;
+      let gap = 121;
+      let gs = 0.455;
+      let start = 113;
+      let pageWidth = window.innerWidth;
+      let pageHeight = window.innerHeight;
+      let maxScroll = 0;
+
+      // Scroll & Physics state
+      let target = 0;
+      let cur = 0;
+      let vel = 0;
+      let prevCur = 0;
+
+      // Interaction state
+      let hoveredIndex = null;
+      let activeQvIndex = null;
+      let qvView = 'front'; // 'front' or 'back'
+      let selectedSize = 'S';
+      let isDragging = false;
+      let startX = 0;
+      let startTarget = 0;
+      let dragDistance = 0;
+      let lastMoveTime = 0;
+      let lastMoveX = 0;
+      let releaseVelocity = 0;
+      let qvAnimationToken = 0;
+
+      // Garment state arrays
+      const garmentNodes = [];
+      const garmentSprings = ORDER.map(() => ({ a: 0, av: 0, offset: 0 }));
+
+      // 2. Preload sheets with fallback
+      const sheetPromises = Object.entries(SHEET_URLS).map(([key, url]) => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.src = url;
+          img.onload = () => {
+            if (img.decode) {
+              img.decode().then(() => resolve(true)).catch(() => resolve(true));
+            } else {
+              resolve(true);
+            }
+          };
+          img.onerror = () => {
+            // Fallback directly to CloudFront png if proxy fails
+            SHEET_URLS[key] = RAW_SHEETS[key];
+            const fallbackImg = new Image();
+            fallbackImg.src = RAW_SHEETS[key];
+            fallbackImg.onload = () => resolve(true);
+            fallbackImg.onerror = () => resolve(true);
+          };
+        });
+      });
+
+      // 3. Compute design unit & rail parameters
+      function computeLayout() {
+        pageWidth = window.innerWidth;
+        pageHeight = window.innerHeight;
+        if (pageWidth === 0 || pageHeight === 0) return;
+
+        isPhone = pageWidth <= 820;
+
+        if (isPhone) {
+          u = Math.min(pageWidth / 390, pageHeight / 780);
+          railTop = 292;
+          railSag = 30;
+          gap = 80;
+          gs = 0.30;
+          start = 46;
+          if (footerHint) footerHint.textContent = "Tap a piece · tap again to look closer";
+        } else {
+          u = Math.min(pageWidth / 1440, pageHeight / 900);
+          railTop = 270;
+          railSag = 74;
+          gap = 121;
+          gs = 0.455;
+          start = 113;
+          if (footerHint) footerHint.textContent = "Hover a piece · click to look closer";
+        }
+
+        docHtml.style.setProperty('--u', `${u}px`);
+        docHtml.style.setProperty('--rail-top', railTop);
+        docHtml.style.setProperty('--rail-sag', railSag);
+        docHtml.style.setProperty('--gap', gap);
+        docHtml.style.setProperty('--gs', gs);
+        docHtml.style.setProperty('--start', start);
+
+        const currentStageWidth = document.getElementById('stage').clientWidth || pageWidth;
+        maxScroll = Math.max(0, (2 * start + 19 * gap) * u - currentStageWidth);
+        target = Math.max(0, Math.min(maxScroll, target));
+
+        drawRailCurve(currentStageWidth);
+        recalcGarmentSizes();
+      }
+
+      function railY(x, W) {
+        if (!W) W = document.getElementById('stage').clientWidth || pageWidth;
+        const t = (x - W / 2) / (W / 2);
+        return (railTop + railSag * (1 - t * t)) * u;
+      }
+
+      function drawRailCurve(W) {
+        const y0 = railY(0, W);
+        const yMid = railY(W / 2, W);
+        const yc = 2 * yMid - y0;
+
+        const pathMain = `M 0 ${y0} Q ${W / 2} ${yc} ${W} ${y0}`;
+        const pathShadow = `M 0 ${y0 + 4 * u} Q ${W / 2} ${yc + 4 * u} ${W} ${y0 + 4 * u}`;
+        const pathHighlight = `M 0 ${y0 - 1.3 * u} Q ${W / 2} ${yc - 1.3 * u} ${W} ${y0 - 1.3 * u}`;
+
+        railShadow.setAttribute('d', pathShadow);
+        railShadow.setAttribute('stroke', 'rgba(80,60,35,0.12)');
+        railShadow.setAttribute('stroke-width', `${3 * u}`);
+
+        railTube.setAttribute('d', pathMain);
+        railTube.setAttribute('stroke-width', `${5.2 * u}`);
+
+        railHighlight.setAttribute('d', pathHighlight);
+        railHighlight.setAttribute('stroke', 'rgba(255,247,226,0.85)');
+        railHighlight.setAttribute('stroke-width', `${1.1 * u}`);
+      }
+
+      // 4. Garment Crop styles helper
+      function setFaceCrop(faceEl, k, view, scale) {
+        const [y, h, hookX] = CROPS[k][view];
+        faceEl.style.width = `${340 * scale}px`;
+        faceEl.style.height = `${(h + 6) * scale}px`;
+        faceEl.style.left = `${-170 * scale}px`;
+        faceEl.style.top = `0px`;
+        faceEl.style.backgroundImage = `url(${SHEET_URLS[view]})`;
+        faceEl.style.backgroundSize = `${1360 * scale}px auto`;
+        faceEl.style.backgroundPosition = `${-(hookX - 170) * scale}px ${-y * scale}px`;
+        faceEl.style.backgroundRepeat = 'no-repeat';
+      }
+
+      function createGarmentDOM() {
+        garmentsLayer.innerHTML = '';
+        garmentNodes.length = 0;
+
+        ORDER.forEach((k, index) => {
+          const g = document.createElement('div');
+          g.className = 'g';
+          g.id = `garment-${index}`;
+
+          const drop = document.createElement('div');
+          drop.className = 'drop';
+
+          const sway = document.createElement('div');
+          sway.className = 'sway';
+
+          const lift = document.createElement('div');
+          lift.className = 'lift';
+
+          const faceSide = document.createElement('div');
+          faceSide.className = 'face side';
+
+          const faceFront = document.createElement('div');
+          faceFront.className = 'face front';
+
+          const tag = document.createElement('div');
+          tag.className = 'tag';
+          tag.textContent = '$690';
+          const angle = TAG_ANGLES[index % TAG_ANGLES.length];
+          tag.style.transform = `rotate(${angle}deg)`;
+
+          lift.appendChild(faceSide);
+          lift.appendChild(faceFront);
+          lift.appendChild(tag);
+          sway.appendChild(lift);
+          drop.appendChild(sway);
+
+          const shadow = document.createElement('div');
+          shadow.className = 'shadow';
+
+          const hit = document.createElement('button');
+          hit.className = 'hit';
+          hit.setAttribute('aria-label', `${GARMENTS[k].name}, $690`);
+
+          g.appendChild(drop);
+          g.appendChild(shadow);
+          g.appendChild(hit);
+
+          // Interaction listeners
+          hit.addEventListener('mouseenter', (e) => {
+            if (isDragging || qv.classList.contains('adding')) return;
+            handleGarmentHover(index);
+          });
+
+          hit.addEventListener('mouseleave', () => {
+            if (hoveredIndex === index) {
+              handleGarmentLeave();
+            }
+          });
+
+          hit.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isDragging || dragDistance > 6) return;
+            if (isPhone && hoveredIndex !== index) {
+              handleGarmentHover(index);
+              return;
+            }
+            openQuickView(index);
+          });
+
+          garmentsLayer.appendChild(g);
+          garmentNodes.push({ g, drop, sway, lift, faceSide, faceFront, tag, shadow, hit, k, index });
+        });
+      }
+
+      function recalcGarmentSizes() {
+        const s = gs * u;
+        garmentNodes.forEach((node) => {
+          const k = node.k;
+          setFaceCrop(node.faceSide, k, 'side', s);
+          setFaceCrop(node.faceFront, k, 'front', s);
+
+          const [, hSide] = CROPS[k].side;
+          const heightSide = (hSide + 6) * s;
+
+          node.shadow.style.width = `${110 * (gs / 0.48) * u}px`;
+          node.shadow.style.top = `${heightSide + 4 * u}px`;
+
+          node.hit.style.width = `${gap * u}px`;
+          node.hit.style.height = `${heightSide}px`;
+        });
+      }
+
+      function handleGarmentHover(index) {
+        hoveredIndex = index;
+        garmentNodes.forEach((node, i) => {
+          if (i === index) {
+            node.g.classList.add('hov');
+          } else {
+            node.g.classList.remove('hov');
+          }
+        });
+
+        if (footerLeft && activeName && footerActiveLabel) {
+          const gInfo = GARMENTS[ORDER[index]];
+          activeName.textContent = gInfo.name;
+          footerLeft.classList.add('has-hover');
+          footerActiveLabel.classList.add('visible');
+        }
+      }
+
+      function handleGarmentLeave() {
+        hoveredIndex = null;
+        garmentNodes.forEach((node) => node.g.classList.remove('hov'));
+        if (footerLeft && footerActiveLabel) {
+          footerLeft.classList.remove('has-hover');
+          footerActiveLabel.classList.remove('visible');
+        }
+      }
+
+      // 5. Physics and Animation Loop
+      let lastTime = performance.now();
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function rafLoop(now) {
+        const elapsed = now - lastTime;
+        lastTime = now;
+        const dt = Math.min(3, elapsed / 16.667);
+
+        // Clamping & inertia smoothing
+        target = Math.max(0, Math.min(maxScroll, target));
+        cur += (target - cur) * (1 - Math.pow(1 - 0.085, dt));
+        vel = (cur - prevCur) / Math.max(0.001, dt);
+        prevCur = cur;
+
+        const currentStageWidth = document.getElementById('stage').clientWidth || pageWidth;
+        drawRailCurve(currentStageWidth);
+
+        // Update progress thumb
+        if (maxScroll > 0) {
+          const progress = Math.max(0, Math.min(1, cur / maxScroll));
+          progressThumb.style.left = `${progress * 42}%`;
+        } else {
+          progressThumb.style.left = '0%';
+        }
+
+        // Sway angle target
+        const targetAngle = prefersReducedMotion ? 0 : Math.max(-7, Math.min(7, -vel * 0.22));
+
+        // Update garments position & physics
+        garmentNodes.forEach((node, i) => {
+          const spring = garmentSprings[i];
+
+          // Sway spring simulation
+          if (!prefersReducedMotion) {
+            spring.av += (targetAngle - spring.a) * 0.05 * dt;
+            spring.av *= Math.pow(0.88, dt);
+            spring.a += spring.av * dt;
+            node.sway.style.transform = `rotate(${spring.a}deg)`;
+          }
+
+          // Neighbour displacement
+          let targetOffset = 0;
+          if (hoveredIndex !== null) {
+            const d = i - hoveredIndex;
+            const mag = Math.min(Math.abs(d), 4);
+            const lookup = [0, 50, 24, 9, 0][mag];
+            targetOffset = Math.sign(d) * lookup * (gs / 0.48) * u;
+          }
+          spring.offset += (targetOffset - spring.offset) * 0.16 * dt;
+
+          // Compute hook coordinate
+          const hookX = (start + i * gap) * u - cur + spring.offset;
+          const hookY = railY(hookX, currentStageWidth) - 3 * u;
+
+          node.g.style.transform = `translate3d(${hookX}px, ${hookY}px, 0)`;
+        });
+
+        requestAnimationFrame(rafLoop);
+      }
+
+      // 6. Intro Animation Sequence
+      function startIntro() {
+        docHtml.classList.remove('is-loading');
+
+        if (prefersReducedMotion) return;
+
+        // Animate garments drop
+        garmentNodes.forEach((node, i) => {
+          node.drop.animate([
+            { transform: `translateY(${-42 * u}px)`, opacity: 0, filter: 'blur(6px)' },
+            { transform: 'translateY(0)', opacity: 1, filter: 'blur(0px)' }
+          ], {
+            duration: 620,
+            delay: i * 70,
+            easing: 'cubic-bezier(.2,.9,.3,1)',
+            fill: 'backwards'
+          });
+
+          // Swing impulse
+          setTimeout(() => {
+            const sign = i % 2 === 0 ? 1 : -1;
+            garmentSprings[i].av += sign * 1.6;
+          }, i * 70 + 420);
+        });
+
+        // Headline words blur sharpen
+        const words = document.querySelectorAll('.headline span');
+        words.forEach((w, j) => {
+          w.animate([
+            { filter: 'blur(12px)', opacity: 0, transform: `translateY(${6 * u}px)` },
+            { filter: 'blur(0px)', opacity: 1, transform: 'translateY(0)' }
+          ], {
+            duration: 820,
+            delay: 60 + j * 110,
+            easing: 'cubic-bezier(.25,.8,.3,1)',
+            fill: 'backwards'
+          });
+        });
+
+        // Footer elements fade
+        if (footerLeft) {
+          footerLeft.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, delay: 600, easing: 'ease-out', fill: 'backwards' });
+        }
+        const prog = document.querySelector('.progress-track');
+        if (prog) {
+          prog.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, delay: 680, easing: 'ease-out', fill: 'backwards' });
+        }
+        const footerRight = document.getElementById('footerRight');
+        if (footerRight) {
+          footerRight.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, delay: 760, easing: 'ease-out', fill: 'backwards' });
+        }
+      }
+
+      // 7. Quick-View Modal Logic
+      function openQuickView(index) {
+        activeQvIndex = index;
+        const myToken = ++qvAnimationToken;
+        const k = ORDER[index];
+        const garment = GARMENTS[k];
+
+        body.classList.add('qv-open');
+        qvView = 'front';
+        tabFront.classList.add('active');
+        tabBack.classList.remove('active');
+
+        qvCounter.textContent = `${index + 1} / 20`;
+        qvName.textContent = garment.name;
+        qvMetaName.textContent = garment.name;
+
+        // Size pill default to S
+        selectedSize = 'S';
+        document.querySelectorAll('.size-pill').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.size === 'S');
+        });
+
+        // Determine target quickview scale & hook position
+        let qvScale = isPhone ? Math.min(0.46 * u, (pageHeight - 340) / 1024) : 0.9 * u;
+        let qvHookX = isPhone ? pageWidth / 2 : 440 * u;
+        let qvHookY = isPhone ? 64 * u : 62 * u;
+
+        // Position rod
+        const qvRod = document.getElementById('qvRod');
+        if (qvRod) {
+          qvRod.style.left = `${qvHookX}px`;
+          qvRod.style.height = `${qvHookY}px`;
+        }
+
+        // Render target crop in qvImg
+        qvImg.innerHTML = '';
+        const qvFaceFront = document.createElement('div');
+        qvFaceFront.className = 'face front-qv';
+        setFaceCrop(qvFaceFront, k, 'front', qvScale);
+
+        const qvFaceBack = document.createElement('div');
+        qvFaceBack.className = 'face back-qv';
+        qvFaceBack.style.opacity = '0';
+        setFaceCrop(qvFaceBack, k, 'back', qvScale);
+
+        qvImg.appendChild(qvFaceFront);
+        qvImg.appendChild(qvFaceBack);
+
+        // Fly-in from garment current rail rect
+        const node = garmentNodes[index];
+        const rect = node.g.getBoundingClientRect();
+        const startHookX = rect.left;
+        const startHookY = rect.top;
+        const startScale = gs * u;
+        const scaleRatio = startScale / qvScale;
+
+        qvImg.style.transform = `translate3d(${qvHookX}px, ${qvHookY}px, 0)`;
+
+        if (!prefersReducedMotion) {
+          qvImg.animate([
+            {
+              transform: `translate3d(${startHookX}px, ${startHookY}px, 0) scale(${scaleRatio})`,
+              opacity: 0.6
+            },
+            {
+              transform: `translate3d(${qvHookX}px, ${qvHookY}px, 0) scale(1)`,
+              opacity: 1
+            }
+          ], {
+            duration: 700,
+            easing: 'cubic-bezier(.22,1,.36,1)',
+            fill: 'forwards'
+          });
+        }
+      }
+
+      function closeQuickView(flyBack = true) {
+        if (!body.classList.contains('qv-open')) return;
+        const index = activeQvIndex;
+        const myToken = ++qvAnimationToken;
+
+        if (flyBack && index !== null && !prefersReducedMotion) {
+          const node = garmentNodes[index];
+          const rect = node.g.getBoundingClientRect();
+          const qvScale = isPhone ? 0.46 * u : 0.9 * u;
+          const endScale = (gs * u) / qvScale;
+
+          const anim = qvImg.animate([
+            { opacity: 1 },
+            {
+              transform: `translate3d(${rect.left}px, ${rect.top}px, 0) scale(${endScale})`,
+              opacity: 0
+            }
+          ], {
+            duration: 520,
+            easing: 'cubic-bezier(.55,0,.2,1)',
+            fill: 'forwards'
+          });
+
+          anim.onfinish = () => {
+            if (myToken === qvAnimationToken) {
+              body.classList.remove('qv-open');
+              activeQvIndex = null;
+            }
+          };
+        } else {
+          body.classList.remove('qv-open');
+          activeQvIndex = null;
+        }
+      }
+
+      // Tabs switching
+      tabFront.addEventListener('click', () => {
+        qvView = 'front';
+        tabFront.classList.add('active');
+        tabBack.classList.remove('active');
+        const frontFace = qvImg.querySelector('.front-qv');
+        const backFace = qvImg.querySelector('.back-qv');
+        if (frontFace && backFace) {
+          frontFace.style.transition = 'opacity 0.25s ease';
+          backFace.style.transition = 'opacity 0.25s ease';
+          frontFace.style.opacity = '1';
+          backFace.style.opacity = '0';
+        }
+      });
+
+      tabBack.addEventListener('click', () => {
+        qvView = 'back';
+        tabBack.classList.add('active');
+        tabFront.classList.remove('active');
+        const frontFace = qvImg.querySelector('.front-qv');
+        const backFace = qvImg.querySelector('.back-qv');
+        if (frontFace && backFace) {
+          frontFace.style.transition = 'opacity 0.25s ease';
+          backFace.style.transition = 'opacity 0.25s ease';
+          frontFace.style.opacity = '0';
+          backFace.style.opacity = '1';
+        }
+      });
+
+      // Size Selection
+      sizeSelector.addEventListener('click', (e) => {
+        const pill = e.target.closest('.size-pill');
+        if (!pill) return;
+        document.querySelectorAll('.size-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        selectedSize = pill.dataset.size;
+      });
+
+      qvCloseBtn.addEventListener('click', () => closeQuickView(true));
+
+      // 8. Add to Cart & Arc Flight
+      qvAddBtn.addEventListener('click', () => {
+        if (activeQvIndex === null || qvAddBtn.classList.contains('adding')) return;
+
+        qvAddBtn.classList.add('adding');
+        const btnText = qvAddBtn.querySelector('span');
+        const originalText = btnText ? btnText.textContent : 'Add to cart';
+        qvAddBtn.innerHTML = `<div class="btn-spinner"></div><span>Adding…</span>`;
+
+        setTimeout(() => {
+          executeAddToCartFlight();
+          qvAddBtn.classList.remove('adding');
+          qvAddBtn.innerHTML = `<span>${originalText}</span>`;
+        }, 1000);
+      });
+
+      function executeAddToCartFlight() {
+        const index = activeQvIndex;
+        if (index === null) return;
+        const k = ORDER[index];
+        const garment = GARMENTS[k];
+
+        // Active face clone
+        const targetFace = qvView === 'back' ? qvImg.querySelector('.back-qv') : qvImg.querySelector('.front-qv');
+        const cloneRect = targetFace ? targetFace.getBoundingClientRect() : qvImg.getBoundingClientRect();
+
+        // Close QV without return flight
+        closeQuickView(false);
+
+        // Piece reappears on hook with drop & sway nudge
+        const node = garmentNodes[index];
+        if (node && !prefersReducedMotion) {
+          node.drop.animate([
+            { transform: `translateY(${-24 * u}px)`, opacity: 0 },
+            { transform: 'translateY(0)', opacity: 1 }
+          ], {
+            duration: 520,
+            delay: 260,
+            easing: 'ease-out'
+          });
+          setTimeout(() => {
+            garmentSprings[index].av += 1.4;
+          }, 260);
+        }
+
+        // Bag coordinates
+        const bagRect = bagBtn.getBoundingClientRect();
+        const bagCenterX = bagRect.left + bagRect.width / 2;
+        const bagCenterY = bagRect.top + bagRect.height / 2;
+
+        if (prefersReducedMotion) {
+          addItemToCart(garment, k);
+          return;
+        }
+
+        // Clone element
+        const clone = document.createElement('div');
+        clone.className = 'fly-clone';
+        clone.style.width = `${cloneRect.width}px`;
+        clone.style.height = `${cloneRect.height}px`;
+        clone.style.left = `${cloneRect.left}px`;
+        clone.style.top = `${cloneRect.top}px`;
+        clone.style.backgroundImage = `url(${SHEET_URLS[qvView]})`;
+        clone.style.backgroundSize = targetFace.style.backgroundSize;
+        clone.style.backgroundPosition = targetFace.style.backgroundPosition;
+        clone.style.backgroundRepeat = 'no-repeat';
+        document.body.appendChild(clone);
+
+        const deltaX = bagCenterX - (cloneRect.left + cloneRect.width / 2);
+        const deltaY = bagCenterY - (cloneRect.top + cloneRect.height / 2);
+        const bagHeight = bagRect.height || 22;
+        const cloneHeight = cloneRect.height || 100;
+        const endScale = Math.max(0.04, (bagHeight * 1.6) / cloneHeight);
+
+        const midX = deltaX * 0.45;
+        const midY = deltaY * 0.45 - 90 * u;
+        const midScale = (1 + endScale) * 0.42;
+
+        const flightAnim = clone.animate([
+          {
+            transform: 'translate3d(0, 0, 0) scale(1)',
+            opacity: 1
+          },
+          {
+            offset: 0.45,
+            transform: `translate3d(${midX}px, ${midY}px, 0) scale(${midScale})`,
+            opacity: 0.9
+          },
+          {
+            transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${endScale})`,
+            opacity: 0.35
+          }
+        ], {
+          duration: 820,
+          easing: 'cubic-bezier(.55,.05,.35,1)'
+        });
+
+        flightAnim.onfinish = () => {
+          clone.remove();
+          addItemToCart(garment, k);
+          popBadgeAndBounceBag();
+        };
+      }
+
+      function addItemToCart(garment, k) {
+        cart.unshift({
+          id: `item-${Date.now()}`,
+          k: k,
+          name: garment.name,
+          size: selectedSize,
+          price: 690,
+          qty: 1
+        });
+        updateCartUI();
+      }
+
+      function popBadgeAndBounceBag() {
+        bagBadge.animate([
+          { transform: 'scale(1)' },
+          { transform: 'scale(1.45)' },
+          { transform: 'scale(1)' }
+        ], {
+          duration: 500,
+          easing: 'cubic-bezier(.3,1.6,.5,1)'
+        });
+
+        bagSvg.animate([
+          { transform: 'scale(1) rotate(0deg)' },
+          { transform: 'scale(1.22) rotate(-6deg)' },
+          { transform: 'scale(0.94) rotate(0deg)' },
+          { transform: 'scale(1) rotate(0deg)' }
+        ], {
+          duration: 520,
+          easing: 'ease-out'
+        });
+      }
+
+      // 9. Cart Drawer & Calculations
+      function updateCartUI() {
+        const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+        bagBadge.textContent = totalCount;
+        drawerCountChip.textContent = totalCount;
+
+        const totalCost = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+        drawerTotalSum.textContent = `$${totalCost.toLocaleString('en-US')}.00`;
+
+        drawerItems.innerHTML = '';
+        cart.forEach((item, index) => {
+          const row = document.createElement('div');
+          row.className = 'drawer-row';
+
+          // Thumbnail
+          const thumb = document.createElement('div');
+          thumb.className = 'drawer-thumb';
+          const inner = document.createElement('div');
+          inner.className = 'drawer-thumb-inner';
+          const thumbScale = (76 * u) / 340;
+          setFaceCrop(inner, item.k, 'front', thumbScale);
+          inner.style.transform = `scale(1)`;
+          thumb.appendChild(inner);
+
+          // Details
+          const details = document.createElement('div');
+          details.className = 'drawer-details';
+          details.innerHTML = `
+            <div class="drawer-item-name">${item.name}</div>
+            <div class="drawer-item-sub">Size ${item.size} · $690.00</div>
+            <div class="drawer-stepper-wrap">
+              <div class="stepper">
+                <button class="stepper-btn" data-action="dec" data-id="${item.id}">−</button>
+                <span class="stepper-val">${item.qty}</span>
+                <button class="stepper-btn" data-action="inc" data-id="${item.id}">+</button>
+              </div>
+              <button class="trash-btn" data-action="trash" data-id="${item.id}" aria-label="Remove item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          `;
+
+          // Line total
+          const lineTotal = document.createElement('div');
+          lineTotal.className = 'drawer-line-total';
+          lineTotal.textContent = `$${(item.price * item.qty).toLocaleString('en-US')}.00`;
+
+          row.appendChild(thumb);
+          row.appendChild(details);
+          row.appendChild(lineTotal);
+          drawerItems.appendChild(row);
+        });
+      }
+
+      drawerItems.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        const idx = cart.findIndex(i => i.id === id);
+        if (idx === -1) return;
+
+        if (action === 'inc') {
+          cart[idx].qty += 1;
+        } else if (action === 'dec') {
+          if (cart[idx].qty > 1) {
+            cart[idx].qty -= 1;
+          } else {
+            cart.splice(idx, 1);
+          }
+        } else if (action === 'trash') {
+          cart.splice(idx, 1);
+        }
+        updateCartUI();
+      });
+
+      bagBtn.addEventListener('click', () => {
+        body.classList.toggle('drawer-open');
+        computeLayout();
+      });
+
+      drawerCloseBtn.addEventListener('click', () => {
+        body.classList.remove('drawer-open');
+        computeLayout();
+      });
+
+      // 10. Pointer & Keyboard Controls
+      railZone.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.hit') && isPhone) return;
+        isDragging = true;
+        startX = e.clientX;
+        startTarget = target;
+        dragDistance = 0;
+        lastMoveTime = performance.now();
+        lastMoveX = e.clientX;
+        releaseVelocity = 0;
+        railZone.classList.add('dragging');
+        handleGarmentLeave();
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        dragDistance += Math.abs(e.clientX - lastMoveX);
+
+        const now = performance.now();
+        const dtMove = now - lastMoveTime;
+        if (dtMove > 0) {
+          releaseVelocity = (e.clientX - lastMoveX) / dtMove;
+        }
+        lastMoveTime = now;
+        lastMoveX = e.clientX;
+
+        target = startTarget - dx * 1.15;
+      });
+
+      window.addEventListener('pointerup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        railZone.classList.remove('dragging');
+
+        // Inertia fling
+        if (Math.abs(releaseVelocity) > 0.1) {
+          target -= releaseVelocity * 260;
+        }
+      });
+
+      window.addEventListener('wheel', (e) => {
+        if (body.classList.contains('qv-open')) return;
+        e.preventDefault();
+        const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+        target += delta * 0.9;
+      }, { passive: false });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (body.classList.contains('qv-open')) {
+            closeQuickView(true);
+          } else if (body.classList.contains('drawer-open')) {
+            body.classList.remove('drawer-open');
+            computeLayout();
+          }
+        } else if (e.key === 'ArrowRight') {
+          target += gap * u;
+        } else if (e.key === 'ArrowLeft') {
+          target -= gap * u;
+        }
+      });
+
+      window.addEventListener('resize', computeLayout);
+
+      // 11. Initial Startup
+      createGarmentDOM();
+      computeLayout();
+      updateCartUI();
+      requestAnimationFrame(rafLoop);
+
+      // Failsafe intro trigger after 2.5s
+      const failsafe = setTimeout(() => {
+        startIntro();
+      }, 2500);
+
+      Promise.all(sheetPromises).then(() => {
+        clearTimeout(failsafe);
+        // Wait for document fonts if available
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(() => startIntro());
+        } else {
+          startIntro();
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>
+

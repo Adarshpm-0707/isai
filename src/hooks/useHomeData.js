@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import useProducts from './useProducts';
 
 const DEFAULT_CATEGORY_BG =
@@ -85,12 +85,12 @@ export default function useHomeData() {
     }));
   }, [dynamicCategories]);
 
-  // Newly Arrived products (newest additions from admin, exactly 4 products)
+  // Newly Arrived products (newest additions from admin, up to 8 products)
   const newlyArrivedProducts = useMemo(() => {
     if (!products || products.length === 0) return [];
     return [...products]
       .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
-      .slice(0, 4)
+      .slice(0, 8)
       .map((p) => ({
         ...p,
         badge: p.badge || 'New Arrival',

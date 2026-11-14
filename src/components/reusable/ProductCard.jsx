@@ -178,10 +178,10 @@ export default function ProductCard({
       </div>
 
       {/* ── PRODUCT DETAILS ── */}
-      <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between gap-2.5">
+      <div className="p-2.5 sm:p-4 flex flex-col flex-1 justify-between gap-2 sm:gap-2.5">
         <div className="space-y-1 sm:space-y-1.5">
           {/* Micro Category Tag (Full width - No ellipsis truncation!) */}
-          <div className="text-[10px] sm:text-[11px] font-semibold tracking-[0.18em] uppercase text-[#DFC18A]/85 truncate leading-tight">
+          <div className="text-[9px] sm:text-[11px] font-semibold tracking-[0.16em] uppercase text-[#DFC18A]/85 truncate leading-tight">
             {product.category || 'Pure Handloom'}
           </div>
 
@@ -197,12 +197,12 @@ export default function ProductCard({
 
           {/* Star Rating & Review Count (Rendered only when real rating exists) */}
           {showRating && (
-            <div className="flex items-center gap-1.5 pt-0.5">
+            <div className="flex items-center gap-1 sm:gap-1.5 pt-0.5">
               <div className="flex text-[#DFC18A] items-center">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`w-3 h-3 ${
+                    className={`w-2.5 sm:w-3 h-2.5 sm:h-3 ${
                       i < Math.round(productRating)
                         ? 'fill-current text-[#DFC18A]'
                         : 'text-[#5A4034]'
@@ -210,11 +210,11 @@ export default function ProductCard({
                   />
                 ))}
               </div>
-              <span className="text-[11px] font-bold text-[#DFC18A]">
+              <span className="text-[10px] sm:text-[11px] font-bold text-[#DFC18A]">
                 {productRating.toFixed(1)}
               </span>
               {displayReviews && (
-                <span className="text-[10px] text-[#8E7B6F]">
+                <span className="text-[9px] sm:text-[10px] text-[#8E7B6F]">
                   ({displayReviews})
                 </span>
               )}
@@ -222,17 +222,17 @@ export default function ProductCard({
           )}
 
           {/* Pricing Row */}
-          <div className="flex items-baseline flex-wrap gap-1.5 sm:gap-2 pt-0.5">
-            <span className="text-sm sm:text-base md:text-lg font-bold text-[#DFC18A] tracking-tight">
+          <div className="flex items-baseline flex-wrap gap-1 sm:gap-2 pt-0.5">
+            <span className="text-xs sm:text-base md:text-lg font-bold text-[#DFC18A] tracking-tight">
               ₹{displayPrice.toLocaleString('en-IN')}
             </span>
             {displayOriginalPrice && displayOriginalPrice > displayPrice && (
-              <span className="text-[11px] sm:text-xs text-[#8E7B6F] line-through font-normal">
+              <span className="text-[10px] sm:text-xs text-[#8E7B6F] line-through font-normal">
                 ₹{displayOriginalPrice.toLocaleString('en-IN')}
               </span>
             )}
             {displayOriginalPrice && displayOriginalPrice > displayPrice && (
-              <span className="text-[9px] sm:text-[10px] font-bold text-[#C86A27] bg-[#C86A27]/15 border border-[#C86A27]/30 px-1.5 py-0.5 rounded">
+              <span className="text-[8px] sm:text-[10px] font-bold text-[#C86A27] bg-[#C86A27]/15 border border-[#C86A27]/30 px-1 sm:px-1.5 py-0.5 rounded">
                 Save ₹{(displayOriginalPrice - displayPrice).toLocaleString('en-IN')}
               </span>
             )}
@@ -240,14 +240,14 @@ export default function ProductCard({
         </div>
 
         {/* ── ACTION BUTTONS: FULLY RESPONSIVE (Zero Truncation on Mobile & Laptop) ── */}
-        <div className="flex items-center gap-1.5 sm:gap-2 pt-2 border-t border-[#2D1B15] mt-auto">
+        <div className="flex items-center gap-1 sm:gap-2 pt-2 border-t border-[#2D1B15] mt-auto">
           {/* Add to Cart button */}
           <button
             onClick={handleAddToCart}
             disabled={product.stock <= 0}
             type="button"
             aria-label="Add to cart"
-            className={`h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl border text-[11px] sm:text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-sm active:scale-95 flex items-center justify-center shrink-0 ${
+            className={`h-8 sm:h-9 md:h-10 px-2 sm:px-3 rounded-xl border text-[10px] sm:text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-sm active:scale-95 flex items-center justify-center shrink-0 ${
               added
                 ? 'bg-[#2A4428] text-[#8CE280] border-[#488440]'
                 : 'border-[#DFC18A]/40 bg-[#170E0B] hover:bg-[#DFC18A]/15 text-[#DFC18A]'
@@ -255,9 +255,9 @@ export default function ProductCard({
             title="Add to Cart"
           >
             {added ? (
-              <Check className="w-4 h-4 text-[#8CE280]" />
+              <Check className="w-3.5 h-3.5 text-[#8CE280]" />
             ) : (
-              <ShoppingBag className="w-4 h-4 stroke-[2]" />
+              <ShoppingBag className="w-3.5 h-3.5 stroke-[2]" />
             )}
             <span className="hidden sm:inline ml-1.5">{added ? 'Added' : 'Add'}</span>
           </button>
@@ -268,11 +268,11 @@ export default function ProductCard({
             disabled={product.stock <= 0}
             type="button"
             aria-label="Buy now"
-            className="flex-1 h-9 sm:h-10 px-2 sm:px-3 rounded-xl bg-gradient-to-r from-[#C86A27] via-[#D87428] to-[#E58535] hover:from-[#DB7B32] hover:to-[#EB9142] text-white text-[11px] sm:text-xs font-semibold uppercase tracking-wider transition-all duration-200 shadow-[0_4px_14px_rgba(200,106,39,0.35)] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed group/buy active:scale-95 flex items-center justify-center gap-1"
+            className="flex-1 h-8 sm:h-9 md:h-10 px-1.5 sm:px-3 rounded-xl bg-gradient-to-r from-[#C86A27] via-[#D87428] to-[#E58535] hover:from-[#DB7B32] hover:to-[#EB9142] text-white text-[10px] sm:text-xs font-semibold uppercase tracking-wider transition-all duration-200 shadow-[0_4px_14px_rgba(200,106,39,0.35)] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed group/buy active:scale-95 flex items-center justify-center gap-1"
             title="Buy Now"
           >
-            <Zap className="w-3.5 h-3.5 shrink-0 fill-current group-hover/buy:scale-110 transition-transform" />
-            <span className="whitespace-nowrap">Buy Now</span>
+            <Zap className="w-3 h-3 shrink-0 fill-current group-hover/buy:scale-110 transition-transform" />
+            <span className="whitespace-nowrap text-[10px] sm:text-xs">Buy Now</span>
           </button>
         </div>
       </div>

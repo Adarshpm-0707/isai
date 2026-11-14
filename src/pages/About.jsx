@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { 
   ShieldCheck, 
   Globe, 
@@ -11,9 +10,8 @@ import {
   CheckCircle2, 
   Feather
 } from 'lucide-react';
-import BrandLogo, { LotusEmblem } from '../components/reusable/BrandLogo';
+import { LotusEmblem } from '../components/reusable/BrandLogo';
 import { FloralOrnament } from '../components/reusable/FloralOrnament';
-import heroModelImg from '../assets/hero_saree_model.jpg';
 import storyModelImg from '../assets/story_saree_model.jpg';
 import silkBackdrop from '../assets/newsletter_silk_backdrop.jpg';
 
